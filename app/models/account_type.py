@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey 
 from sqlalchemy.orm import relationship 
 from app.models.audit_mixin import AuditMixin
-from database import Base
+from app.database.database import Base 
 
 class AccountType(Base, AuditMixin): 
     __tablename__ = "account_types" 

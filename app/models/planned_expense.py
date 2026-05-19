@@ -1,7 +1,7 @@
 from sqlalchemy import DECIMAL, Column, DateTime, Integer, String, ForeignKey 
 from sqlalchemy.orm import relationship 
 from app.models.audit_mixin import AuditMixin
-from database import Base
+from app.database.database import Base 
 
 class PlannedExpense(Base, AuditMixin): 
     __tablename__ = "planned_expenses" 

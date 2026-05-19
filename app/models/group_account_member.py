@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey 
 from sqlalchemy.orm import relationship 
 from app.models.audit_mixin import AuditMixin
-from database import Base
+from app.database.database import Base 
 
 class GroupAccountMember(Base, AuditMixin): 
     __tablename__ = "group_account_members" 

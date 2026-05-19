@@ -1,9 +1,11 @@
 from sqlalchemy import Column, DateTime, Integer, String, ForeignKey 
 from sqlalchemy.orm import relationship 
 from app.models.audit_mixin import AuditMixin
-from database import Base
+from app.database.database import Base 
 
 class Account(Base, AuditMixin): 
+    """Modelo de cuenta bancaria
+    """
     __tablename__ = "accounts" 
     id = Column(Integer, primary_key=True, index=True) 
     id_admin_user = Column(Integer, ForeignKey("users.id"), nullable=False)
