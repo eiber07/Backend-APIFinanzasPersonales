@@ -17,3 +17,9 @@ class PlannedExpense(Base, AuditMixin):
 
     account = relationship("Account", back_populates="planned_expenses")
     status = relationship("Status", back_populates="planned_expenses")
+
+    # moni: agregue las siguientes lineas, no podia correr la app :)
+    transactions = relationship("Transaction", back_populates="planned_expense")
+
+
+

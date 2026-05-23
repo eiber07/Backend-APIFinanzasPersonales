@@ -1,4 +1,5 @@
-function validateForm() {
+async function validateForm() {
+    console.log("función ejecutada")
     const name = document.getElementById("name");
     const lastname = document.getElementById("lastname");
     const email = document.getElementById("email");
@@ -10,7 +11,6 @@ function validateForm() {
 
     let valid = true;
 
-    // Validacion de email con regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email.value.trim() === "") {
         errorEmail.textContent = "Campo Obligatorio";
@@ -24,7 +24,6 @@ function validateForm() {
         errorEmail.classList.remove("active");
     }
 
-// Validacion de contraseña (mínimo 6 caracteres)
     if (password.value.trim() === "") {
         errorPassword.textContent = "Campo Obligatorio";
         errorPassword.classList.add("active");
@@ -37,7 +36,6 @@ function validateForm() {
         errorPassword.classList.remove("active");
     }
 
-    // Validacion de nombre y apellido (no tiene ninguna regla, solo no debe estar vacio)
     if (name.value.trim() === "") {
         errorName.textContent = "Campo Obligatorio";
         errorName.classList.add("active");
@@ -57,6 +55,38 @@ function validateForm() {
     }
 
     if (valid) {
-    alert("Formulario enviado correctamente!");
+        const data = {
+            name: name.value.trim(),          
+            last_name: lastname.value.trim(),
+            email: email.value.trim(),
+            password: password.value.trim()
+        };
+
+    console.log("valid es true, enviando:", data);  // ✅
+
+        console.log("data:", JSON.stringify(data));
+
+        try {
+             console.log("haciendo fetch...");  // ✅
+            const response = await fetch("http://localhost:8000/api/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+                    console.log("respuesta:", response.status);  // ✅
+
+
+            if (response.ok) {
+                alert("Registro exitoso!");
+            } else {
+                const errorData = await response.json();
+                alert("Error: " + errorData.detail);
+            }
+        } catch (error) {
+            
+            console.error("Error de conexión:", error);
+            alert("No se pudo conectar con el servidor.");
+        }
     }
 }

@@ -22,3 +22,7 @@ AsyncSessionLocal = sessionmaker(
 
 Base = declarative_base()
 target_metadata = Base.metadata
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session   
