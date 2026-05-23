@@ -1,5 +1,4 @@
 async function validateForm() {
-    console.log("función ejecutada")
     const name = document.getElementById("name");
     const lastname = document.getElementById("lastname");
     const email = document.getElementById("email");
@@ -62,20 +61,12 @@ async function validateForm() {
             password: password.value.trim()
         };
 
-    console.log("valid es true, enviando:", data);  // ✅
-
-        console.log("data:", JSON.stringify(data));
-
         try {
-             console.log("haciendo fetch...");  // ✅
             const response = await fetch("http://localhost:8000/api/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             });
-
-                    console.log("respuesta:", response.status);  // ✅
-
 
             if (response.ok) {
                 alert("Registro exitoso!");
@@ -84,7 +75,50 @@ async function validateForm() {
                 alert("Error: " + errorData.detail);
             }
         } catch (error) {
-            
+            console.error("Error de conexión:", error);
+            alert("No se pudo conectar con el servidor.");
+        }
+    }
+}
+async function login() {
+    const email = document.getElementById("email").value.trim();   // ✅ ya es string
+    const password = document.getElementById("password").value.trim(); // ✅ ya es string
+    const errorEmail = document.getElementById("error-email");
+    const errorPassword = document.getElementById("error-password");
+
+    let valid = true;
+
+    if (email === "") {          // ✅ no necesita .value.trim() de nuevo
+        errorEmail.textContent = "Campo Obligatorio";
+        errorEmail.classList.add("active");
+        valid = false;
+    } else {
+        errorEmail.classList.remove("active");
+    }
+
+    if (password === "") {       // ✅ igual acá
+        errorPassword.textContent = "Campo Obligatorio";
+        errorPassword.classList.add("active");
+        valid = false;
+    } else {
+        errorPassword.classList.remove("active");
+    }
+
+    if (valid) {
+        try {
+            const response = await fetch("http://localhost:8000/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.ok) {
+                window.location.href = "dash_priv.html";
+            } else {
+                const errorData = await response.json();
+                alert("Error: " + errorData.detail);
+            }
+        } catch (error) {
             console.error("Error de conexión:", error);
             alert("No se pudo conectar con el servidor.");
         }

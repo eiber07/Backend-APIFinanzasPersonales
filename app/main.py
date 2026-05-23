@@ -11,7 +11,7 @@ from app.models.account_type import AccountType
 from app.models.transaction_type import TransactionType
 from app.models.status import Status
 from app.database.database import engine, Base, get_db
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserLogin
 from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -62,3 +62,13 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     await db.refresh(new_user)
 
     return {"message": "Usuario creado correctamente", "id": new_user.id}
+
+@app.post("/api/login")
+async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.email == user.email))
+    existing_user = result.scalars().first()
+    
+    if not existing_user or not pwd_context.verify(user.password, existing_user.password):
+        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
+    
+    return {"message": "Login exitoso", "id": existing_user.id}
