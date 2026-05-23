@@ -1,0 +1,192 @@
+body { 
+    font-family: system-ui; 
+    margin: 0; 
+    background: #fff; 
+}
+
+.container { 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.content { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    align-items: center; 
+    background: #fff; 
+    min-height: 100vh; 
+}
+
+.form-section { 
+    display: flex; 
+    flex-direction: column; 
+    margin: 0 80px; 
+    padding: 20px; 
+    border-radius: 8px; 
+}
+
+.titles { 
+    margin-bottom: 48px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px; 
+}
+
+.app-title { 
+    color: #1F2937; 
+    font-size: 20px; 
+    font-weight: bold; 
+}
+
+.form-title { 
+    color: #1F2937; 
+    font-size: 42px; 
+    font-weight: bold; 
+}
+
+.form-group { 
+    margin-bottom: 16px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 4px; 
+}
+
+.form-group2 {
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+.form-group2 input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.label { 
+    color: #1F2937; 
+    font-size: 14px; 
+    font-weight: bold; 
+}
+
+.input { 
+    background: #E5E7EB; 
+    padding: 13px 16px; 
+    border: none; 
+    border-radius: 4px; 
+    font-size: 16px; 
+    font-weight: bold; 
+    color: #697077; 
+}
+
+.error { 
+    color: #FF383C; 
+    font-size: 12px; 
+    font-weight: bold; 
+    display: none; 
+}
+.error.active { 
+    display: block; 
+}
+
+.forgot { 
+    display: flex; 
+    justify-content: left; 
+    margin: 16px 0;
+
+}
+
+.forgot-link { 
+    color: #2563EB; 
+    font-size: 14px; 
+    text-decoration:none;
+}
+
+.btn-primary { 
+    background: #1D4ED8; 
+    border-radius: 8px; 
+    border: 2px solid #1D4ED8; 
+    padding: 16px; 
+    color: #fff; 
+    font-size: 16px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    margin-bottom: 16px; 
+}
+
+.btn-google { 
+    display: flex; 
+    justify-content: center;
+    align-items: center; 
+    border-radius: 8px; 
+    border: 2px solid #1D4ED8; 
+    padding: 12px; 
+    gap: 15px; 
+    cursor: pointer; 
+}
+
+.btn-google img { 
+    border-radius: 8px; 
+    width: 24px; 
+    height: 24px; 
+    object-fit: fill; 
+}
+
+.btn-google span { 
+    color: #1D4ED8; 
+    font-size: 16px; 
+    font-weight: bold; 
+}
+
+.divider { 
+    height: 1px; 
+    background: #DDE1E6; 
+    margin: 47px 0; 
+}
+
+.signup, .signin { 
+    color: #1F2937; 
+    font-size: 14px; 
+    font-weight: bold; 
+    text-decoration: none;
+}
+
+.side-image { 
+    width: 70%; 
+    height: auto; 
+    object-fit: cover; 
+    justify-self: center; 
+}
+
+@media (max-width: 1024px) {
+  .content { 
+    grid-template-columns: 1fr; 
+    grid-template-rows: auto auto; 
+}
+  .form-section { 
+    margin: 20px; 
+}
+  .side-image { 
+    height: auto; 
+    margin-top: 20px; 
+    border-radius: 8px; 
+}
+  .btn-primary, .btn-google { 
+    width: 100%; 
+}
+}
+
+@media (max-width: 480px) {
+  .form-title { 
+    font-size: 24px; 
+}
+  .app-title { 
+    font-size: 16px;
+ }
+  .input { 
+    font-size: 14px; 
+}
+  .btn-primary span, .btn-google span { 
+    font-size: 14px; 
+}
+}
