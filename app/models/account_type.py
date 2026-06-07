@@ -7,3 +7,6 @@ class AccountType(Base, AuditMixin):
     __tablename__ = "account_types" 
     id = Column(Integer, primary_key=True, index=True) 
     name = Column(String, unique=True, index=True, nullable=False)
+
+    # moni: agregue las siguientes lineas, no podia correr la app :)
+    accounts = relationship("Account", back_populates="account_type")
