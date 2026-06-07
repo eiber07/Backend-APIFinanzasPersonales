@@ -14,11 +14,11 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-class UserBase(BaseModel):
-    username: str
-
-class User(UserBase):
+class UserResponse(BaseModel):
     id: int
+    name: str
+    last_name: str
+    email: EmailStr
 
     class Config:
         orm_mode = True

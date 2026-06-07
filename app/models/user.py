@@ -15,6 +15,3 @@ class User(Base, AuditMixin):
 
     accounts = relationship("Account", back_populates="user")
     group_account_members = relationship("GroupAccountMember", back_populates="user")
-
-
-    

@@ -53,36 +53,3 @@ app.include_router(users_router, prefix="/users", tags=["users"])
 async def read_root(): 
     return {"message": "Welcome to FastAPI authentication and authorization example"}
     #return {"mensaje": "Hola mundo"}
-
-@app.post("/api/singup")
-async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == user.email))
-    existing_user = result.scalars().first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="El email ya está registrado")
-
-    hashed_password = pwd_context.hash(user.password)
-
-    new_user = User(
-        name=user.name,
-        last_name=user.last_name,
-        dni=user.dni,
-        email=user.email,
-        phone=user.phone,
-        password=hashed_password
-    )
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
-
-    return {"message": "Usuario creado correctamente", "id": new_user.id}
-
-@app.post("/api/login")
-async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == user.email))
-    existing_user = result.scalars().first()
-    
-    if not existing_user or not pwd_context.verify(user.password, existing_user.password):
-        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
-    
-    return {"message": "Login exitoso", "id": existing_user.id}

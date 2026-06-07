@@ -62,7 +62,7 @@ async function validateForm() {
         };
 
         try {
-            const response = await fetch("http://localhost:8000/api/singup", {
+            const response = await fetch("http://localhost:8000/auth/singup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
@@ -106,7 +106,7 @@ async function login() {
 
     if (valid) {
         try {
-            const response = await fetch("http://localhost:8000/api/login", {
+            const response = await fetch("http://localhost:8000/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
