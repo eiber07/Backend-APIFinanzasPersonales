@@ -62,7 +62,7 @@ async function validateForm() {
         };
 
         try {
-            const response = await fetch("http://localhost:8000/api/register", {
+            const response = await fetch("http://localhost:8000/api/singup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
@@ -81,14 +81,14 @@ async function validateForm() {
     }
 }
 async function login() {
-    const email = document.getElementById("email").value.trim();   // ✅ ya es string
-    const password = document.getElementById("password").value.trim(); // ✅ ya es string
+    const email = document.getElementById("email").value.trim();   
+    const password = document.getElementById("password").value.trim();
     const errorEmail = document.getElementById("error-email");
     const errorPassword = document.getElementById("error-password");
 
     let valid = true;
 
-    if (email === "") {          // ✅ no necesita .value.trim() de nuevo
+    if (email === "") {
         errorEmail.textContent = "Campo Obligatorio";
         errorEmail.classList.add("active");
         valid = false;
@@ -96,7 +96,7 @@ async function login() {
         errorEmail.classList.remove("active");
     }
 
-    if (password === "") {       // ✅ igual acá
+    if (password === "") {
         errorPassword.textContent = "Campo Obligatorio";
         errorPassword.classList.add("active");
         valid = false;

@@ -14,6 +14,18 @@ from app.database.database import engine, Base, get_db
 from app.schemas.user import UserCreate, UserLogin
 from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
+from .auth.routes import router as auth_router
+from app.models.routes import router as users_router
+from contextlib import asynccontextmanager
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
 
 
 app = FastAPI()
@@ -28,19 +40,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(users_router, prefix="/users", tags=["users"])
 
-@app.on_event("startup")
-async def startup():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+#@app.on_event("startup")
+#async def startup():
+#    async with engine.begin() as conn:
+#        await conn.run_sync(Base.metadata.create_all)
 
 @app.get("/") 
-async def hola_mundo(): 
-    return {"mensaje": "Hola mundo"}
+async def read_root(): 
+    return {"message": "Welcome to FastAPI authentication and authorization example"}
+    #return {"mensaje": "Hola mundo"}
 
-@app.post("/api/register")
+@app.post("/api/singup")
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.email == user.email))
     existing_user = result.scalars().first()

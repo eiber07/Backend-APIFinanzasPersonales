@@ -13,3 +13,12 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+class UserBase(BaseModel):
+    username: str
+
+class User(UserBase):
+    id: int
+
+    class Config:
+        orm_mode = True
