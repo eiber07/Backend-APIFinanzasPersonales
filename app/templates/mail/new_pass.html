@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restablecer contraseña</title>
+  <link rel="stylesheet" href="../../static/styles.css">
+</head>
+<body>
+  <div class="container" >
+    <div class="content" style="grid-template-columns: 1fr; min-height: auto;">
+      <div class="form-section">
+
+        <div class="titles">
+          <span class="app-title">Finance Tracker</span>
+          <span class="form-title">Hola, {{ nombre_usuario }}!</span>
+        </div>
+
+        <div class="form-group">
+          <p style="font-size: 15px; color: #4B5563; line-height: 1.7;">
+            Solicitaste restablecer tu contraseña. Hacé clic abajo para crear una nueva 
+            y seguir usando la aplicación sin interrupciones.
+          </p>
+        </div>
+
+        <a href="{{ reser_link }}" class="btn-primary" 
+           style="text-align: center; text-decoration: none; display: block;">
+          Restablecer contraseña
+        </a>
+
+        <div class="divider"></div>
+
+        <div class="form-group">
+          <span class="label">Este enlace expira en {{ link_expiry_min }} minutos.</span>
+          <span class="label" style="margin-top: 16px;">O copiá el enlace:</span>
+          <p style="font-size: 13px; color: #697077; word-break: break-all; 
+                    background: #E5E7EB; padding: 12px; border-radius: 4px;">
+            {{ reser_link }}
+          </p>
+        </div>
+
+        <p style="font-size: 14px; color: #4B5563; line-height: 1.7; margin-top: 8px;">
+          ¡Gracias por elegirnos!<br>
+          <strong>Equipo de Finance Tracker</strong>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

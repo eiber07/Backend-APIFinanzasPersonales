@@ -96,12 +96,6 @@ body {
 
 }
 
-.forgot-link { 
-    color: #2563EB; 
-    font-size: 14px; 
-    text-decoration:none;
-}
-
 .btn-primary { 
     background: #1D4ED8; 
     border-radius: 8px; 
@@ -190,3 +184,88 @@ body {
     font-size: 14px; 
 }
 }
+
+.boton-invisible {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: #2563EB;
+    cursor: pointer;
+    font-size: 14px; 
+    text-decoration:none;
+}
+
+.boton-invisible:hover {
+    color: #004499;
+}
+
+/*modal Olvidaste tu contrasena
+/* Overlay */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    z-index: 1000; /* Asegura que esté por encima de todo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo negro con 50% de opacidad */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Muestra el modal cuando se le añade la clase 'mostrar' */
+.modal.mostrar {
+    display: flex;
+}
+
+/* 2. Caja del modal */
+.contenido-modal {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.signup {
+  text-decoration: underline;
+  font-weight: bold;
+  color: #1D4ED8;
+  display: inline;
+}
+
+.contenido-modal p{
+   text-align:center;
+}
+.contenido-modal h2{
+   text-align:center;
+}
+
+#modalOlvidar .btn-primary{
+  width: 100%;
+  text-align: center;     
+  justify-content: flex-start;
+}
+
+#modalOlvidar .form-group{
+  width: 100%;
+  text-align: left;     
+  justify-content: flex-start;
+}
+
+.cerrar {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    }
