@@ -62,7 +62,7 @@ async function validateForm() {
         };
 
         try {
-            const response = await fetch("http://localhost:8000/auth/singup", {
+            const response = await fetch("http://localhost:8000/auth/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
@@ -124,3 +124,138 @@ async function login() {
         }
     }
 }
+/*MODALS*/
+const modal = document.getElementById("modalOlvidar");
+const abrir = document.getElementById("abrirModal");
+const cerrar = document.getElementById("cerrarModal");
+
+function cerrarModal() {
+    modal.classList.remove("mostrar");
+    document.getElementById("reset-email").value = "";
+    const errorReset = document.getElementById("error-reset");
+    errorReset.textContent = "";
+    errorReset.classList.remove("active");
+    // Resetear vistas
+    document.getElementById("vistaForm").style.display = "block";
+    document.getElementById("vistaConfir").style.display = "none";
+}
+
+cerrar.addEventListener("click", cerrarModal);
+
+window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+        cerrarModal();
+    }
+});
+
+abrir.addEventListener("click", () => {
+    modal.classList.add("mostrar");
+});
+
+async function enviarReset() {
+  const email = document.getElementById("reset-email").value;
+  const error = document.getElementById("error-reset");
+  
+    if (!email) {
+        error.textContent = "Ingresa tu correo";
+        error.classList.add("active");
+        return
+  }
+    try{
+        const response = await fetch("http://localhost:8000/auth/forget-password",{
+            method : "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({email:email})
+        });
+        const data = await response.json();
+
+        if (response.ok){
+            document.getElementById("vistaForm").style.display = "none";
+            document.getElementById("vistaConfir").style.display = "block";
+        } else {
+            error.textContent = data.detail || "Ocurrió un error, intenta de nuevo.";
+            error.classList.add("active");
+        }
+    } catch (e) {
+    error.textContent = "No se pudo conectar con el servidor.";
+    error.classList.add("active");
+    }
+}
+
+
+const modalConfir = document.getElementById("modalEnvioConfir");
+const cerrarConfir = document.getElementById("cerrarModalConfir");
+
+cerrarConfir.addEventListener("click", () => {
+    modalConfir.classList.remove("mostrar");
+});
+
+window.addEventListener("click", (e) => {
+    if (e.target === modalConfir) {
+        modalConfir.classList.remove("mostrar");
+  }
+});
+
+async function resetPassword() {
+    const newPassword = document.getElementById("new-password").value.trim();
+    const confirmPassword = document.getElementById("new-password-confirm").value.trim();
+    const errorPassword = document.getElementById("error-password");
+    const errorEmail = document.getElementById("error-email");
+
+    let valid = true;
+
+    if (newPassword === "") {
+        errorEmail.textContent = "Campo obligatorio";
+        errorEmail.classList.add("active");
+        valid = false;
+    } else if (newPassword.length < 6) {
+        errorEmail.textContent = "La contraseña debe tener al menos 6 caracteres";
+        errorEmail.classList.add("active");
+        valid = false;
+    } else {
+        errorEmail.classList.remove("active");
+    }
+
+    if (confirmPassword === "") {
+        errorPassword.textContent = "Campo obligatorio";
+        errorPassword.classList.add("active");
+        valid = false;
+    } else if (newPassword !== confirmPassword) {
+        errorPassword.textContent = "Las contraseñas no coinciden";
+        errorPassword.classList.add("active");
+        valid = false;
+    } else {
+        errorPassword.classList.remove("active");
+    }
+
+    if (valid) {
+        const token = new URLSearchParams(window.location.search).get("token");
+
+        try {
+            const response = await fetch("http://localhost:8000/auth/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    secret_token: token,
+                    new_password: newPassword,
+                    confirm_password: confirmPassword
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById("modalConfirmacion").classList.add("mostrar");
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2500);
+            } else {
+                errorPassword.textContent = data.detail || "Ocurrió un error.";
+                errorPassword.classList.add("active");
+            }
+        } catch (e) {
+            errorPassword.textContent = "No se pudo conectar con el servidor.";
+            errorPassword.classList.add("active");
+        }
+    }
+}   

@@ -28,7 +28,7 @@
         </div>
 
         <div class="forgot">
-          <a href="/" class="forgot-link"><span>¿Olvidaste tu contraseña?</span></a>
+          <button id="abrirModal" class="boton-invisible">¿Olvidaste tu contraseña?</button>
         </div>
 
         <button class="btn-primary" onclick="login()">
@@ -42,12 +42,38 @@
 
         <div class="divider"></div>
 
-        <a href="/" class="signup"><span>Si todavía no tienes una cuenta, puedes crear una aquí.</span></a>
+        <p>Si todavía no tienes una cuenta, puedes crear una <a href="register.html" class="signup">aquí.</a></p>
       </div>
 
       <img class="side-image" src="../static/img/Personal Home Finance 2 (1).png" alt="Finance illustration">
     </div>
   </div>
+  <div id="modalOlvidar" class="modal">
+  <div class="contenido-modal">
+    <span class="cerrar" id="cerrarModal">&times;</span>
+    <!-- Vista 1: envio de link -->
+    <div id="vistaForm">
+      <h2>¿Olvidaste tu contraseña?</h2>
+      <p>No hay de qué preocuparse, te enviaremos un enlace para restablecerla.</p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" class="input" id="reset-email" placeholder="Tu correo">
+        <span class="error" id="error-reset"></span>
+      </div>
+      <button class="btn-primary" onclick="enviarReset()">Enviar enlace</button>
+      <div style="text-align: left; width: 100%;">
+        Regístrate <a href="register.html" class="signup">aquí</a>.
+      </div>
+    </div>
+    <!-- Vista 2: confirmacion -->
+    <div id="vistaConfir" style="display: none; text-align: center;">
+      <img src="../static/img/logo-OK.png" height="100px"/>
+      <h2>Correo enviado</h2>
+      <p>Revisa tu bandeja de entrada y actualiza tu contraseña.</p>
+    </div>
+
+  </div>
+</div>
   <script src="../static/scripts.js"></script>
 </body>
 </html>
