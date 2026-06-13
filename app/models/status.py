@@ -7,8 +7,7 @@ class Status(Base, AuditMixin):
     __tablename__ = "statuses" 
     id = Column(Integer, primary_key=True, index=True) 
     name = Column(String, unique=True, index=True, nullable=False)
-
-    # moni: agregue las siguientes lineas, no podia correr la app :)
+    
     accounts = relationship("Account", back_populates="status") 
     planned_expenses = relationship("PlannedExpense", back_populates="status")
     transactions = relationship("Transaction", back_populates="status")    
