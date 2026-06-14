@@ -269,3 +269,125 @@ body {
     font-weight: bold;
     cursor: pointer;
     }
+
+/*Contenido Dashbooard*/
+.componente-header{
+    font-weight: bold;
+    padding: 15px;
+    border-bottom: 2px solid #1D4ED8;
+}
+
+.grid-contenedor {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: 
+        "sidebar header"
+        "sidebar main";
+    min-height: 100vh;
+}
+
+.componente-tarjetas{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 20px;
+}
+.componente-tarjetas1{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 20px;
+}
+.componente-tarjetas2{
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 16px;
+    padding: 20px;
+}
+
+.componente-main2{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 20px;
+    font-weight: bold;
+}
+
+.componente-header { grid-area: header; }
+.componente-sidebar { grid-area: sidebar; }
+.componente-main { grid-area: main; }
+
+/*sidebar*/
+.sidebar {
+height: 100%;
+width: 250px;
+position: fixed;
+left: 0;
+top: 0;
+padding-top: 20px;
+background-color: #E2E4E6;
+}
+
+.sidebar div {
+padding: 15px;
+display: block;
+}
+
+.sidebar .profile{
+    display: grid;
+    grid-template-columns: 75px 1fr;
+}
+
+.contenedor-perfil{
+    width: 50px;
+    height: 50px;      
+    border-radius: 50%;
+    overflow: hidden;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    object-fit: cover;
+}
+
+.contenedor-perfil img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.sidebar .profile-info{
+    padding-left: 0;
+    margin: bottom 0;
+}
+
+.sidebar .profile-info p {
+    margin: 0;
+}
+
+.menu .menu-item-dashboard {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom:0;
+    font-size: 14px;
+}
+
+.menu .submenu {
+  display: flex;
+  flex-direction: column; /* lista vertical */
+  padding-left: 30px;     /* sangría para diferenciar */
+  gap: 5px;
+  padding-top: 5px;  
+  padding-bottom: 5px;
+  border-bottom: 1px solid #5D6772;
+  font-size: 13px;
+  color:#5D6772;
+}
+
+.submenu div {
+  color: #374151;
+  padding: 5px 0;
+  /*cursor: pointer;*/
+}
