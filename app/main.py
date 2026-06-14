@@ -1,25 +1,23 @@
-#from fastapi import FastAPI, Depends, HTTPException
-#from sqlalchemy.ext.asyncio import AsyncSession
-#from sqlalchemy.future import select
-#from app.models.user import User
-#from app.models.account import Account
-#from app.models.transaction import Transaction
-#from app.models.group_account_member import GroupAccountMember
-#from app.models.planned_expense import PlannedExpense
-#from app.models.transaction_category import TransactionCategory
-#from app.models.account_type import AccountType
-#from app.models.transaction_type import TransactionType
-#from app.models.status import Status
 from fastapi import FastAPI
 
+# Importar todos los modelos para registrarlos en Base.metadata
+from app.models import (
+    User,
+    Account,
+    AccountType,
+    Status,
+    Transaction,
+    TransactionType,
+    TransactionCategory,
+    GroupAccountMember,
+    PlannedExpense,
+)
 from app.database.database import engine, Base
-#from app.schemas.user import UserCreate, UserLogin
-#from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
-from .auth.routes import router as auth_router
-from app.routers.routes import router as users_router
+from app.routers.auth_routes import router as auth_router
+from app.routers.user_routes import router as users_router
 from contextlib import asynccontextmanager
-from app.auth.password import router as password_router
+from app.routers.password_routes import router as password_router
 
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

@@ -18,5 +18,5 @@ class Account(Base, AuditMixin):
     account_type = relationship("AccountType", back_populates="accounts")
     status = relationship("Status", back_populates="accounts")
     user = relationship("User", back_populates="accounts")
-    group_account_members = relationship("GroupAccountMember", back_populates="group_account")
-    planned_expenses = relationship("PlannedExpense", back_populates="account")          
+    group_account_members = relationship("GroupAccountMember", back_populates="accounts")
+    planned_expenses = relationship("PlannedExpense", back_populates="accounts")          

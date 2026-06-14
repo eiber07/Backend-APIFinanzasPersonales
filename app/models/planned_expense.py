@@ -15,7 +15,7 @@ class PlannedExpense(Base, AuditMixin):
     installment_amount = Column(DECIMAL(13, 2), nullable=False)
     status_id = Column(Integer, ForeignKey("statuses.id"), nullable=False)
 
-    account = relationship("Account", back_populates="planned_expenses")
+    accounts = relationship("Account", back_populates="planned_expenses")
     status = relationship("Status", back_populates="planned_expenses")
 
     # moni: agregue las siguientes lineas, no podia correr la app :)

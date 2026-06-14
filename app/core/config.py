@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     FORGET_PASSWORD_LINK_EXPIRE_MINUTES: int
     APP_HOST: str
     FRONTEND_URL: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    SECRET_KEY: str
 
 
     class Config:

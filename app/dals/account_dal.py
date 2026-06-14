@@ -1,7 +1,8 @@
+from sqlalchemy.orm import Session
 from app.models.account import Account
 
-class AccountDal:
-    def __init__(self, db):
+class AccountDAL:
+    def __init__(self, db: Session):
         self.db = db
 
     def get_accounts_by_user_id(self, user_id: int):
