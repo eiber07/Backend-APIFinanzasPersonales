@@ -92,6 +92,7 @@
                     <div class="titulo-seccion">
                         <h2>Transacciones recientes</h2>
                         <a href="#">Ver todo</a>
+                        <img src="../static/img/icono-mas.png" height="25px" id="clickable-img"/>
                     </div>
 
                     <div class="tabla-contenedor">
@@ -104,9 +105,8 @@
                                     <th>Monto</th>
                                 </tr>
                             </thead>
-
                             <tbody>
-                                <tr class="fila-cliqueable"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
+                                <tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
                                 data-category="{category_id}" data-description="{description}" data-date="{creation_date}">
                                     <td>Jun 12, 2024</td>
                                     <td>
@@ -153,6 +153,7 @@
 
                     <div class="titulo-seccion">
                         <h2>Próximas facturas</h2>
+                        <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
                     </div>
 
                     <div class="lista-facturas">
@@ -231,8 +232,138 @@
                         <tr><td>Fecha:</td><td id="data-date"></td></tr>
                     </table>
                     <div class="acciones-modal">
-                        <button id="btnEdit" class="btn-primary">Editar</button>
+                        <button id="btnEdit" class="btn-secondary">Editar</button>
                         <button id="btnDelete" class="btn-primary btn-red">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+            <div id="modalNewTransax" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalNewTransax')">&times;</span> 
+                    <h2 style="color:#1F2937; margin:0;">Nueva Transacción</h2>
+                    <div class="form-section">
+                        <div class="form-group" >
+                            <label class="label">Monto</label>
+                            <input type="text" class="input" id="amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                            <span class="error" id="error-amount"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Fecha</label>
+                            <input type="date" class="input" id="date">
+                            <span class="error" id="error-date"></span>
+                        </div> 
+
+                        <div class="form-group">
+                            <label class="label">Categoría</label>
+                            <select id="category-drop" class="input" >
+                            <option value="">Seleccionar</option>
+                            </select>
+                            <span class="error" id="error-category"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Descripción</label>
+                            <textarea class="input" id="description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
+                            <div id="char-counter">0 / 25 caracteres</div>
+                            <span class="error" id="error-description"></span>
+                        </div>
+
+                        <div class="acciones-modal">
+                            <button id="btnSave" class="btn-primary">Guardar Transacción</button>
+                            <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewTransax')">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="modalEditTransax" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalEditTransax')">&times;</span> 
+                    <h2 style="color:#1F2937; margin:0;">Modificar datos de Transacción</h2>
+                    <div class="form-section">
+                        <div class="form-group" >
+                            <label class="label">Monto</label>
+                            <input type="text" class="input" id="new-amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                            <span class="error" id="error-amount"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Fecha</label>
+                            <input type="date" class="input" id="new-date">
+                            <span class="error" id="error-date"></span>
+                        </div> 
+
+                        <div class="form-group">
+                            <label class="label">Categoría</label>
+                            <select id="new-category-drop" class="input" >
+                            <option value="">Seleccionar</option>
+                            </select>
+                            <span class="error" id="error-category"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Descripción</label>
+                            <textarea class="input" id="new-description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
+                            <div id="char-counter">0 / 25 caracteres</div>
+                            <span class="error" id="error-description"></span>
+                        </div>
+
+                        <div class="acciones-modal">
+                            <button id="btnSave" class="btn-primary">Guardar cambios</button>
+                            <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalEditTransax')">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalNewExpense" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalNewExpense')">&times;</span> 
+                    <h2 style="color:#1F2937; margin:0;">Nuevo Gasto Planeado</h2>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label class="label">Monto total</label>
+                            <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                            <span class="error" id="error-amount-exp"></span>
+                        </div>
+
+                        <div class="form-group2">
+                            <div>
+                                <label class="label">Fecha de inicio</label>
+                                <input type="date" class="input" id="start-date-exp">
+                                <span class="error" id="error-start-date-exp"></span>
+                            </div>
+                            <div>
+                                <label class="label">Fecha de vencimiento</label>
+                                <input type="date" class="input" id="due-date-exp">
+                                <span class="error" id="error-due-date-exp"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group2">
+                            <div>
+                                <label class="label">Cantidad de cuotas</label>
+                                <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1">
+                                <span class="error" id="error-installment-number-exp"></span>
+                            </div>
+                            <div>
+                                <label class="label">Monto por cuota</label>
+                                <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                                <span class="error" id="error-installment-amount-exp"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Descripción</label>
+                            <textarea class="input" id="description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
+                            <div id="char-counter-exp">0 / 25 caracteres</div>
+                            <span class="error" id="error-description-exp"></span>
+                        </div>
+
+                        <div class="acciones-modal">
+                            <button id="btnSaveExp" class="btn-primary" onclick="saveExpense()">Guardar Gasto</button>
+                            <button class="btn-secondary" onclick="ModalManager.close('modalNewExpense')">Cancelar</button>
+                        </div>
                     </div>
                 </div>
             </div>

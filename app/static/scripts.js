@@ -1,11 +1,11 @@
 fetch('sidebar.html')
         .then(r => {
-            console.log('Status:', r.status, 'URL:', r.url);
+            /*console.log('Status:', r.status, 'URL:', r.url);*/
             return r.text();
         })
         .then(html => {
             document.getElementById('sidebar-placeholder').innerHTML = html;
-            console.log('Sidebar cargado OK');
+            /*console.log('Sidebar cargado OK');*/
         })
         .catch(err => console.error('Error:', err));
 
@@ -254,6 +254,30 @@ const ModalManager = (() => {
             document.getElementById("data-amount").textContent   = "";
             document.getElementById("data-date").textContent   = "";
         }
+        },modalNewTransax:{
+            onClose() {
+            document.getElementById("amount").value = "";
+            document.getElementById("date").value = "";
+            document.getElementById("category-drop").textContent = "";
+            document.getElementById("description-text").value = "";
+            const counter = document.getElementById("char-counter");
+                    counter.textContent = "0 / 25 caracteres";
+                    counter.style.color = "inherit"
+
+        }
+        },modalNewExpense:{
+            onClose() {
+            document.getElementById("amount-exp").value = "";
+            document.getElementById("start-date-exp").value = "";
+            document.getElementById("due-date-exp").value = "";
+            document.getElementById("installment-number-exp").value = "";
+            document.getElementById("installment-amount-exp").value = "";
+            document.getElementById("description-text-exp").value = "";
+            const counter2 = document.getElementById("char-counter-exp");
+            counter2.textContent = "0 / 25 caracteres";
+            counter2.style.color = "inherit"; //
+
+        }
         },modalEnvioConfir: {
             onClose() {}
         },
@@ -290,53 +314,107 @@ const ModalManager = (() => {
 })();
 
 
-document.getElementById("openModal")
-    ?.addEventListener("click", () => ModalManager.open("modalForget"));
+document.addEventListener("DOMContentLoaded", () => {
 
-    const btnEdit   = document.getElementById("btnEdit");
-    const btnDelete = document.getElementById("btnDelete");
-    const MODAL_TX    = "modalTransax";
+    document.getElementById("clickable-img")
+        ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
 
-    document.querySelectorAll(".fila-cliqueable").forEach(fila => {
-        fila.addEventListener("click", () => {
-            const {id, type, category, description, amount, date} = fila.dataset;
-            document.getElementById("data-id").textContent      = id;
-            document.getElementById("data-type").textContent = type;
-            document.getElementById("data-category").textContent = category;
-            document.getElementById("data-description").textContent = description;    
-            document.getElementById("data-amount").textContent   = amount;
-            document.getElementById("data-date").textContent   = date;
-            btnEdit.dataset.id   = id;
-            btnDelete.dataset.id = id;
+    document.getElementById("clickable-img2")
+        ?.addEventListener("click", () => ModalManager.open("modalNewExpense"));
 
-            ModalManager.open(MODAL_TX);
+    document.getElementById("openModal")
+        ?.addEventListener("click", () => ModalManager.open("modalForget"));
+});
+
+const btnEdit   = document.getElementById("btnEdit");
+const btnDelete = document.getElementById("btnDelete");
+const MODAL_TX    = "modalTransax";
+
+document.querySelectorAll(".clickable-row").forEach(row => {
+    row.addEventListener("click", () => {
+        const {id, type, category, description, amount, date} = row.dataset;
+        document.getElementById("data-id").textContent      = id;
+        document.getElementById("data-type").textContent = type;
+        document.getElementById("data-category").textContent = category;
+        document.getElementById("data-description").textContent = description;    
+        document.getElementById("data-amount").textContent   = amount;
+        document.getElementById("data-date").textContent   = date;
+        btnEdit.dataset.id   = id;
+        btnDelete.dataset.id = id;
+
+        ModalManager.open(MODAL_TX);
+    });
+});
+
+btnDelete?.addEventListener("click", async (e) => {
+    const id = e.target.dataset.id;
+    if (!confirm(`¿Eliminar la transacción #${id}?`)) return;
+
+    try {
+        const res = await fetch(`http://localhost:8000/transactions/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
         });
-    });
 
-    btnDelete?.addEventListener("click", async (e) => {
-        const id = e.target.dataset.id;
-        if (!confirm(`¿Eliminar la transacción #${id}?`)) return;
-
-        try {
-            const res = await fetch(`http://localhost:8000/transactions/${id}`, {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" }
-            });
-
-            if (res.ok) {
-                ModalManager.close(MODAL_TX);
-                document.querySelector(`.fila-cliqueable[data-id="${id}"]`)?.remove();
-            } else {
-                const err = await res.json();
-                alert("Error: " + err.detail);
-            }
-        } catch {
-            alert("No se pudo establecer conexión con el servidor.");
+        if (res.ok) {
+            ModalManager.close(MODAL_TX);
+            document.querySelector(`.clickable-row[data-id="${id}"]`)?.remove();
+        } else {
+            const err = await res.json();
+            alert("Error: " + err.detail);
         }
-    });
+    } catch {
+        alert("No se pudo establecer conexión con el servidor.");
+    }
+});
 
-    btnEdit?.addEventListener("click", (e) => {
-        const id = e.target.dataset.id;
-        console.log("Modificar transacción ID:", id);
-        // Disparar lógica de formulario de edición aquí
+btnEdit?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    /*console.log("Modificar transacción ID:", id);*/
+    // Disparar lógica de formulario de edición aquí
+    ModalManager.open("modalEditTransax");
+});
+
+//FORMULARIO DE TRANSACCION - MONTO INPUT
+function moneyFormat(input) {
+  let valor = input.value.replace(/\D/g, "");
+  if (valor === "") {
+    input.value = "";
+    return;
+  }
+  
+  // Si el usuario escribe "1", se convierte internamente en "0.01"
+  let numero = (parseInt(valor) / 100).toFixed(2);
+  
+  //Separar la parte entera de los dos decimales
+  let partes = numero.split(".");
+  let parteEntera = partes[0];
+  let parteDecimal = partes[1];
+  
+  // Agregar los puntos de miles a la parte entera
+  parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  
+  //Unir la parte entera y decimal con una coma
+  input.value = parteEntera + "," + parteDecimal;
+}
+
+//FORMULARIO DE TRANSACCION - CONTADOR DE CARACTERES
+const textarea = document.getElementById('description-text');
+const counter = document.getElementById('char-counter');
+const textarea2 = document.getElementById('description-text-exp');
+const counter2 = document.getElementById('char-counter-exp');
+
+if (textarea && counter) {
+    textarea.addEventListener('input', function() {
+        const longitud = textarea.value.length;
+        counter.textContent = `${longitud} / 25 caracteres`;
+        counter.style.color = longitud >= 25 ? '#dc2626' : 'inherit';
     });
+}
+if (textarea2 && counter2) {
+    textarea2.addEventListener('input', function() {
+        const longitud = textarea2.value.length;
+        counter2.textContent = `${longitud} / 25 caracteres`;
+        counter2.style.color = longitud >= 25 ? '#dc2626' : 'inherit';
+    });
+}

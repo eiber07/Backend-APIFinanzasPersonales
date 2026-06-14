@@ -102,14 +102,27 @@ body {
     border: 2px solid #1D4ED8; 
     padding: 16px; 
     color: #fff; 
-    font-size: 16px; 
-    font-weight: bold; 
+    font-size: 14px; 
     cursor: pointer; 
     margin-bottom: 16px; 
 }
 
 .btn-primary:hover{
     background-color: #1e40af;
+}
+
+.btn-secondary { 
+    background: #fff; 
+    border-radius: 8px; 
+    border: 2px solid #1D4ED8; 
+    padding: 16px; 
+    color: #1D4ED8; 
+    font-size: 14px; 
+    cursor: pointer; 
+    margin-bottom: 16px; 
+}
+.btn-secondary:hover{
+    background-color: #EFF6FF;
 }
 
 .btn-google { 
@@ -221,7 +234,7 @@ body {
 
 /* Muestra el modal cuando se le añade la clase 'mostrar' */
 .modal.show {
-    display: flex;
+    display: flex !important;
 }
 
 /* 2. Caja del modal */
@@ -876,6 +889,14 @@ display: block;
 }
 
 /* Estilo para las filas de la tabla principal */
-.fila-cliqueable {
+.clickable-row {
+    cursor: pointer;
+}
+
+#clickable-img{
+    cursor: pointer;
+}
+
+#clickable-img2{
     cursor: pointer;
 }
