@@ -52,15 +52,15 @@ body {
 }
 
 .form-group2 {
-  margin-bottom: 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  width: 100%;
+    margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
 }
 .form-group2 input {
-  width: 100%;
-  box-sizing: border-box;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .label { 
@@ -153,34 +153,34 @@ body {
 }
 
 @media (max-width: 1024px) {
-  .content { 
+.content { 
     grid-template-columns: 1fr; 
     grid-template-rows: auto auto; 
 }
-  .form-section { 
+.form-section { 
     margin: 20px; 
 }
-  .side-image { 
+.side-image { 
     height: auto; 
     margin-top: 20px; 
     border-radius: 8px; 
 }
-  .btn-primary, .btn-google { 
+.btn-primary, .btn-google { 
     width: 100%; 
 }
 }
 
 @media (max-width: 480px) {
-  .form-title { 
+.form-title { 
     font-size: 24px; 
 }
-  .app-title { 
+.app-title { 
     font-size: 16px;
- }
-  .input { 
+}
+.input { 
     font-size: 14px; 
 }
-  .btn-primary span, .btn-google span { 
+.btn-primary span, .btn-google span { 
     font-size: 14px; 
 }
 }
@@ -236,29 +236,29 @@ body {
 }
 
 .signup {
-  text-decoration: underline;
-  font-weight: bold;
-  color: #1D4ED8;
-  display: inline;
+    text-decoration: underline;
+    font-weight: bold;
+    color: #1D4ED8;
+    display: inline;
 }
 
 .contenido-modal p{
-   text-align:center;
+    text-align:center;
 }
 .contenido-modal h2{
-   text-align:center;
+    text-align:center;
 }
 
 #modalOlvidar .btn-primary{
-  width: 100%;
-  text-align: center;     
-  justify-content: flex-start;
+    width: 100%;
+    text-align: center;     
+    justify-content: flex-start;
 }
 
 #modalOlvidar .form-group{
-  width: 100%;
-  text-align: left;     
-  justify-content: flex-start;
+    width: 100%;
+    text-align: left;     
+    justify-content: flex-start;
 }
 
 .cerrar {
@@ -375,19 +375,606 @@ display: block;
 }
 
 .menu .submenu {
-  display: flex;
-  flex-direction: column; /* lista vertical */
-  padding-left: 30px;     /* sangría para diferenciar */
-  gap: 5px;
-  padding-top: 5px;  
-  padding-bottom: 5px;
-  border-bottom: 1px solid #5D6772;
-  font-size: 13px;
-  color:#5D6772;
+    display: flex;
+    flex-direction: column; /* lista vertical */
+    padding-left: 30px;     /* sangría para diferenciar */
+    gap: 5px;
+    padding-top: 5px;  
+    padding-bottom: 5px;
+    border-bottom: 1px solid #5D6772;
+    font-size: 13px;
+    color:#5D6772;
 }
 
 .submenu div {
-  color: #374151;
-  padding: 5px 0;
-  /*cursor: pointer;*/
+    color: #374151;
+    padding: 5px 0;
+    /*cursor: pointer;*/
+}
+
+/* ============================= */
+/* DASHBOARD PRIVADO */
+/* ============================= */
+
+.grid-contenedor,
+.grid-contenedor * {
+    box-sizing: border-box;
+}
+
+.grid-contenedor {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: 68px 1fr;
+    grid-template-areas:
+        "sidebar header"
+        "sidebar main";
+    min-height: 100vh;
+    background: #ffffff;
+    color: #111827;
+}
+
+/* ============================= */
+/* HEADER DASHBOARD */
+/* ============================= */
+
+.componente-header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    background: #ffffff;
+    border-bottom: 1.5px solid #2563EB;
+    font-weight: normal;
+}
+
+.componente-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.header-acciones {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.boton-icono,
+.boton-ayuda {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #111827;
+    font-weight: 700;
+}
+
+.boton-icono {
+    font-size: 18px;
+}
+
+.boton-ayuda {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #ec4899;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+/* ============================= */
+/* SIDEBAR */
+/* ============================= */
+
+.componente-sidebar {
+    grid-area: sidebar;
+    background: #E5E7EB;
+    padding: 32px 24px;
+    min-height: 100vh;
+}
+
+.usuario-sidebar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 42px;
+}
+
+.usuario-avatar {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #F97316;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.usuario-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.usuario-info h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.usuario-info p {
+    font-size: 12px;
+    color: #6B7280;
+    margin: 2px 0 0;
+}
+
+.menu-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menu-link {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: #111827;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 8px;
+}
+
+.menu-link-activo {
+    background: #ffffff;
+}
+
+.menu-icono {
+    font-size: 18px;
+}
+
+.menu-flecha {
+    font-size: 12px;
+}
+
+.submenu-sidebar {
+    display: flex;
+    flex-direction: column;
+    margin-left: 20px;
+    border-left: 1px solid #9CA3AF;
+}
+
+.submenu-link {
+    padding: 8px 0 8px 12px;
+    color: #6B7280;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.submenu-link-activo {
+    color: #2563EB;
+    font-weight: 600;
+    background: #F9FAFB;
+    border-left: 2px solid #2563EB;
+    margin-left: -1px;
+}
+
+.separador-sidebar {
+    border: none;
+    height: 1px;
+    background: #9CA3AF;
+    margin: 14px 0;
+}
+
+.menu-titulo {
+    font-size: 12px;
+    color: #6B7280;
+    margin: 0 0 4px;
+}
+
+/* ============================= */
+/* MAIN DASHBOARD */
+/* ============================= */
+
+.componente-main {
+    grid-area: main;
+    padding: 22px 24px 40px;
+    background: #ffffff;
+}
+
+/* ============================= */
+/* TARJETAS SUPERIORES */
+/* ============================= */
+
+.componente-tarjetas {
+    display: grid;
+    grid-template-columns: 1fr 1fr 320px;
+    gap: 22px;
+    padding: 0;
+    margin-bottom: 24px;
+}
+
+.componente-tarjetas1,
+.componente-tarjetas2 {
+    display: block;
+    padding: 24px;
+    min-height: 160px;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+}
+
+.tarjeta-titulo {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #374151;
+    margin: 0 0 8px;
+}
+
+.tarjeta-monto {
+    font-size: 32px;
+    line-height: 1;
+    font-weight: 800;
+    color: #000000;
+    margin: 0 0 42px;
+}
+
+.tarjeta-fecha {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #374151;
+    font-size: 13px;
+}
+
+.punto-verde {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22C55E;
+}
+
+/* Tarjetas ingreso / egreso */
+
+.tarjetas-resumen-lateral {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.tarjeta-resumen {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 69px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+}
+
+.tarjeta-resumen-icono {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    background: #EEF2FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.tarjeta-resumen-icono.ingreso {
+    color: #22C55E;
+}
+
+.tarjeta-resumen-icono.egreso {
+    color: #FF383C;
+}
+
+.tarjeta-resumen-info p {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #374151;
+    margin: 0 0 4px;
+}
+
+.tarjeta-resumen-info h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #000000;
+    margin: 0;
+}
+
+/* ============================= */
+/* CONTENIDO INFERIOR */
+/* ============================= */
+
+.componente-main2 {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    padding: 0;
+    font-weight: normal;
+}
+
+.titulo-seccion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.titulo-seccion h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #000000;
+    margin: 0;
+}
+
+.titulo-seccion a {
+    color: #2563EB;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+/* ============================= */
+/* TABLA TRANSACCIONES */
+/* ============================= */
+
+.tabla-contenedor {
+    width: 100%;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.tabla-transacciones {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tabla-transacciones thead {
+    background: #EEF2FF;
+}
+
+.tabla-transacciones th {
+    padding: 14px 18px;
+    text-align: left;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.tabla-transacciones td {
+    padding: 16px 18px;
+    border-top: 1px solid #E5E7EB;
+    color: #111827;
+}
+
+.categoria-etiqueta {
+    display: inline-block;
+    background: #E5E7EB;
+    color: #374151;
+    padding: 5px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.monto-positivo {
+    color: #22C55E;
+    font-weight: 800;
+}
+
+/* ============================= */
+/* PRÓXIMAS FACTURAS */
+/* ============================= */
+
+.componente-cuentas {
+    width: 100%;
+}
+
+.lista-facturas {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.factura-card {
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+}
+
+.factura-fecha {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-weight: 800;
+}
+
+.factura-fecha span {
+    font-size: 10px;
+}
+
+.factura-fecha strong {
+    font-size: 16px;
+}
+
+.factura-fecha-roja {
+    background: #FF4D5A;
+    color: #ffffff;
+}
+
+.factura-fecha-verde {
+    background: #86EFAC;
+    color: #064E3B;
+}
+
+.factura-info h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 4px;
+}
+
+.factura-info p {
+    font-size: 12px;
+    color: #4B5563;
+    margin: 0;
+}
+
+.factura-monto {
+    text-align: right;
+}
+
+.factura-monto strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 800;
+    color: #000000;
+    margin-bottom: 6px;
+}
+
+.estado-factura {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 2px;
+}
+
+.estado-rojo {
+    background: #FEE2E2;
+    color: #EF4444;
+}
+
+.estado-pendiente {
+    background: #EEF2FF;
+    color: #111827;
+}
+
+.boton-gestionar {
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #1D4ED8;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.boton-gestionar:hover {
+    background: #1E40AF;
+}
+
+/* ============================= */
+/* RESPONSIVE DASHBOARD */
+/* ============================= */
+
+@media (max-width: 1100px) {
+    .grid-contenedor {
+        grid-template-columns: 200px 1fr;
+    }
+
+    .componente-tarjetas {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .tarjetas-resumen-lateral {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .componente-main2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-contenedor {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        grid-template-areas:
+            "header"
+            "sidebar"
+            "main";
+    }
+
+    .componente-sidebar {
+        min-height: auto;
+        padding: 20px;
+    }
+
+    .usuario-sidebar {
+        margin-bottom: 20px;
+    }
+
+    .componente-tarjetas {
+        grid-template-columns: 1fr;
+    }
+
+    .tarjetas-resumen-lateral {
+        grid-template-columns: 1fr;
+    }
+
+    .tabla-contenedor {
+        overflow-x: auto;
+    }
+
+    .tabla-transacciones {
+        min-width: 620px;
+    }
+}
+
+@media (max-width: 480px) {
+    .componente-header {
+        padding: 0 16px;
+    }
+
+    .componente-header h1 {
+        font-size: 17px;
+    }
+
+    .componente-main {
+        padding: 18px 16px 32px;
+    }
+
+    .factura-card {
+        grid-template-columns: 48px 1fr;
+    }
+
+    .factura-monto {
+        grid-column: 1 / -1;
+        text-align: left;
+    }
+
+    .tarjeta-monto {
+        font-size: 26px;
+    }
 }
