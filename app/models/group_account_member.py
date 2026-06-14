@@ -10,4 +10,4 @@ class GroupAccountMember(Base, AuditMixin):
     role = Column(String, unique=True, index=True, nullable=False)
 
     user = relationship("User", back_populates="group_account_members")
-    group_account = relationship("Account", back_populates="group_account_members")
+    accounts = relationship("Account", back_populates="group_account_members")
