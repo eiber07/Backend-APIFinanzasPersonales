@@ -106,7 +106,8 @@
                             </thead>
 
                             <tbody>
-                                <tr>
+                                <tr class="fila-cliqueable"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
+                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">
                                     <td>Jun 12, 2024</td>
                                     <td>
                                         <span class="categoria-etiqueta">Comida</span>
@@ -216,21 +217,27 @@
                 </aside>
 
             </section>
-
+            <div id="modalTransax" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalTransax')">&times;</span> 
+                    <h2 style="color:#1F2937; margin:0">Detalle de Transacción</h2>
+                    
+                    <table class="tabla-detalle">
+                        <tr><td>ID:</td><td id="data-id"></td></tr>
+                        <tr><td>Tipo:</td><td id="data-type"></td></tr>
+                        <tr><td>Categoría:</td><td id="data-category"></td></tr>
+                        <tr><td>Descripción:</td><td id="data-description"></td></tr>
+                        <tr><td>Monto:</td><td id="data-amount"></td></tr>
+                        <tr><td>Fecha:</td><td id="data-date"></td></tr>
+                    </table>
+                    <div class="acciones-modal">
+                        <button id="btnEdit" class="btn-primary">Editar</button>
+                        <button id="btnDelete" class="btn-primary btn-red">Eliminar</button>
+                    </div>
+                </div>
+            </div>
         </main>
-
     </div>
-    <script>
-    fetch('sidebar.html')
-        .then(r => {
-            console.log('Status:', r.status, 'URL:', r.url);
-            return r.text();
-        })
-        .then(html => {
-            document.getElementById('sidebar-placeholder').innerHTML = html;
-            console.log('Sidebar cargado OK');
-        })
-        .catch(err => console.error('Error:', err));
-</script>
+    <script src="/app/static/scripts.js"></script>
 </body>
 </html>

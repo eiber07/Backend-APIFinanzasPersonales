@@ -1,3 +1,15 @@
+fetch('sidebar.html')
+        .then(r => {
+            console.log('Status:', r.status, 'URL:', r.url);
+            return r.text();
+        })
+        .then(html => {
+            document.getElementById('sidebar-placeholder').innerHTML = html;
+            console.log('Sidebar cargado OK');
+        })
+        .catch(err => console.error('Error:', err));
+
+
 async function validateForm() {
     const name = document.getElementById("name");
     const lastname = document.getElementById("lastname");
@@ -124,35 +136,8 @@ async function login() {
         }
     }
 }
-/*MODALS*/
-const modal = document.getElementById("modalOlvidar");
-const abrir = document.getElementById("abrirModal");
-const cerrar = document.getElementById("cerrarModal");
 
-function cerrarModal() {
-    modal.classList.remove("mostrar");
-    document.getElementById("reset-email").value = "";
-    const errorReset = document.getElementById("error-reset");
-    errorReset.textContent = "";
-    errorReset.classList.remove("active");
-    // Resetear vistas
-    document.getElementById("vistaForm").style.display = "block";
-    document.getElementById("vistaConfir").style.display = "none";
-}
-
-cerrar.addEventListener("click", cerrarModal);
-
-window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-        cerrarModal();
-    }
-});
-
-abrir.addEventListener("click", () => {
-    modal.classList.add("mostrar");
-});
-
-async function enviarReset() {
+async function sendReset() {
 const email = document.getElementById("reset-email").value;
 const error = document.getElementById("error-reset");
 
@@ -170,8 +155,8 @@ const error = document.getElementById("error-reset");
         const data = await response.json();
 
         if (response.ok){
-            document.getElementById("vistaForm").style.display = "none";
-            document.getElementById("vistaConfir").style.display = "block";
+            document.getElementById("viewForm").style.display = "none";
+            document.getElementById("viewConfir").style.display = "block";
         } else {
             error.textContent = data.detail || "Ocurrió un error, intenta de nuevo.";
             error.classList.add("active");
@@ -181,19 +166,6 @@ const error = document.getElementById("error-reset");
     error.classList.add("active");
     }
 }
-
-const modalConfir = document.getElementById("modalEnvioConfir");
-const cerrarConfir = document.getElementById("cerrarModalConfir");
-
-cerrarConfir.addEventListener("click", () => {
-    modalConfir.classList.remove("mostrar");
-});
-
-window.addEventListener("click", (e) => {
-    if (e.target === modalConfir) {
-        modalConfir.classList.remove("mostrar");
-}
-});
 
 async function resetPassword() {
     const newPassword = document.getElementById("new-password").value.trim();
@@ -244,7 +216,7 @@ async function resetPassword() {
             const data = await response.json();
 
             if (response.ok) {
-                document.getElementById("modalConfirmacion").classList.add("mostrar");
+                document.getElementById("modalConfirmation").classList.add("mostrar");
                 setTimeout(() => {
                     window.location.href = "login.html";
                 }, 2500);
@@ -258,3 +230,113 @@ async function resetPassword() {
         }
     }
 }   
+
+/* MODALS */
+const ModalManager = (() => {
+    /* lógica de limpieza o reset específica de cada modal, sin tocar el núcleo.  */
+    const hooks = {
+        modalForget: {
+            onClose() {
+                document.getElementById("reset-email").value = "";
+                const err = document.getElementById("error-reset");
+                err.textContent = "";
+                err.classList.remove("active");
+                document.getElementById("viewForm").style.display = "block";
+                document.getElementById("viewConfir").style.display = "none";
+            }
+        },
+        modalTransax: {
+        onClose() {
+            document.getElementById("data-id").textContent      = "";
+            document.getElementById("data-type").textContent = "";
+            document.getElementById("data-category").textContent = "";
+            document.getElementById("data-description").textContent = "";    
+            document.getElementById("data-amount").textContent   = "";
+            document.getElementById("data-date").textContent   = "";
+        }
+        },modalEnvioConfir: {
+            onClose() {}
+        },
+        modalConfirmation: {
+            onClose() {}
+        }
+};
+    /* abrir/cerrar*/
+    function open(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.add("show");
+    }
+
+    function close(modalOrId) {
+        const modal = typeof modalOrId === "string"
+            ? document.getElementById(modalOrId)
+            : modalOrId;
+
+        if (!modal) return;
+        modal.classList.remove("show");
+        hooks[modal.id]?.onClose?.();
+    }
+
+    window.addEventListener("click", (e) => {
+        if (e.target.classList.contains("close")) {
+            close(e.target.closest(".modal"));
+        }
+        if (e.target.classList.contains("modal")) {
+            close(e.target);
+        }
+    });
+
+    return { open, close };
+})();
+
+
+document.getElementById("openModal")
+    ?.addEventListener("click", () => ModalManager.open("modalForget"));
+
+    const btnEdit   = document.getElementById("btnEdit");
+    const btnDelete = document.getElementById("btnDelete");
+    const MODAL_TX    = "modalTransax";
+
+    document.querySelectorAll(".fila-cliqueable").forEach(fila => {
+        fila.addEventListener("click", () => {
+            const {id, type, category, description, amount, date} = fila.dataset;
+            document.getElementById("data-id").textContent      = id;
+            document.getElementById("data-type").textContent = type;
+            document.getElementById("data-category").textContent = category;
+            document.getElementById("data-description").textContent = description;    
+            document.getElementById("data-amount").textContent   = amount;
+            document.getElementById("data-date").textContent   = date;
+            btnEdit.dataset.id   = id;
+            btnDelete.dataset.id = id;
+
+            ModalManager.open(MODAL_TX);
+        });
+    });
+
+    btnDelete?.addEventListener("click", async (e) => {
+        const id = e.target.dataset.id;
+        if (!confirm(`¿Eliminar la transacción #${id}?`)) return;
+
+        try {
+            const res = await fetch(`http://localhost:8000/transactions/${id}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (res.ok) {
+                ModalManager.close(MODAL_TX);
+                document.querySelector(`.fila-cliqueable[data-id="${id}"]`)?.remove();
+            } else {
+                const err = await res.json();
+                alert("Error: " + err.detail);
+            }
+        } catch {
+            alert("No se pudo establecer conexión con el servidor.");
+        }
+    });
+
+    btnEdit?.addEventListener("click", (e) => {
+        const id = e.target.dataset.id;
+        console.log("Modificar transacción ID:", id);
+        // Disparar lógica de formulario de edición aquí
+    });

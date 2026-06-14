@@ -108,6 +108,10 @@ body {
     margin-bottom: 16px; 
 }
 
+.btn-primary:hover{
+    background-color: #1e40af;
+}
+
 .btn-google { 
     display: flex; 
     justify-content: center;
@@ -216,12 +220,12 @@ body {
 }
 
 /* Muestra el modal cuando se le añade la clase 'mostrar' */
-.modal.mostrar {
+.modal.show {
     display: flex;
 }
 
 /* 2. Caja del modal */
-.contenido-modal {
+.content-modal {
     display:flex;
     flex-direction:column;
     justify-content:center;
@@ -242,26 +246,26 @@ body {
     display: inline;
 }
 
-.contenido-modal p{
+.content-modal p{
     text-align:center;
 }
-.contenido-modal h2{
+.content-modal h2{
     text-align:center;
 }
 
-#modalOlvidar .btn-primary{
+#modalForget .btn-primary{
     width: 100%;
     text-align: center;     
     justify-content: flex-start;
 }
 
-#modalOlvidar .form-group{
+#modalForget .form-group{
     width: 100%;
     text-align: left;     
     justify-content: flex-start;
 }
 
-.cerrar {
+.close {
     position: absolute;
     top: 10px;
     right: 15px;
@@ -294,7 +298,7 @@ display: block;
     padding-bottom: 0;
 }
 
-.contenedor-perfil{
+.cont-profile{
     width: 50px;
     height: 50px;      
     border-radius: 50%;
@@ -305,7 +309,7 @@ display: block;
     object-fit: cover;
 }
 
-.contenedor-perfil img {
+.cont-profile img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -566,7 +570,7 @@ display: block;
 .titulo-seccion h2 {
     font-size: 20px;
     font-weight: 800;
-    color: #000000;
+    color: #1F2937;
     margin: 0;
 }
 
@@ -826,4 +830,52 @@ display: block;
     .tarjeta-monto {
         font-size: 26px;
     }
+}
+
+/*MODAL: Tabla con datos de transacciones*/
+.tabla-detalle{
+    width:100%;
+    margin: 15px 0;
+    border-collapse: collapse;
+}
+
+.tabla-detalle td{
+    padding: 10px;
+    border-bottom: 1px solid #5D6772;
+    font-size: 14px;
+}
+
+.tabla-detalle td:first-child {
+    font-weight: bold;
+    color: #5D6772;
+    width: 35%;
+    text-align: left;
+}
+
+.tabla-detalle td:last-child {
+    text-align: left;
+    width: 65%;
+    color: #5D6772;
+}
+
+/* Contenedor y botones del modal de transacciones */
+.acciones-modal {
+    display: flex;
+    gap: 25px;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+.btn-red {
+    background-color: #dc2626; /* Rojo */
+    border: none;
+}
+
+.btn-red:hover {
+    background-color: #b91c1c;
+}
+
+/* Estilo para las filas de la tabla principal */
+.fila-cliqueable {
+    cursor: pointer;
 }
