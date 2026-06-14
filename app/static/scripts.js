@@ -182,7 +182,6 @@ const error = document.getElementById("error-reset");
     }
 }
 
-
 const modalConfir = document.getElementById("modalEnvioConfir");
 const cerrarConfir = document.getElementById("cerrarModalConfir");
 

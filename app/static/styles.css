@@ -271,62 +271,16 @@ body {
     }
 
 /*Contenido Dashbooard*/
-.componente-header{
-    font-weight: bold;
-    padding: 15px;
-    border-bottom: 2px solid #1D4ED8;
-}
-
-.grid-contenedor {
-    display: grid;
-    grid-template-columns: 250px 1fr;
-    grid-template-rows: auto 1fr auto;
-    grid-template-areas: 
-        "sidebar header"
-        "sidebar main";
-    min-height: 100vh;
-}
-
-.componente-tarjetas{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 20px;
-}
-.componente-tarjetas1{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 20px;
-}
-.componente-tarjetas2{
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 16px;
-    padding: 20px;
-}
-
-.componente-main2{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 20px;
-    font-weight: bold;
-}
-
-.componente-header { grid-area: header; }
-.componente-sidebar { grid-area: sidebar; }
-.componente-main { grid-area: main; }
-
 /*sidebar*/
+#sidebar-placeholder {
+    grid-area: sidebar;
+    overflow-y: auto;   
+}
 .sidebar {
 height: 100%;
-width: 250px;
-position: fixed;
-left: 0;
-top: 0;
 padding-top: 20px;
 background-color: #E2E4E6;
+grid-area: sidebar;
 }
 
 .sidebar div {
@@ -336,7 +290,8 @@ display: block;
 
 .sidebar .profile{
     display: grid;
-    grid-template-columns: 75px 1fr;
+    grid-template-columns: 1fr 1fr;
+    padding-bottom: 0;
 }
 
 .contenedor-perfil{
@@ -365,6 +320,9 @@ display: block;
 .sidebar .profile-info p {
     margin: 0;
 }
+.sidebar .menu{
+    padding-top: 0;
+}
 
 .menu .menu-item-dashboard {
     display: flex;
@@ -376,8 +334,8 @@ display: block;
 
 .menu .submenu {
     display: flex;
-    flex-direction: column; /* lista vertical */
-    padding-left: 30px;     /* sangría para diferenciar */
+    flex-direction: column; 
+    padding-left: 30px;
     gap: 5px;
     padding-top: 5px;  
     padding-bottom: 5px;
@@ -419,6 +377,7 @@ display: block;
 
 .componente-header {
     grid-area: header;
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -465,123 +424,13 @@ display: block;
 }
 
 /* ============================= */
-/* SIDEBAR */
-/* ============================= */
-
-.componente-sidebar {
-    grid-area: sidebar;
-    background: #E5E7EB;
-    padding: 32px 24px;
-    min-height: 100vh;
-}
-
-.usuario-sidebar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 42px;
-}
-
-.usuario-avatar {
-    width: 48px;
-    height: 48px;
-    border: 2px solid #F97316;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #ffffff;
-    flex-shrink: 0;
-}
-
-.usuario-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.usuario-info h2 {
-    font-size: 14px;
-    font-weight: 700;
-    color: #111827;
-    margin: 0;
-}
-
-.usuario-info p {
-    font-size: 12px;
-    color: #6B7280;
-    margin: 2px 0 0;
-}
-
-.menu-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.menu-link {
-    display: grid;
-    grid-template-columns: 22px 1fr auto;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    color: #111827;
-    text-decoration: none;
-    font-size: 14px;
-    border-radius: 8px;
-}
-
-.menu-link-activo {
-    background: #ffffff;
-}
-
-.menu-icono {
-    font-size: 18px;
-}
-
-.menu-flecha {
-    font-size: 12px;
-}
-
-.submenu-sidebar {
-    display: flex;
-    flex-direction: column;
-    margin-left: 20px;
-    border-left: 1px solid #9CA3AF;
-}
-
-.submenu-link {
-    padding: 8px 0 8px 12px;
-    color: #6B7280;
-    font-size: 12px;
-    text-decoration: none;
-}
-
-.submenu-link-activo {
-    color: #2563EB;
-    font-weight: 600;
-    background: #F9FAFB;
-    border-left: 2px solid #2563EB;
-    margin-left: -1px;
-}
-
-.separador-sidebar {
-    border: none;
-    height: 1px;
-    background: #9CA3AF;
-    margin: 14px 0;
-}
-
-.menu-titulo {
-    font-size: 12px;
-    color: #6B7280;
-    margin: 0 0 4px;
-}
-
-/* ============================= */
 /* MAIN DASHBOARD */
 /* ============================= */
 
 .componente-main {
     grid-area: main;
+    min-width: 0;
+    overflow: hidden;
     padding: 22px 24px 40px;
     background: #ffffff;
 }
