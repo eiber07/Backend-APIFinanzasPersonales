@@ -10,12 +10,14 @@
 #from app.models.account_type import AccountType
 #from app.models.transaction_type import TransactionType
 #from app.models.status import Status
+from fastapi import FastAPI
+
 from app.database.database import engine, Base
 #from app.schemas.user import UserCreate, UserLogin
 #from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
 from .auth.routes import router as auth_router
-from app.models.routes import router as users_router
+from app.routers.routes import router as users_router
 from contextlib import asynccontextmanager
 from app.auth.password import router as password_router
 
