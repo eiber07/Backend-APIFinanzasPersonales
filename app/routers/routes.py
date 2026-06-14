@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from ..dependencies import get_current_user
 from ..database.database import get_db
 from ..schemas.user import UserResponse
-from .user import User as UserModel
+from ..models.user import User as UserModel
 
 router = APIRouter()
 
