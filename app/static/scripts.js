@@ -153,14 +153,14 @@ abrir.addEventListener("click", () => {
 });
 
 async function enviarReset() {
-  const email = document.getElementById("reset-email").value;
-  const error = document.getElementById("error-reset");
-  
+const email = document.getElementById("reset-email").value;
+const error = document.getElementById("error-reset");
+
     if (!email) {
         error.textContent = "Ingresa tu correo";
         error.classList.add("active");
         return
-  }
+}
     try{
         const response = await fetch("http://localhost:8000/auth/forget-password",{
             method : "POST",
@@ -182,7 +182,6 @@ async function enviarReset() {
     }
 }
 
-
 const modalConfir = document.getElementById("modalEnvioConfir");
 const cerrarConfir = document.getElementById("cerrarModalConfir");
 
@@ -193,7 +192,7 @@ cerrarConfir.addEventListener("click", () => {
 window.addEventListener("click", (e) => {
     if (e.target === modalConfir) {
         modalConfir.classList.remove("mostrar");
-  }
+}
 });
 
 async function resetPassword() {

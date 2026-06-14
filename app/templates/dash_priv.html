@@ -1,25 +1,236 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Cuenta Personal</title>
-        <link rel="stylesheet" href="../static/styles.css">
-    </head>
-    <body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuenta Personal</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
     <div class="grid-contenedor">
-        <div class="componente-header">Dashboard privado</div>
-        <div class="componente-sidebar">Sidebar</div>
-        <div class="componente-main">
-            <div class="componente-tarjetas">
-                <div class="componente-tarjetas1">Trajetas 1</div>
-                <div class="componente-tarjetas2">Tarjetass 2</div>
+        
+        <!-- HEADER -->
+        <header class="componente-header">
+            <h1>Dashboard privado</h1>
+            <!--
+            <div class="header-acciones">
+                <button type="button" class="boton-icono" aria-label="Notificaciones">
+                </button>
+                <button type="button" class="boton-ayuda" aria-label="Ayuda">
+                </button>
             </div>
-        <div class="componente-main2">
-            <div class="componente-transacciones">Transacciones recientes</div>
-            <div class="componente-cuentas">Próximas facturas</div>
-        </div>
-        </div>        
+             -->
+        </header>
+
+        <!-- SIDEBAR -->
+        <div id="sidebar-placeholder"></div>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="componente-main">
+
+            <!-- TARJETAS SUPERIORES -->
+            <section class="componente-tarjetas">
+
+                <article class="componente-tarjetas1">
+                    <div class="tarjeta-info">
+                        <p class="tarjeta-titulo">Balance total</p>
+                        <h2 class="tarjeta-monto">$12,450.80</h2>
+
+                        <div class="tarjeta-fecha">
+                            <span class="punto-verde"></span>
+                            <span>Junio 2026</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="componente-tarjetas2">
+                    <div class="tarjeta-info">
+                        <p class="tarjeta-titulo">Ahorro total</p>
+                        <h2 class="tarjeta-monto">$12,450.80</h2>
+
+                        <div class="tarjeta-fecha">
+                            <span class="punto-verde"></span>
+                            <span>Junio 2026</span>
+                        </div>
+                    </div>
+                </article>
+
+                <div class="tarjetas-resumen-lateral">
+
+                    <article class="tarjeta-resumen">
+                        <div class="tarjeta-resumen-icono ingreso">
+                            ↗
+                        </div>
+
+                        <div class="tarjeta-resumen-info">
+                            <p>Ingreso total</p>
+                            <h3>$4,200.00</h3>
+                        </div>
+                    </article>
+
+                    <article class="tarjeta-resumen">
+                        <div class="tarjeta-resumen-icono egreso">
+                            ↘
+                        </div>
+
+                        <div class="tarjeta-resumen-info">
+                            <p>Egreso total</p>
+                            <h3>$1,749.20</h3>
+                        </div>
+                    </article>
+
+                </div>
+
+            </section>
+
+            <!-- ZONA INFERIOR -->
+            <section class="componente-main2">
+
+                <!-- TRANSACCIONES -->
+                <section class="componente-transacciones">
+
+                    <div class="titulo-seccion">
+                        <h2>Transacciones recientes</h2>
+                        <a href="#">Ver todo</a>
+                    </div>
+
+                    <div class="tabla-contenedor">
+                        <table class="tabla-transacciones">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Categoría</th>
+                                    <th>Descripción</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td>Jun 12, 2024</td>
+                                    <td>
+                                        <span class="categoria-etiqueta">Comida</span>
+                                    </td>
+                                    <td>Burger King</td>
+                                    <td>-$13,250.00</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Jun 11, 2024</td>
+                                    <td>
+                                        <span class="categoria-etiqueta">Shopping</span>
+                                    </td>
+                                    <td>Todo Moda</td>
+                                    <td>-$15,963.36</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Jun 10, 2024</td>
+                                    <td>
+                                        <span class="categoria-etiqueta">Salario</span>
+                                    </td>
+                                    <td>Ingreso mensual Mayo26</td>
+                                    <td class="monto-positivo">+$500,700.00</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Jun 08, 2024</td>
+                                    <td>
+                                        <span class="categoria-etiqueta">Utilidades</span>
+                                    </td>
+                                    <td>Gas</td>
+                                    <td>-$3,250.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </section>
+
+                <!-- PRÓXIMAS FACTURAS -->
+                <aside class="componente-cuentas">
+
+                    <div class="titulo-seccion">
+                        <h2>Próximas facturas</h2>
+                    </div>
+
+                    <div class="lista-facturas">
+
+                        <article class="factura-card">
+                            <div class="factura-fecha factura-fecha-roja">
+                                <span>JUN</span>
+                                <strong>15</strong>
+                            </div>
+
+                            <div class="factura-info">
+                                <h3>Netflix</h3>
+                                <p>Servicio mensual</p>
+                            </div>
+
+                            <div class="factura-monto">
+                                <strong>$12,850.00</strong>
+                                <span class="estado-factura estado-rojo">Vence pronto</span>
+                            </div>
+                        </article>
+
+                        <article class="factura-card">
+                            <div class="factura-fecha factura-fecha-verde">
+                                <span>JUN</span>
+                                <strong>22</strong>
+                            </div>
+
+                            <div class="factura-info">
+                                <h3>Gym</h3>
+                                <p>Suscripción</p>
+                            </div>
+
+                            <div class="factura-monto">
+                                <strong>$30,000.00</strong>
+                                <span class="estado-factura estado-pendiente">Pendiente</span>
+                            </div>
+                        </article>
+
+                        <article class="factura-card">
+                            <div class="factura-fecha factura-fecha-verde">
+                                <span>JUN</span>
+                                <strong>30</strong>
+                            </div>
+
+                            <div class="factura-info">
+                                <h3>Luz</h3>
+                                <p>Gastos hogar</p>
+                            </div>
+
+                            <div class="factura-monto">
+                                <strong>$12,850.00</strong>
+                                <span class="estado-factura estado-pendiente">Pendiente</span>
+                            </div>
+                        </article>
+
+                    </div>
+
+                    <button type="button" class="boton-gestionar">
+                        Gestionar todos los gastos
+                    </button>
+
+                </aside>
+
+            </section>
+
+        </main>
+
     </div>
-    </body>
+    <script>
+    fetch('sidebar.html')
+        .then(r => {
+            console.log('Status:', r.status, 'URL:', r.url);
+            return r.text();
+        })
+        .then(html => {
+            document.getElementById('sidebar-placeholder').innerHTML = html;
+            console.log('Sidebar cargado OK');
+        })
+        .catch(err => console.error('Error:', err));
+</script>
+</body>
 </html>
