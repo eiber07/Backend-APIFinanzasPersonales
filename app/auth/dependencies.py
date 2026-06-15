@@ -13,7 +13,8 @@ oath2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
 
-def get_current_user(
+#cambios agregue async a la funcion y en la linea 31
+async def get_current_user(
         db: Session = Depends(get_db),
         token: str = Depends(oath2_scheme)):
     credentials_exception = HTTPException(
@@ -26,12 +27,12 @@ def get_current_user(
         username : str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=username) #cambios!
     except JWTError:
         raise credentials_exception
     
     user_dal = UserDAL(db)
-    user = user_dal.get_by_username(token_data.username)
+    user = await user_dal.get_by_email(token_data.email) #cambios!
     if user is None:
         raise credentials_exception
     return user
