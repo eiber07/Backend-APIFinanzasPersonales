@@ -18,7 +18,7 @@ from app.routers.auth_routes import router as auth_router
 from app.routers.user_routes import router as users_router
 from contextlib import asynccontextmanager
 from app.routers.password_routes import router as password_router
-
+from app.database.data_seed import seed_all_data
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -27,6 +27,7 @@ from app.routers.password_routes import router as password_router
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    await seed_all_data()
     yield
 
 app = FastAPI(lifespan=lifespan)
