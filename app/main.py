@@ -18,6 +18,7 @@ from app.routers.auth_routes import router as auth_router
 from app.routers.user_routes import router as users_router
 from contextlib import asynccontextmanager
 from app.routers.password_routes import router as password_router
+from app.routers.parameters_routes import router as parameters_router
 from app.database.data_seed import seed_all_data
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -46,6 +47,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(users_router, prefix="/users", tags=["users"])
 app.include_router(password_router, prefix="/auth", tags=["auth"])
+app.include_router(parameters_router, prefix="/parameters", tags=["parameters"])
 
 #@app.on_event("startup")
 #async def startup():
