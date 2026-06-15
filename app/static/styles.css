@@ -900,3 +900,7 @@ display: block;
 #clickable-img2{
     cursor: pointer;
 }
+
+#btnNewAccount{
+    cursor: pointer;
+}

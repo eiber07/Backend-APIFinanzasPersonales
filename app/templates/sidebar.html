@@ -1,22 +1,55 @@
 <link rel="stylesheet" href="../static/styles.css">
+<body>
 <div class="sidebar">
   <div class="profile">
     <div class="cont-profile" style="padding:0;">
       <img id="profile-pic" src="../static/img/perfil-mujer.avif"/>
     </div>
     <div class="profile-info">
-      <p style="color:#131B2E; font-size: 14px;">{{nombre_apellido}}</p>
-      <p style="color: #737B8B; font-size: 13px;">{{tipo_de _cuenta}}</p>
+      <p style="color:#131B2E; font-size: 14px;" id="user-name"></p>
+      <p style="color: #737B8B; font-size: 13px;" id="user-email"></p>
     </div>
   </div>
   <div class="menu">
-    <div class="menu-item-dashboard"><img src="../static/img/icono-dashboard.png" height="17px"/>Dashboard</div>
+    <div class="menu-item-dashboard"><img src="../static/img/icono-dashboard.png" height="17px"/>Dashboards</div>
     <div class="submenu">
-    <div>{{nombre_cuenta}}</div>
-    <div>{{nombre_cuenta}}</div>
-    <div>{{nombre_cuenta}}</div>
-    <div>{{nombre_cuenta}}</div>
+    <div id="account-list">
+    </div>
+    <div class="new-account" id="btnNewAccount">+ Nueva cuenta</div>
   </div>
     <div class="menu-item-dashboard"><img src="../static/img/icono-perfil.png" height="18px"/>Perfil de usuario</div>
   </div>
 </div>
+    <div id="modalNewAccount" class="modal">
+      <div class="content-modal">
+          <span class="close" onclick="ModalManager.close('modalNewAccount')">&times;</span> 
+          <h2 style="color:#1F2937; margin:0;">Crear Cuenta</h2>
+          <div class="form-section">
+              <div class="form-group" >
+                  <label class="label">Nombre de la cuenta</label>
+                  <input type="text" class="input" id="account-name" placeholder="Japón 2027">
+                  <span class="error" id="error-amount"></span>
+              </div>
+              <div class="form-group">
+                  <label class="label">Descripción</label>
+                  <textarea class="input" id="account-description" name="description" rows="3" cols="40" placeholder="¿Para qué sera la cuenta?" maxlength="25"></textarea>
+                  <div id="char-counter3">0 / 25 caracteres</div>
+                  <span class="error" id="error-description"></span>
+              </div>
+
+              <div class="form-group">
+                  <label class="label">Tipo de cuenta</label>
+                  <select id="account-category-drop" class="input" >
+                    <option value="personal" selected >Personal</option>
+                    <option value="grupal">Grupal</option>
+                  </select>
+                  <span class="error" id="error-category"></span>
+              </div>
+              <div class="acciones-modal">
+                  <button id="btnSave" class="btn-primary" onclick="createAccount()">Crear cuenta</button>
+                  <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewAccount')">Cancelar</button>
+              </div>
+          </div>
+      </div>
+    </div>
+</body>

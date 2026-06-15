@@ -1,14 +1,104 @@
-fetch('sidebar.html')
-        .then(r => {
-            /*console.log('Status:', r.status, 'URL:', r.url);*/
-            return r.text();
-        })
-        .then(html => {
-            document.getElementById('sidebar-placeholder').innerHTML = html;
-            /*console.log('Sidebar cargado OK');*/
-        })
-        .catch(err => console.error('Error:', err));
+/* DATOS DE BACKEND */
+// Helper para requests autenticados
+async function fetchWithAuth(url, options = {}) {
+    const token = localStorage.getItem("access_token");
+    return fetch(url, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            ...options.headers
+        }
+    });
+}
 
+async function loadCurrentUser() {
+    const token = localStorage.getItem("access_token");
+    
+    if (!token) {
+        window.location.href = "/app/templates/login.html";
+        return null;
+    }
+
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/users/me");
+        
+        if (res.status === 401) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/app/templates/login.html";
+            return null;
+        }
+
+        const user = await res.json();
+        return user;
+    } catch (error) {
+        console.error("Error al obtener usuario:", error);
+        return null;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    // Listeners de modales - siempre se registran en cualquier página
+    document.getElementById("clickable-img")
+        ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
+    document.getElementById("clickable-img2")
+        ?.addEventListener("click", () => ModalManager.open("modalNewExpense"));
+    document.getElementById("openModal")
+        ?.addEventListener("click", () => ModalManager.open("modalForget"));
+
+    // Contadores - siempre se registran
+    const textarea  = document.getElementById('description-text');
+    const counter   = document.getElementById('char-counter');
+    const textarea2 = document.getElementById('description-text-exp');
+    const counter2  = document.getElementById('char-counter-exp');
+    const textarea3 = document.getElementById('account-description');
+    const counter3  = document.getElementById('char-counter3');
+
+    if (textarea && counter) {
+        textarea.addEventListener('input', () => {
+            const l = textarea.value.length;
+            counter.textContent = `${l} / 25 caracteres`;
+            counter.style.color = l >= 25 ? '#dc2626' : 'inherit';
+        });
+    }
+    if (textarea2 && counter2) {
+        textarea2.addEventListener('input', () => {
+            const l = textarea2.value.length;
+            counter2.textContent = `${l} / 25 caracteres`;
+            counter2.style.color = l >= 25 ? '#dc2626' : 'inherit';
+        });
+    }
+    if (textarea3 && counter3) {
+        textarea3.addEventListener('input', () => {
+            const l = textarea3.value.length;
+            counter3.textContent = `${l} / 25 caracteres`;
+            counter3.style.color = l >= 25 ? '#dc2626' : 'inherit';
+        });
+    }
+
+    // Solo en páginas con sidebar (dash_priv, etc.)
+    const sidebarPlaceholder = document.getElementById('sidebar-placeholder');
+    if (!sidebarPlaceholder) return;
+
+    // Cargar sidebar
+    try {
+        const sidebarHTML = await fetch('/app/templates/sidebar.html').then(r => r.text());
+        sidebarPlaceholder.innerHTML = sidebarHTML;
+    } catch (err) {
+        console.error("Error cargando sidebar:", err);
+    }
+    document.getElementById("btnNewAccount")
+        ?.addEventListener("click", () => ModalManager.open("modalNewAccount"));
+    // Cargar usuario
+    const user = await loadCurrentUser();
+    if (user) {
+        const elName  = document.getElementById("user-name");
+        const elEmail = document.getElementById("user-email");
+        if (elName)  elName.textContent  = `${user.name} ${user.last_name}`;
+        if (elEmail) elEmail.textContent = user.email;
+        await loadUserAccounts(user.id);
+    }
+});
 
 async function validateForm() {
     const name = document.getElementById("name");
@@ -118,13 +208,18 @@ async function login() {
 
     if (valid) {
         try {
-            const response = await fetch("http://localhost:8000/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password })
-            });
+            const formData = new URLSearchParams();
+            formData.append("username", email);
+            formData.append("password", password);
+            const response = await fetch("http://localhost:8000/auth/token", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData
+        });
 
             if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem("access_token", data.access_token); //aqui se guarda el token
                 window.location.href = "dash_priv.html";
             } else {
                 const errorData = await response.json();
@@ -275,7 +370,16 @@ const ModalManager = (() => {
             document.getElementById("description-text-exp").value = "";
             const counter2 = document.getElementById("char-counter-exp");
             counter2.textContent = "0 / 25 caracteres";
-            counter2.style.color = "inherit"; //
+            counter2.style.color = "inherit";
+
+        }
+        },modalNewAccount:{
+            onClose() {
+            document.getElementById("account-name").value = "";
+            document.getElementById("account-description").value = "";
+            const counter3 = document.getElementById("char-counter3");
+            counter3.textContent = "0 / 25 caracteres";
+            counter3.style.color = "inherit";
 
         }
         },modalEnvioConfir: {
@@ -312,19 +416,6 @@ const ModalManager = (() => {
 
     return { open, close };
 })();
-
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    document.getElementById("clickable-img")
-        ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
-
-    document.getElementById("clickable-img2")
-        ?.addEventListener("click", () => ModalManager.open("modalNewExpense"));
-
-    document.getElementById("openModal")
-        ?.addEventListener("click", () => ModalManager.open("modalForget"));
-});
 
 const btnEdit   = document.getElementById("btnEdit");
 const btnDelete = document.getElementById("btnDelete");
@@ -371,7 +462,6 @@ btnDelete?.addEventListener("click", async (e) => {
 btnEdit?.addEventListener("click", (e) => {
     const id = e.target.dataset.id;
     /*console.log("Modificar transacción ID:", id);*/
-    // Disparar lógica de formulario de edición aquí
     ModalManager.open("modalEditTransax");
 });
 
@@ -398,23 +488,6 @@ function moneyFormat(input) {
   input.value = parteEntera + "," + parteDecimal;
 }
 
-//FORMULARIO DE TRANSACCION - CONTADOR DE CARACTERES
-const textarea = document.getElementById('description-text');
-const counter = document.getElementById('char-counter');
-const textarea2 = document.getElementById('description-text-exp');
-const counter2 = document.getElementById('char-counter-exp');
-
-if (textarea && counter) {
-    textarea.addEventListener('input', function() {
-        const longitud = textarea.value.length;
-        counter.textContent = `${longitud} / 25 caracteres`;
-        counter.style.color = longitud >= 25 ? '#dc2626' : 'inherit';
-    });
-}
-if (textarea2 && counter2) {
-    textarea2.addEventListener('input', function() {
-        const longitud = textarea2.value.length;
-        counter2.textContent = `${longitud} / 25 caracteres`;
-        counter2.style.color = longitud >= 25 ? '#dc2626' : 'inherit';
-    });
+async function createAccount(){
+    
 }
