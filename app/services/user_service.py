@@ -38,3 +38,6 @@ class UserService:
             email=created_user.email
         )
         return user_response
+    
+    async def update(self, user: User):
+        return await self.userDal.update(user)
