@@ -591,6 +591,8 @@ display: block;
     color: #2563EB;
     font-size: 12px;
     text-decoration: none;
+    margin-left: auto;
+    margin-right: 16px;
 }
 
 /* ============================= */
@@ -616,7 +618,7 @@ display: block;
 }
 
 .tabla-transacciones th {
-    padding: 14px 18px;
+    padding: 12px 18px;
     text-align: left;
     color: #374151;
     font-size: 12px;
@@ -624,9 +626,16 @@ display: block;
 }
 
 .tabla-transacciones td {
-    padding: 16px 18px;
+    padding: 14px 18px;
     border-top: 1px solid #E5E7EB;
     color: #111827;
+    height: 58px;
+}
+
+.tabla-transacciones th:last-child, .tabla-transacciones tbody td:last-child {
+    text-align: right;
+    padding-right: 100px;
+    font-variant-numeric: tabular-nums;
 }
 
 .categoria-etiqueta {
