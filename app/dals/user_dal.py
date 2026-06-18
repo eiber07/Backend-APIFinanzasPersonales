@@ -22,3 +22,8 @@ class UserDAL:
         await self.db.commit()
         await self.db.refresh(user)
         return user
+    
+    async def update(self, user: User):
+        await self.db.commit()
+        await self.db.refresh(user)
+        return user

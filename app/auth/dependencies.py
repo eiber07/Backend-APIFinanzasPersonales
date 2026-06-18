@@ -1,15 +1,15 @@
+import os
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from app.dals.user_dal import UserDAL
 from app.database.database import get_db
-from app.core.config import settings
 from ..schemas.token import TokenData
-from ..models.user import User
+from app.core.config import settings
 
 oath2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
-#cambios agregue async a la funcion y en la linea 31
+
 async def get_current_user(
         db: Session = Depends(get_db),
         token: str = Depends(oath2_scheme)):
@@ -23,12 +23,12 @@ async def get_current_user(
         username : str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = TokenData(email=username) #cambios!
+        token_data = TokenData(email=username) 
     except JWTError:
         raise credentials_exception
     
     user_dal = UserDAL(db)
-    user = await user_dal.get_by_email(token_data.email) #cambios!
+    user = await user_dal.get_by_email(token_data.email) 
     if user is None:
         raise credentials_exception
     return user
