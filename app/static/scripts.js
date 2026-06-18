@@ -41,6 +41,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Listeners de modales - siempre se registran en cualquier página
     document.getElementById("clickable-img")
         ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
+    document.getElementById("btn-save-new-transactions")
+        ?.addEventListener("click", saveNewTransaction);
+    renderRecentTransactions();
     document.getElementById("clickable-img2")
         ?.addEventListener("click", () => ModalManager.open("modalNewExpense"));
     document.getElementById("openModal")
@@ -353,7 +356,7 @@ const ModalManager = (() => {
             onClose() {
             document.getElementById("amount").value = "";
             document.getElementById("date").value = "";
-            document.getElementById("category-drop").textContent = "";
+            document.getElementById("category-drop").value = "";
             document.getElementById("description-text").value = "";
             const counter = document.getElementById("char-counter");
                     counter.textContent = "0 / 25 caracteres";
@@ -421,7 +424,7 @@ const btnEdit   = document.getElementById("btnEdit");
 const btnDelete = document.getElementById("btnDelete");
 const MODAL_TX    = "modalTransax";
 
-document.querySelectorAll(".clickable-row").forEach(row => {
+/*document.querySelectorAll(".clickable-row").forEach(row => {
     row.addEventListener("click", () => {
         const {id, type, category, description, amount, date} = row.dataset;
         document.getElementById("data-id").textContent      = id;
@@ -435,6 +438,22 @@ document.querySelectorAll(".clickable-row").forEach(row => {
 
         ModalManager.open(MODAL_TX);
     });
+}); */
+document.getElementById("transactions-table-body")?.addEventListener("click", (event) => {
+    const row = event.target.closest(".clickable-row");
+
+    if (!row) return;
+        const {id, type, category, description, amount, date} = row.dataset;
+        document.getElementById("data-id").textContent      = id;
+        document.getElementById("data-type").textContent = type;
+        document.getElementById("data-category").textContent = category;
+        document.getElementById("data-description").textContent = description;    
+        document.getElementById("data-amount").textContent   = amount;
+        document.getElementById("data-date").textContent   = date;
+        if (btnEdit) btnEdit.dataset.id = id;
+        if (btnDelete) btnDelete.dataset.id = id;
+
+        ModalManager.open(MODAL_TX);
 });
 
 btnDelete?.addEventListener("click", async (e) => {
@@ -467,25 +486,137 @@ btnEdit?.addEventListener("click", (e) => {
 
 //FORMULARIO DE TRANSACCION - MONTO INPUT
 function moneyFormat(input) {
-  let valor = input.value.replace(/\D/g, "");
-  if (valor === "") {
-    input.value = "";
-    return;
-  }
-  
-  // Si el usuario escribe "1", se convierte internamente en "0.01"
-  let numero = (parseInt(valor) / 100).toFixed(2);
-  
-  //Separar la parte entera de los dos decimales
-  let partes = numero.split(".");
-  let parteEntera = partes[0];
-  let parteDecimal = partes[1];
-  
-  // Agregar los puntos de miles a la parte entera
-  parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  
-  //Unir la parte entera y decimal con una coma
-  input.value = parteEntera + "," + parteDecimal;
+    let valor = input.value.replace(/\D/g, "");
+    if (valor === "") {
+        input.value = "";
+        return;
+    }
+    
+    // Si el usuario escribe "1", se convierte internamente en "0.01"
+    let numero = (parseInt(valor) / 100).toFixed(2);
+    
+    //Separar la parte entera de los dos decimales
+    let partes = numero.split(".");
+    let parteEntera = partes[0];
+    let parteDecimal = partes[1];
+    
+    // Agregar los puntos de miles a la parte entera
+    parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    
+    //Unir la parte entera y decimal con una coma
+    input.value = parteEntera + "," + parteDecimal;
+}
+
+
+/* RECENT TRANSACTIONS - TEMP */
+
+let recentTransactions = [];
+
+function saveNewTransaction() {
+    const amountInput = document.getElementById("amount");
+    const dateInput = document.getElementById("date");
+    const categoryInput = document.getElementById("category-drop");
+    const descriptionInput = document.getElementById("description-text");
+
+    const amountRaw = amountInput.value.trim();
+    const dateRaw = dateInput.value;
+    const categoryRaw = categoryInput.value;
+    const descriptionRaw = descriptionInput.value.trim();
+
+    if (!amountRaw || !dateRaw || !categoryRaw || !descriptionRaw) {
+        alert("Completá todos los campos antes de guardar la transacción.");
+        return;
+    }
+
+    const amountNumber = parseTransactionAmount(amountRaw);
+
+    if (!amountNumber || amountNumber <= 0) {
+        alert("Ingresá un monto válido.");
+        return;
+    }
+
+    const newTransaction = {
+        id: Date.now().toString(),
+        type: "Egreso",
+        category: categoryRaw,
+        description: descriptionRaw,
+        amountNumber: amountNumber * -1,
+        amount: `-${formatTransactionMoney(amountNumber)}`,
+        date: formatTransactionDate(dateRaw)
+    };
+
+    recentTransactions.unshift(newTransaction);
+
+    renderRecentTransactions();
+
+    ModalManager.close("modalNewTransax");
+}
+
+function renderRecentTransactions() {
+    const tableBody = document.getElementById("transactions-table-body");
+
+    if (!tableBody) return;
+
+    if (recentTransactions.length === 0) {
+        tableBody.innerHTML = `
+            <tr class="empty-transactions-row">
+                <td colspan="4">
+                    <div class="empty-transactions-message">
+                        Aún no se han registrado transacciones
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = recentTransactions.map(transaction => {
+        const amountClass = transaction.amountNumber > 0 ? "monto-positivo" : "";
+
+        return `
+            <tr class="clickable-row"
+                data-id="${transaction.id}"
+                data-type="${transaction.type}"
+                data-category="${transaction.category}"
+                data-description="${transaction.description}"
+                data-amount="${transaction.amount}"
+                data-date="${transaction.date}">
+
+                <td>${transaction.date}</td>
+                <td>
+                    <span class="categoria-etiqueta">${transaction.category}</span>
+                </td>
+                <td>${transaction.description}</td>
+                <td class="${amountClass}">${transaction.amount}</td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function parseTransactionAmount(value) {
+    const cleanValue = value
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, "");
+
+    return Number(cleanValue);
+}
+
+function formatTransactionMoney(amount) {
+    return `$${amount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+}
+
+function formatTransactionDate(dateValue) {
+    const date = new Date(`${dateValue}T00:00:00`);
+
+    return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric"
+    });
 }
 
 async function createAccount(){

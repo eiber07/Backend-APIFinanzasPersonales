@@ -601,9 +601,11 @@ display: block;
 
 .tabla-contenedor {
     width: 100%;
+    max-height: 334px;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     background: #ffffff;
 }
 
@@ -623,6 +625,10 @@ display: block;
     color: #374151;
     font-size: 12px;
     font-weight: 800;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #EEF2FF;
 }
 
 .tabla-transacciones td {
@@ -632,10 +638,30 @@ display: block;
     height: 58px;
 }
 
-.tabla-transacciones th:last-child, .tabla-transacciones tbody td:last-child {
+.tabla-transacciones th:last-child, .tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
     text-align: right;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
+}
+
+.empty-transactions-row td {
+    padding: 0;
+    padding-right: 0;
+    border-top: 1px solid #E5E7EB;
+    text-align: center;
+}
+
+.empty-transactions-message {
+    height: 288px;
+    width: 100%;
+    background: #E5E7EB;
+    color: #5D6772;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .categoria-etiqueta {
