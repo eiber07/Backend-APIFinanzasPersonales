@@ -1,4 +1,6 @@
 
+import string
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.status import Status
@@ -13,4 +15,8 @@ class StatusDAL:
     
     async def get_by_id(self, status_id: int):
         result = await self.db.execute(select(Status).where(Status.id == status_id))
+        return result.scalars().first()
+    
+    async def get_by_name(self, name: string):
+        result = await self.db.execute(select(Status).where(Status.name == name))
         return result.scalars().first()
