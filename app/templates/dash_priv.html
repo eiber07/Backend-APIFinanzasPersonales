@@ -19,7 +19,7 @@
                 <button type="button" class="boton-ayuda" aria-label="Ayuda">
                 </button>
             </div>
-             -->
+            -->
         </header>
 
         <!-- SIDEBAR -->
@@ -34,7 +34,7 @@
                 <article class="componente-tarjetas1">
                     <div class="tarjeta-info">
                         <p class="tarjeta-titulo">Balance total</p>
-                        <h2 class="tarjeta-monto">$12,450.80</h2>
+                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
 
                         <div class="tarjeta-fecha">
                             <span class="punto-verde"></span>
@@ -46,7 +46,7 @@
                 <article class="componente-tarjetas2">
                     <div class="tarjeta-info">
                         <p class="tarjeta-titulo">Ahorro total</p>
-                        <h2 class="tarjeta-monto">$12,450.80</h2>
+                        <h2 class="tarjeta-monto" id="saving-total">$0.00</h2>
 
                         <div class="tarjeta-fecha">
                             <span class="punto-verde"></span>
@@ -64,7 +64,7 @@
 
                         <div class="tarjeta-resumen-info">
                             <p>Ingreso total</p>
-                            <h3>$4,200.00</h3>
+                            <h3 id="income-total">$0.00</h3>
                         </div>
                     </article>
 
@@ -75,7 +75,7 @@
 
                         <div class="tarjeta-resumen-info">
                             <p>Egreso total</p>
-                            <h3>$1,749.20</h3>
+                            <h3 id="expense-total">$0.00</h3>
                         </div>
                     </article>
 
@@ -105,43 +105,16 @@
                                     <th>Monto</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
-                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">
-                                    <td>Jun 12, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Comida</span>
+                            <tbody id="transactions-table-body">
+                                <tr class="empty-transactions-row">
+                                    <td colspan="4">
+                                        <div class="empty-transactions-message">
+                                            Aún no se han registrado transacciones
+                                        </div>
                                     </td>
-                                    <td>Burger King</td>
-                                    <td>-$13,250.00</td>
                                 </tr>
-
-                                <tr>
-                                    <td>Jun 11, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Shopping</span>
-                                    </td>
-                                    <td>Todo Moda</td>
-                                    <td>-$15,963.36</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Jun 10, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Salario</span>
-                                    </td>
-                                    <td>Ingreso mensual Mayo26</td>
-                                    <td class="monto-positivo">+$500,700.00</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Jun 08, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Utilidades</span>
-                                    </td>
-                                    <td>Gas</td>
-                                    <td>-$3,250.00</td>
-                                </tr>
+                                <!--<tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
+                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">-->
                             </tbody>
                         </table>
                     </div>
@@ -256,8 +229,14 @@
 
                         <div class="form-group">
                             <label class="label">Categoría</label>
-                            <select id="category-drop" class="input" >
+                            <select class="input" id="category-drop">
                             <option value="">Seleccionar</option>
+                            <!-- Borrar estas categorias al conectar el backend -->
+                            <option value="Comida">Comida</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Salario">Salario</option>
+                            <option value="Utilidades">Utilidades</option>
+                            <option value="Transporte">Transporte</option>
                             </select>
                             <span class="error" id="error-category"></span>
                         </div>
@@ -270,7 +249,7 @@
                         </div>
 
                         <div class="acciones-modal">
-                            <button id="btnSave" class="btn-primary">Guardar Transacción</button>
+                            <button id="btn-save-new-transactions" class="btn-primary">Guardar Transacción</button>
                             <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewTransax')">Cancelar</button>
                         </div>
                     </div>
