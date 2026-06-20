@@ -1,4 +1,6 @@
 
+import string
+
 from sqlalchemy.orm import Session
 from sqlalchemy.future import select
 from app.models.transaction_type import TransactionType
@@ -14,4 +16,8 @@ class TransactionTypeDAL:
 
     async def get_by_id(self, transaction_type_id: int):
         result = await self.db.execute(select(TransactionType).where(TransactionType.id == transaction_type_id))
+        return result.scalars().first()
+
+    async def get_by_name(self, name: string):
+        result = await self.db.execute(select(TransactionType).where(TransactionType.name == name))
         return result.scalars().first()

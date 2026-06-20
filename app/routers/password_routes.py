@@ -1,6 +1,9 @@
 from fastapi import APIRouter, BackgroundTasks, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.dals.account_dal import AccountDAL
+from app.dals.account_type_dal import AccountTypeDAL
+from app.dals.status_dal import StatusDAL
 from app.database.database import get_db
 from app.dals.user_dal import UserDAL
 from app.schemas.password import (
@@ -21,7 +24,10 @@ async def forget_password(
     db: AsyncSession = Depends(get_db),
 ):
     user_dal = UserDAL(db)
-    user_service = UserService(user_dal)
+    account_dal = AccountDAL(db)
+    status_dal = StatusDAL(db)
+    account_type_dal = AccountTypeDAL(db)
+    user_service = UserService(user_dal,account_dal,status_dal,account_type_dal)
     password_service = PasswordService(user_service)
 
     return await password_service.forget_password(
@@ -36,7 +42,10 @@ async def reset_password(
     db: AsyncSession = Depends(get_db),
 ):
     user_dal = UserDAL(db)
-    user_service = UserService(user_dal)
+    account_dal = AccountDAL(db)
+    status_dal = StatusDAL(db)
+    account_type_dal = AccountTypeDAL(db)
+    user_service = UserService(user_dal,account_dal,status_dal,account_type_dal)
     password_service = PasswordService(user_service)
 
     return await password_service.reset_password(request)
