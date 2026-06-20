@@ -1,11 +1,14 @@
 from fastapi import BackgroundTasks, HTTPException, background
 from fastapi.responses import JSONResponse
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from app.models import status
+#from app.models import status
+from starlette import status
 from app.utils.emails import create_reset_password_token, decode_reset_password_token
 from app.schemas.password import ForgetPasswordRequest, ResetForegetPassword, SuccessMessage
 from app.services.user_service import UserService
 from app.core.config import settings
+from app.auth.password import get_password_hash
+
 
 class PasswordService:
 
@@ -72,7 +75,8 @@ class PasswordService:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
         
-        user.password = reset_password_request.new_password
+        #user.password = reset_password_request.new_password
+        user.password = get_password_hash(reset_password_request.new_password)
         await self.user_service.update(user)
 
         return JSONResponse(
