@@ -128,62 +128,8 @@
                         <h2>Próximas facturas</h2>
                         <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
                     </div>
-
-                    <div class="lista-facturas">
-
-                        <article class="factura-card">
-                            <div class="factura-fecha factura-fecha-roja">
-                                <span>JUN</span>
-                                <strong>15</strong>
-                            </div>
-
-                            <div class="factura-info">
-                                <h3>Netflix</h3>
-                                <p>Servicio mensual</p>
-                            </div>
-
-                            <div class="factura-monto">
-                                <strong>$12,850.00</strong>
-                                <span class="estado-factura estado-rojo">Vence pronto</span>
-                            </div>
-                        </article>
-
-                        <article class="factura-card">
-                            <div class="factura-fecha factura-fecha-verde">
-                                <span>JUN</span>
-                                <strong>22</strong>
-                            </div>
-
-                            <div class="factura-info">
-                                <h3>Gym</h3>
-                                <p>Suscripción</p>
-                            </div>
-
-                            <div class="factura-monto">
-                                <strong>$30,000.00</strong>
-                                <span class="estado-factura estado-pendiente">Pendiente</span>
-                            </div>
-                        </article>
-
-                        <article class="factura-card">
-                            <div class="factura-fecha factura-fecha-verde">
-                                <span>JUN</span>
-                                <strong>30</strong>
-                            </div>
-
-                            <div class="factura-info">
-                                <h3>Luz</h3>
-                                <p>Gastos hogar</p>
-                            </div>
-
-                            <div class="factura-monto">
-                                <strong>$12,850.00</strong>
-                                <span class="estado-factura estado-pendiente">Pendiente</span>
-                            </div>
-                        </article>
-
+                    <div class="installmentCards" id="installmentCards">
                     </div>
-
                     <button type="button" class="boton-gestionar">
                         Gestionar todos los gastos
                     </button>
@@ -340,12 +286,115 @@
                         </div>
 
                         <div class="acciones-modal">
-                            <button id="btnSaveExp" class="btn-primary" onclick="saveExpense()">Guardar Gasto</button>
+                            <button id="btnSaveExp" class="btn-primary">Guardar Gasto</button>
                             <button class="btn-secondary" onclick="ModalManager.close('modalNewExpense')">Cancelar</button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="modalExpenses" class="modal">
+                <div class="content-modal" style="max-width: 800px; width: 90%;">
+                    <span class="close" onclick="ModalManager.close('modalExpenses')">&times;</span>
+                    <h2 style="color:#1F2937; margin:0">Gastos Planeados</h2>
+
+                    <div class="tabla-contenedor" style="margin-top: 1rem;">
+                        <table class="tabla-transacciones">
+                            <thead>
+                                <tr>
+                                    <th>Detalle</th>
+                                    <th>Fecha inicio</th>
+                                    <th>Fecha vencimiento</th>
+                                    <th>Cuotas</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gastos-table-body">
+                                <tr class="empty-transactions-row">
+                                    <td colspan="6">
+                                        <div class="empty-transactions-message">
+                                            Aún no se han registrado gastos planeados
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalEditExpenses" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalEditExpenses')">&times;</span>
+                    <h2 style="color:#1F2937; margin:0">Detalle de Gasto Planeado</h2>
+
+                    <table class="tabla-detalle">
+                        <tr><td>Detalle:</td><td id="expense-detail"></td></tr>
+                        <tr><td>Fecha inicio:</td><td id="expense-startdate"></td></tr>
+                        <tr><td>Fecha vencimiento:</td><td id="expense-startend"></td></tr>
+                        <tr><td>Cuotas:</td><td id="expense-installments"></td></tr>
+                        <tr><td>Monto:</td><td id="expense-amount"></td></tr>
+                    </table>
+
+                    <div class="acciones-modal">
+                        <button id="btnEditEx" class="btn-secondary">Editar</button>
+                        <button id="btnDeleteEx" class="btn-primary btn-red">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+            <div id="modalModifExpens" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalModifExpens')">&times;</span> 
+                    <h2 style="color:#1F2937; margin:0;">Editar Gasto Planeado</h2>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label class="label">Monto total</label>
+                            <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                            <span class="error" id="error-amount-exp"></span>
+                        </div>
+
+                        <div class="form-group2">
+                            <div>
+                                <label class="label">Fecha de inicio</label>
+                                <input type="date" class="input" id="start-date-exp">
+                                <span class="error" id="error-start-date-exp"></span>
+                            </div>
+                            <div>
+                                <label class="label">Fecha de vencimiento</label>
+                                <input type="date" class="input" id="due-date-exp">
+                                <span class="error" id="error-due-date-exp"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group2">
+                            <div>
+                                <label class="label">Cantidad de cuotas</label>
+                                <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1">
+                                <span class="error" id="error-installment-number-exp"></span>
+                            </div>
+                            <div>
+                                <label class="label">Monto por cuota</label>
+                                <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                                <span class="error" id="error-installment-amount-exp"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Descripción</label>
+                            <textarea class="input" id="description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
+                            <div id="char-counter-exp">0 / 25 caracteres</div>
+                            <span class="error" id="error-description-exp"></span>
+                        </div>
+
+                        <div class="acciones-modal">
+                            <button id="btnSaveExp" class="btn-primary">Guardar Gasto</button>
+                            <button class="btn-secondary" onclick="ModalManager.close('modalModifExpens')">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+
         </main>
     </div>
     <script src="/app/static/scripts.js"></script>

@@ -701,6 +701,7 @@ display: block;
     background: #ffffff;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
+    margin-bottom: 5px;
 }
 
 .factura-fecha {
@@ -723,14 +724,10 @@ display: block;
     font-size: 16px;
 }
 
-.factura-fecha-roja {
-    background: #FF4D5A;
-    color: #ffffff;
-}
+.factura-fecha-gris {
+    background: #5D6772;
+    color: #fff;
 
-.factura-fecha-verde {
-    background: #86EFAC;
-    color: #064E3B;
 }
 
 .factura-info h3 {
@@ -756,24 +753,6 @@ display: block;
     font-weight: 800;
     color: #000000;
     margin-bottom: 6px;
-}
-
-.estado-factura {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 4px 8px;
-    border-radius: 2px;
-}
-
-.estado-rojo {
-    background: #FEE2E2;
-    color: #EF4444;
-}
-
-.estado-pendiente {
-    background: #EEF2FF;
-    color: #111827;
 }
 
 .boton-gestionar {
@@ -937,5 +916,9 @@ display: block;
 }
 
 #btnNewAccount{
+    cursor: pointer;
+}
+
+#btnProdfile{
     cursor: pointer;
 }
