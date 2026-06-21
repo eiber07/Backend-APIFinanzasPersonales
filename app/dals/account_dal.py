@@ -1,15 +1,35 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from app.models.account import Account
 
 class AccountDAL:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.db = db
 
     async def get_accounts_by_user_id(self, user_id: int):
-        return await self.db.query(Account).filter(Account.id_admin_user == user_id).all()
+        result = await self.db.execute(
+            select(Account)
+            .options(selectinload(Account.account_type))
+            .where(Account.id_admin_user == user_id, Account.status_id == 1)
+        )
+        return result.scalars().all()
     
     async def get_account_by_id(self, account_id: int):
-        return await self.db.query(Account).filter(Account.id == account_id).first()  
+        result = await self.db.execute(
+            select(Account)
+            .options(selectinload(Account.account_type))
+            .where(Account.id == account_id)
+        )
+        return result.scalars().first()
+
+    async def get_account_by_id_with_account_type(self, account_id: int):
+        result = await self.db.execute(
+            select(Account)
+            .options(selectinload(Account.account_type))
+            .where(Account.id == account_id)
+        )
+        return result.scalars().first()
     
     async def create_account(self, account: Account):
         self.db.add(account)
