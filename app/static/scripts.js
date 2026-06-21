@@ -38,15 +38,26 @@ async function loadCurrentUser() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // Listeners de modales - siempre se registran en cualquier página
     document.getElementById("clickable-img")
         ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
+    document.getElementById("btn-save-new-transactions")
+        ?.addEventListener("click", saveNewTransaction);
+    renderRecentTransactions();
+    renderFacturasPreview();
     document.getElementById("clickable-img2")
         ?.addEventListener("click", () => ModalManager.open("modalNewExpense"));
     document.getElementById("openModal")
         ?.addEventListener("click", () => ModalManager.open("modalForget"));
-
-    // Contadores - siempre se registran
+    document.getElementById("btnSaveExp")
+        ?.addEventListener("click", saveNewExpense);
+    document.querySelector(".boton-gestionar")
+        ?.addEventListener("click", () => ModalManager.open("modalExpenses"));
+    document.getElementById("gastos-table-body")?.addEventListener("click", (event) => {
+        const row = event.target.closest(".clickable-row");
+        if (!row) return;
+        openExpenseDetail(row.dataset);
+    });
+    
     const textarea  = document.getElementById('description-text');
     const counter   = document.getElementById('char-counter');
     const textarea2 = document.getElementById('description-text-exp');
@@ -76,26 +87,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // Solo en páginas con sidebar (dash_priv, etc.)
     const sidebarPlaceholder = document.getElementById('sidebar-placeholder');
     if (!sidebarPlaceholder) return;
-
-    // Cargar sidebar
+ 
     try {
         const sidebarHTML = await fetch('/app/templates/sidebar.html').then(r => r.text());
         sidebarPlaceholder.innerHTML = sidebarHTML;
+        document.getElementById("btnProdfile")
+            ?.addEventListener("click", () => ModalManager.open("modalUserProfile"));
+         document.getElementById("btnNewAccount")
+            ?.addEventListener("click", () => ModalManager.open("modalNewAccount"));
     } catch (err) {
         console.error("Error cargando sidebar:", err);
     }
-    document.getElementById("btnNewAccount")
-        ?.addEventListener("click", () => ModalManager.open("modalNewAccount"));
-    // Cargar usuario
+ 
     const user = await loadCurrentUser();
     if (user) {
         const elName  = document.getElementById("user-name");
         const elEmail = document.getElementById("user-email");
+        const cuentaUser = document.getElementById("account-list");
         if (elName)  elName.textContent  = `${user.name} ${user.last_name}`;
         if (elEmail) elEmail.textContent = user.email;
+        if (cuentaUser) cuentaUser.textContent = user.accounts;
         await loadUserAccounts(user.id);
     }
 });
@@ -353,7 +366,7 @@ const ModalManager = (() => {
             onClose() {
             document.getElementById("amount").value = "";
             document.getElementById("date").value = "";
-            document.getElementById("category-drop").textContent = "";
+            document.getElementById("category-drop").value = "";
             document.getElementById("description-text").value = "";
             const counter = document.getElementById("char-counter");
                     counter.textContent = "0 / 25 caracteres";
@@ -362,26 +375,30 @@ const ModalManager = (() => {
         }
         },modalNewExpense:{
             onClose() {
-            document.getElementById("amount-exp").value = "";
-            document.getElementById("start-date-exp").value = "";
-            document.getElementById("due-date-exp").value = "";
-            document.getElementById("installment-number-exp").value = "";
-            document.getElementById("installment-amount-exp").value = "";
-            document.getElementById("description-text-exp").value = "";
-            const counter2 = document.getElementById("char-counter-exp");
-            counter2.textContent = "0 / 25 caracteres";
-            counter2.style.color = "inherit";
-
-        }
+                document.getElementById("amount-exp").value = "";
+                document.getElementById("start-date-exp").value = "";
+                document.getElementById("due-date-exp").value = "";
+                document.getElementById("installment-number-exp").value = "";
+                document.getElementById("installment-amount-exp").value = "";
+                document.getElementById("description-text-exp").value = "";
+                const counter2 = document.getElementById("char-counter-exp");
+                counter2.textContent = "0 / 25 caracteres";
+                counter2.style.color = "inherit";
+            }
         },modalNewAccount:{
             onClose() {
-            document.getElementById("account-name").value = "";
-            document.getElementById("account-description").value = "";
-            const counter3 = document.getElementById("char-counter3");
-            counter3.textContent = "0 / 25 caracteres";
-            counter3.style.color = "inherit";
-
-        }
+                document.getElementById("account-name").value = "";
+                document.getElementById("account-description").value = "";
+                const counter3 = document.getElementById("char-counter3");
+                counter3.textContent = "0 / 25 caracteres";
+                counter3.style.color = "inherit";
+            }
+        },modalExpenses: {
+            onClose() {}
+        },modalEditExpenses: {
+            onClose() {}
+        },modalUserProfile: { 
+            onClose() {} 
         },modalEnvioConfir: {
             onClose() {}
         },
@@ -419,9 +436,11 @@ const ModalManager = (() => {
 
 const btnEdit   = document.getElementById("btnEdit");
 const btnDelete = document.getElementById("btnDelete");
+const btnEditEx   = document.getElementById("btnEditEx");
+const btnDeleteEx = document.getElementById("btnDeleteEx");
 const MODAL_TX    = "modalTransax";
 
-document.querySelectorAll(".clickable-row").forEach(row => {
+/*document.querySelectorAll(".clickable-row").forEach(row => {
     row.addEventListener("click", () => {
         const {id, type, category, description, amount, date} = row.dataset;
         document.getElementById("data-id").textContent      = id;
@@ -435,6 +454,22 @@ document.querySelectorAll(".clickable-row").forEach(row => {
 
         ModalManager.open(MODAL_TX);
     });
+}); */
+document.getElementById("transactions-table-body")?.addEventListener("click", (event) => {
+    const row = event.target.closest(".clickable-row");
+
+    if (!row) return;
+        const {id, type, category, description, amount, date} = row.dataset;
+        document.getElementById("data-id").textContent      = id;
+        document.getElementById("data-type").textContent = type;
+        document.getElementById("data-category").textContent = category;
+        document.getElementById("data-description").textContent = description;    
+        document.getElementById("data-amount").textContent   = amount;
+        document.getElementById("data-date").textContent   = date;
+        if (btnEdit) btnEdit.dataset.id = id;
+        if (btnDelete) btnDelete.dataset.id = id;
+
+        ModalManager.open(MODAL_TX);
 });
 
 btnDelete?.addEventListener("click", async (e) => {
@@ -465,29 +500,308 @@ btnEdit?.addEventListener("click", (e) => {
     ModalManager.open("modalEditTransax");
 });
 
+btnEditEx?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    /*console.log("Modificar transacción ID:", id);*/
+    ModalManager.open("modalModifExpens");
+});
+
+btnDeleteEx?.addEventListener("click", async (e) => {
+    const id = e.target.dataset.id;
+    if (!confirm(`¿Eliminar el gasto #${id}?`)) return;
+
+    try {
+        const res = await fetch(`http://localhost:8000/transactions/${id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        if (res.ok) {
+            ModalManager.close(MODAL_TX);
+            document.querySelector(`.clickable-row[data-id="${id}"]`)?.remove();
+        } else {
+            const err = await res.json();
+            alert("Error: " + err.detail);
+        }
+    } catch {
+        alert("No se pudo establecer conexión con el servidor.");
+    }
+});
+
 //FORMULARIO DE TRANSACCION - MONTO INPUT
 function moneyFormat(input) {
-  let valor = input.value.replace(/\D/g, "");
-  if (valor === "") {
-    input.value = "";
-    return;
-  }
-  
-  // Si el usuario escribe "1", se convierte internamente en "0.01"
-  let numero = (parseInt(valor) / 100).toFixed(2);
-  
-  //Separar la parte entera de los dos decimales
-  let partes = numero.split(".");
-  let parteEntera = partes[0];
-  let parteDecimal = partes[1];
-  
-  // Agregar los puntos de miles a la parte entera
-  parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  
-  //Unir la parte entera y decimal con una coma
-  input.value = parteEntera + "," + parteDecimal;
+    let valor = input.value.replace(/\D/g, "");
+    if (valor === "") {
+        input.value = "";
+        return;
+    }
+    
+    // Si el usuario escribe "1", se convierte internamente en "0.01"
+    let numero = (parseInt(valor) / 100).toFixed(2);
+    
+    //Separar la parte entera de los dos decimales
+    let partes = numero.split(".");
+    let parteEntera = partes[0];
+    let parteDecimal = partes[1];
+    
+    // Agregar los puntos de miles a la parte entera
+    parteEntera = parteEntera.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    
+    //Unir la parte entera y decimal con una coma
+    input.value = parteEntera + "," + parteDecimal;
+}
+
+/* RECENT TRANSACTIONS - TEMP */
+
+let recentTransactions = [];
+
+function saveNewTransaction() {
+    const amountInput = document.getElementById("amount");
+    const dateInput = document.getElementById("date");
+    const categoryInput = document.getElementById("category-drop");
+    const descriptionInput = document.getElementById("description-text");
+
+    const amountRaw = amountInput.value.trim();
+    const dateRaw = dateInput.value;
+    const categoryRaw = categoryInput.value;
+    const descriptionRaw = descriptionInput.value.trim();
+
+    if (!amountRaw || !dateRaw || !categoryRaw || !descriptionRaw) {
+        alert("Completá todos los campos antes de guardar la transacción.");
+        return;
+    }
+
+    const amountNumber = parseTransactionAmount(amountRaw);
+
+    if (!amountNumber || amountNumber <= 0) {
+        alert("Ingresá un monto válido.");
+        return;
+    }
+
+    const newTransaction = {
+        id: Date.now().toString(),
+        type: "Egreso",
+        category: categoryRaw,
+        description: descriptionRaw,
+        amountNumber: amountNumber * -1,
+        amount: `-${formatTransactionMoney(amountNumber)}`,
+        date: formatTransactionDate(dateRaw)
+    };
+
+    recentTransactions.unshift(newTransaction);
+
+    renderRecentTransactions();
+
+    ModalManager.close("modalNewTransax");
+}
+
+function renderRecentTransactions() {
+    const tableBody = document.getElementById("transactions-table-body");
+
+    if (!tableBody) return;
+
+    if (recentTransactions.length === 0) {
+        tableBody.innerHTML = `
+            <tr class="empty-transactions-row">
+                <td colspan="4">
+                    <div class="empty-transactions-message">
+                        Aún no se han registrado transacciones
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = recentTransactions.map(transaction => {
+        const amountClass = transaction.amountNumber > 0 ? "monto-positivo" : "";
+
+        return `
+            <tr class="clickable-row"
+                data-id="${transaction.id}"
+                data-type="${transaction.type}"
+                data-category="${transaction.category}"
+                data-description="${transaction.description}"
+                data-amount="${transaction.amount}"
+                data-date="${transaction.date}">
+
+                <td>${transaction.date}</td>
+                <td>
+                    <span class="categoria-etiqueta">${transaction.category}</span>
+                </td>
+                <td>${transaction.description}</td>
+                <td class="${amountClass}">${transaction.amount}</td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function parseTransactionAmount(value) {
+    const cleanValue = value
+        .replace(/\./g, "")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, "");
+
+    return Number(cleanValue);
+}
+
+function formatTransactionMoney(amount) {
+    return `$${amount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
+}
+
+function formatTransactionDate(dateValue) {
+    const date = new Date(`${dateValue}T00:00:00`);
+
+    return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric"
+    });
 }
 
 async function createAccount(){
     
+}
+let plannedExpenses = [];
+
+function saveNewExpense() {
+    const amountInput = document.getElementById("amount-exp");
+    const startDateInput = document.getElementById("start-date-exp");
+    const dueDateInput = document.getElementById("due-date-exp");
+    const installmentNumberInput = document.getElementById("installment-number-exp");
+    const installmentAmountInput = document.getElementById("installment-amount-exp");
+    const descriptionInput = document.getElementById("description-text-exp");
+
+    const amountRaw = amountInput.value.trim();
+    const startDateRaw = startDateInput.value;
+    const dueDateRaw = dueDateInput.value;
+    const installmentNumber = installmentNumberInput.value.trim();
+    const installmentAmountRaw = installmentAmountInput.value.trim();
+    const descriptionRaw = descriptionInput.value.trim();
+
+    if (!amountRaw || !startDateRaw || !dueDateRaw || !installmentNumber || !installmentAmountRaw || !descriptionRaw) {
+        alert("Completá todos los campos antes de guardar el gasto.");
+        return;
+    }
+
+    const newExpense = {
+        id: Date.now().toString(),
+        detail: descriptionRaw,
+        dueDateRaw: dueDateRaw,
+        installmentPaid: 0,
+        dateStart: formatTransactionDate(startDateRaw),
+        dateExpiration: formatTransactionDate(dueDateRaw),
+        installment: installmentNumber,
+        amount: formatTransactionMoney(parseTransactionAmount(amountRaw)),
+    };
+
+    plannedExpenses.unshift(newExpense);
+    renderExpenses();
+    renderFacturasPreview();
+    ModalManager.close("modalNewExpense");
+}
+
+function renderExpenses() {
+    const tableBody = document.getElementById("gastos-table-body");
+    if (!tableBody) return;
+
+    if (plannedExpenses.length === 0) {
+        tableBody.innerHTML = `
+            <tr class="empty-transactions-row">
+                <td colspan="6">
+                    <div class="empty-transactions-message">
+                        Aún no se han registrado gastos planeados
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = plannedExpenses.map(expense => `
+        <tr class="clickable-row"
+            data-id="${expense.id}"
+            data-detail="${expense.detail}"
+            data-date-start="${expense.dateStart}"
+            data-date-expiration="${expense.dateExpiration}"
+            data-installment="${expense.installment}"
+            data-amount="${expense.amount}">
+
+            <td>${expense.detail}</td>
+            <td>${expense.dateStart}</td>
+            <td>${expense.dateExpiration}</td>
+            <td>${expense.installment}</td>
+            <td>${expense.amount}</td>
+        </tr>
+    `).join("");
+}
+
+function renderFacturasPreview() {
+    const list = document.getElementById("installmentCards");
+    if (!list) return;
+
+    if (plannedExpenses.length === 0) {
+        list.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">Aún no hay gastos planeados</p>`;
+        return;
+    }
+
+    const ordered = [...plannedExpenses]
+    .sort((a, b) => new Date(a.dueDateRaw) - new Date(b.dueDateRaw))
+    .slice(0, 3);
+
+    list.innerHTML = ordered.map(expense => {
+        const date = new Date(`${expense.dueDateRaw}T00:00:00`);
+        const month = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
+        const day = date.getDate();
+
+        return `
+            <article class="factura-card clickable-row"
+                data-id="${expense.id}"
+                data-detail="${expense.detail}"
+                data-date-start="${expense.dateStart}"
+                data-date-expiration="${expense.dateExpiration}"
+                data-installment="${expense.installment}"
+                data-installment-paid="${expense.installmentPaid}"
+                data-amount="${expense.amount}">
+
+                <div class="factura-fecha factura-fecha-gris">
+                    <span>${month}</span>
+                    <strong>${day}</strong>
+                </div>
+
+                <div class="factura-info">
+                    <h3>${expense.detail}</h3>
+                    <p>${expense.installmentPaid} de ${expense.installment} cuotas</p>
+                </div>
+
+                <div class="factura-monto">
+                    <strong>${expense.amount}</strong>
+                </div>
+            </article>
+        `;
+    }).join("");
+    list.querySelectorAll(".clickable-row").forEach(card => {
+    card.addEventListener("click", () => openExpenseDetail(card.dataset));
+});
+}
+function openExpenseDetail(dataset) {
+    const { detail, dateStart, dateExpiration, installment, installmentPaid, amount } = dataset;
+ 
+    document.getElementById("expense-detail").textContent = detail;
+    document.getElementById("expense-startdate").textContent = dateStart;
+    document.getElementById("expense-startend").textContent = dateExpiration;
+    document.getElementById("expense-installments").textContent = `${installmentPaid ?? 0} de ${installment} cuotas`;
+    document.getElementById("expense-amount").textContent = amount;
+ 
+    ModalManager.open("modalEditExpenses");
+}
+function openUserProfile(user) {
+    document.getElementById("profile-avatar").textContent = "—";
+    document.getElementById("profile-name").textContent = user.name;
+    document.getElementById("profile-lastname").textContent = user.last_name;
+    document.getElementById("profile-email").textContent = user.email;
+    ModalManager.open("modalUserProfile");
 }

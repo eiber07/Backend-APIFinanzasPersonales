@@ -19,7 +19,7 @@
                 <button type="button" class="boton-ayuda" aria-label="Ayuda">
                 </button>
             </div>
-             -->
+            -->
         </header>
 
         <!-- SIDEBAR -->
@@ -34,7 +34,7 @@
                 <article class="componente-tarjetas1">
                     <div class="tarjeta-info">
                         <p class="tarjeta-titulo">Balance total</p>
-                        <h2 class="tarjeta-monto">$12,450.80</h2>
+                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
 
                         <div class="tarjeta-fecha">
                             <span class="punto-verde"></span>
@@ -46,7 +46,7 @@
                 <article class="componente-tarjetas2">
                     <div class="tarjeta-info">
                         <p class="tarjeta-titulo">Ahorro total</p>
-                        <h2 class="tarjeta-monto">$12,450.80</h2>
+                        <h2 class="tarjeta-monto" id="saving-total">$0.00</h2>
 
                         <div class="tarjeta-fecha">
                             <span class="punto-verde"></span>
@@ -64,7 +64,7 @@
 
                         <div class="tarjeta-resumen-info">
                             <p>Ingreso total</p>
-                            <h3>$4,200.00</h3>
+                            <h3 id="income-total">$0.00</h3>
                         </div>
                     </article>
 
@@ -75,7 +75,7 @@
 
                         <div class="tarjeta-resumen-info">
                             <p>Egreso total</p>
-                            <h3>$1,749.20</h3>
+                            <h3 id="expense-total">$0.00</h3>
                         </div>
                     </article>
 
@@ -105,43 +105,16 @@
                                     <th>Monto</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
-                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">
-                                    <td>Jun 12, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Comida</span>
+                            <tbody id="transactions-table-body">
+                                <tr class="empty-transactions-row">
+                                    <td colspan="4">
+                                        <div class="empty-transactions-message">
+                                            Aún no se han registrado transacciones
+                                        </div>
                                     </td>
-                                    <td>Burger King</td>
-                                    <td>-$13,250.00</td>
                                 </tr>
-
-                                <tr>
-                                    <td>Jun 11, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Shopping</span>
-                                    </td>
-                                    <td>Todo Moda</td>
-                                    <td>-$15,963.36</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Jun 10, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Salario</span>
-                                    </td>
-                                    <td>Ingreso mensual Mayo26</td>
-                                    <td class="monto-positivo">+$500,700.00</td>
-                                </tr>
-
-                                <tr>
-                                    <td>Jun 08, 2024</td>
-                                    <td>
-                                        <span class="categoria-etiqueta">Utilidades</span>
-                                    </td>
-                                    <td>Gas</td>
-                                    <td>-$3,250.00</td>
-                                </tr>
+                                <!--<tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
+                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">-->
                             </tbody>
                         </table>
                     </div>
@@ -155,62 +128,8 @@
                         <h2>Próximas facturas</h2>
                         <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
                     </div>
-
-                    <div class="lista-facturas">
-
-                        <article class="factura-card">
-                            <div class="factura-fecha factura-fecha-roja">
-                                <span>JUN</span>
-                                <strong>15</strong>
-                            </div>
-
-                            <div class="factura-info">
-                                <h3>Netflix</h3>
-                                <p>Servicio mensual</p>
-                            </div>
-
-                            <div class="factura-monto">
-                                <strong>$12,850.00</strong>
-                                <span class="estado-factura estado-rojo">Vence pronto</span>
-                            </div>
-                        </article>
-
-                        <article class="factura-card">
-                            <div class="factura-fecha factura-fecha-verde">
-                                <span>JUN</span>
-                                <strong>22</strong>
-                            </div>
-
-                            <div class="factura-info">
-                                <h3>Gym</h3>
-                                <p>Suscripción</p>
-                            </div>
-
-                            <div class="factura-monto">
-                                <strong>$30,000.00</strong>
-                                <span class="estado-factura estado-pendiente">Pendiente</span>
-                            </div>
-                        </article>
-
-                        <article class="factura-card">
-                            <div class="factura-fecha factura-fecha-verde">
-                                <span>JUN</span>
-                                <strong>30</strong>
-                            </div>
-
-                            <div class="factura-info">
-                                <h3>Luz</h3>
-                                <p>Gastos hogar</p>
-                            </div>
-
-                            <div class="factura-monto">
-                                <strong>$12,850.00</strong>
-                                <span class="estado-factura estado-pendiente">Pendiente</span>
-                            </div>
-                        </article>
-
+                    <div class="installmentCards" id="installmentCards">
                     </div>
-
                     <button type="button" class="boton-gestionar">
                         Gestionar todos los gastos
                     </button>
@@ -256,8 +175,14 @@
 
                         <div class="form-group">
                             <label class="label">Categoría</label>
-                            <select id="category-drop" class="input" >
+                            <select class="input" id="category-drop">
                             <option value="">Seleccionar</option>
+                            <!-- Borrar estas categorias al conectar el backend -->
+                            <option value="Comida">Comida</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Salario">Salario</option>
+                            <option value="Utilidades">Utilidades</option>
+                            <option value="Transporte">Transporte</option>
                             </select>
                             <span class="error" id="error-category"></span>
                         </div>
@@ -270,7 +195,7 @@
                         </div>
 
                         <div class="acciones-modal">
-                            <button id="btnSave" class="btn-primary">Guardar Transacción</button>
+                            <button id="btn-save-new-transactions" class="btn-primary">Guardar Transacción</button>
                             <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewTransax')">Cancelar</button>
                         </div>
                     </div>
@@ -361,12 +286,115 @@
                         </div>
 
                         <div class="acciones-modal">
-                            <button id="btnSaveExp" class="btn-primary" onclick="saveExpense()">Guardar Gasto</button>
+                            <button id="btnSaveExp" class="btn-primary">Guardar Gasto</button>
                             <button class="btn-secondary" onclick="ModalManager.close('modalNewExpense')">Cancelar</button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="modalExpenses" class="modal">
+                <div class="content-modal" style="max-width: 800px; width: 90%;">
+                    <span class="close" onclick="ModalManager.close('modalExpenses')">&times;</span>
+                    <h2 style="color:#1F2937; margin:0">Gastos Planeados</h2>
+
+                    <div class="tabla-contenedor" style="margin-top: 1rem;">
+                        <table class="tabla-transacciones">
+                            <thead>
+                                <tr>
+                                    <th>Detalle</th>
+                                    <th>Fecha inicio</th>
+                                    <th>Fecha vencimiento</th>
+                                    <th>Cuotas</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gastos-table-body">
+                                <tr class="empty-transactions-row">
+                                    <td colspan="6">
+                                        <div class="empty-transactions-message">
+                                            Aún no se han registrado gastos planeados
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalEditExpenses" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalEditExpenses')">&times;</span>
+                    <h2 style="color:#1F2937; margin:0">Detalle de Gasto Planeado</h2>
+
+                    <table class="tabla-detalle">
+                        <tr><td>Detalle:</td><td id="expense-detail"></td></tr>
+                        <tr><td>Fecha inicio:</td><td id="expense-startdate"></td></tr>
+                        <tr><td>Fecha vencimiento:</td><td id="expense-startend"></td></tr>
+                        <tr><td>Cuotas:</td><td id="expense-installments"></td></tr>
+                        <tr><td>Monto:</td><td id="expense-amount"></td></tr>
+                    </table>
+
+                    <div class="acciones-modal">
+                        <button id="btnEditEx" class="btn-secondary">Editar</button>
+                        <button id="btnDeleteEx" class="btn-primary btn-red">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+            <div id="modalModifExpens" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalModifExpens')">&times;</span> 
+                    <h2 style="color:#1F2937; margin:0;">Editar Gasto Planeado</h2>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label class="label">Monto total</label>
+                            <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                            <span class="error" id="error-amount-exp"></span>
+                        </div>
+
+                        <div class="form-group2">
+                            <div>
+                                <label class="label">Fecha de inicio</label>
+                                <input type="date" class="input" id="start-date-exp">
+                                <span class="error" id="error-start-date-exp"></span>
+                            </div>
+                            <div>
+                                <label class="label">Fecha de vencimiento</label>
+                                <input type="date" class="input" id="due-date-exp">
+                                <span class="error" id="error-due-date-exp"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group2">
+                            <div>
+                                <label class="label">Cantidad de cuotas</label>
+                                <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1">
+                                <span class="error" id="error-installment-number-exp"></span>
+                            </div>
+                            <div>
+                                <label class="label">Monto por cuota</label>
+                                <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                                <span class="error" id="error-installment-amount-exp"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Descripción</label>
+                            <textarea class="input" id="description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
+                            <div id="char-counter-exp">0 / 25 caracteres</div>
+                            <span class="error" id="error-description-exp"></span>
+                        </div>
+
+                        <div class="acciones-modal">
+                            <button id="btnSaveExp" class="btn-primary">Guardar Gasto</button>
+                            <button class="btn-secondary" onclick="ModalManager.close('modalModifExpens')">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+
         </main>
     </div>
     <script src="/app/static/scripts.js"></script>

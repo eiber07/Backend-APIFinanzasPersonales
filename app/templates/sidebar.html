@@ -17,7 +17,7 @@
     </div>
     <div class="new-account" id="btnNewAccount">+ Nueva cuenta</div>
   </div>
-    <div class="menu-item-dashboard"><img src="../static/img/icono-perfil.png" height="18px"/>Perfil de usuario</div>
+    <div class="menu-item-dashboard" id="btnProdfile" ><img src="../static/img/icono-perfil.png" height="18px"/>Perfil de usuario</div>
   </div>
 </div>
     <div id="modalNewAccount" class="modal">
@@ -50,6 +50,19 @@
                   <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewAccount')">Cancelar</button>
               </div>
           </div>
+      </div>
+    </div>
+      <div id="modalUserProfile" class="modal">
+      <div class="content-modal">
+          <span class="close" onclick="ModalManager.close('modalUserProfile')">&times;</span>
+          <h2 style="color:#1F2937; margin:0">Mi perfil</h2>
+
+          <table class="tabla-detalle">
+              <tr><td>Avatar:</td><td id="profile-avatar"></td></tr>
+              <tr><td>Nombre:</td><td id="profile-name"></td></tr>
+              <tr><td>Apellido:</td><td id="profile-lastname"></td></tr>
+              <tr><td>Email:</td><td id="profile-email"></td></tr>
+          </table>
       </div>
     </div>
 </body>
