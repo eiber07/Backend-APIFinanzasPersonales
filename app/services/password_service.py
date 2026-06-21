@@ -1,11 +1,6 @@
 from fastapi import BackgroundTasks, HTTPException, background
 from fastapi.responses import JSONResponse
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-<<<<<<< HEAD
-#from app.models import status
-from starlette import status
-=======
->>>>>>> main
 from app.utils.emails import create_reset_password_token, decode_reset_password_token
 from app.schemas.password import ForgetPasswordRequest, ResetForegetPassword, SuccessMessage
 from app.services.user_service import UserService
