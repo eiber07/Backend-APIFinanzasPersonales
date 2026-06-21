@@ -20,3 +20,4 @@ class Account(Base, AuditMixin):
     user = relationship("User", back_populates="accounts")
     group_account_members = relationship("GroupAccountMember", back_populates="accounts")
     planned_expenses = relationship("PlannedExpense", back_populates="accounts")          
+    transactions = relationship("Transaction", back_populates="account") #relacion con la tabla de trasaccion
