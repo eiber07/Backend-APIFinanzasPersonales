@@ -20,6 +20,7 @@ from contextlib import asynccontextmanager
 from app.routers.password_routes import router as password_router
 from app.routers.parameters_routes import router as parameters_router
 from app.routers.account_routes import router as account_router
+from app.routers.transaction_routes import router as transaction_router
 from app.database.data_seed import seed_all_data
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -50,6 +51,7 @@ app.include_router(users_router, prefix="/users", tags=["users"])
 app.include_router(password_router, prefix="/auth", tags=["auth"])
 app.include_router(parameters_router, prefix="/parameters", tags=["parameters"])
 app.include_router(account_router, prefix="/accounts", tags=["accounts"])
+app.include_router(transaction_router, prefix="/transactions", tags=["transactions"])
 
 #@app.on_event("startup")
 #async def startup():
