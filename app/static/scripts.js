@@ -14,7 +14,7 @@ async function fetchWithAuth(url, options = {}) {
 
 async function loadCurrentUser() {
     const token = localStorage.getItem("access_token");
-    
+
     if (!token) {
         window.location.href = "/app/templates/login.html";
         return null;
@@ -22,7 +22,7 @@ async function loadCurrentUser() {
 
     try {
         const res = await fetchWithAuth("http://localhost:8000/users/me");
-        
+
         if (res.status === 401) {
             localStorage.removeItem("access_token");
             window.location.href = "/app/templates/login.html";
@@ -34,6 +34,28 @@ async function loadCurrentUser() {
     } catch (error) {
         console.error("Error al obtener usuario:", error);
         return null;
+    }
+}
+
+async function loadUserAccounts() {
+    const container = document.getElementById("btnAccounts");
+    if (!container) return;
+    
+    container.innerHTML = "";
+
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/accounts/user");
+        if (!res.ok) return;
+
+        const accounts = await res.json();
+        accounts.forEach((account, index) => {
+            const item = document.createElement("div");
+            item.classList.add("account-item");
+            item.textContent = index === 0 ? "Cuenta Personal" : account.name;
+            container.appendChild(item);
+        });
+    } catch (err) {
+        console.error("Error cargando cuentas:", err);
     }
 }
 
@@ -92,24 +114,43 @@ document.addEventListener("DOMContentLoaded", async () => {
  
     try {
         const sidebarHTML = await fetch('/app/templates/sidebar.html').then(r => r.text());
-        sidebarPlaceholder.innerHTML = sidebarHTML;
-        document.getElementById("btnProdfile")
-            ?.addEventListener("click", () => ModalManager.open("modalUserProfile"));
-         document.getElementById("btnNewAccount")
+        sidebarPlaceholder.innerHTML = sidebarHTML; 
+        
+        const toggle   = document.getElementById("sidebarToggle");
+        const sidebar  = document.getElementById("sidebar");
+        const overlay  = document.getElementById("sidebarOverlay");
+        const closeBtn = document.getElementById("sidebarClose");
+
+        function openSidebar() {
+            sidebar.classList.add("open");
+            overlay.classList.add("active");
+            toggle?.style.setProperty("display", "none");
+        }
+        function closeSidebar() {
+            sidebar.classList.remove("open");
+            overlay.classList.remove("active");
+            toggle?.style.setProperty("display", "block");
+        }
+
+        toggle?.addEventListener("click", openSidebar);
+        overlay?.addEventListener("click", closeSidebar);
+        closeBtn?.addEventListener("click", closeSidebar);
+
+        document.getElementById("btnNewAccount")
             ?.addEventListener("click", () => ModalManager.open("modalNewAccount"));
+
     } catch (err) {
         console.error("Error cargando sidebar:", err);
     }
- 
     const user = await loadCurrentUser();
     if (user) {
         const elName  = document.getElementById("user-name");
         const elEmail = document.getElementById("user-email");
-        const cuentaUser = document.getElementById("account-list");
         if (elName)  elName.textContent  = `${user.name} ${user.last_name}`;
         if (elEmail) elEmail.textContent = user.email;
-        if (cuentaUser) cuentaUser.textContent = user.accounts;
-        await loadUserAccounts(user.id);
+        await loadUserAccounts();
+        document.getElementById("btnProdfile")
+            ?.addEventListener("click", () => openUserProfile(user));
     }
 });
 
@@ -662,9 +703,36 @@ function formatTransactionDate(dateValue) {
     });
 }
 
-async function createAccount(){
-    
+async function createAccount() {
+    const name = document.getElementById("account-name").value.trim();
+    const description = document.getElementById("account-description").value.trim();
+    const type = document.getElementById("account-category-drop").value;
+
+    if (!name) {
+        alert("Ingresá un nombre para la cuenta.");
+        return;
+    }
+
+    const accountTypeId = type === "personal" ? 1 : 2
+
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/accounts/", {
+            method: "POST",
+            body: JSON.stringify({ name, description, account_type_id: accountTypeId })
+        });
+
+        if (res.ok) {
+            ModalManager.close("modalNewAccount");
+            await loadUserAccounts();
+        } else {
+            const err = await res.json();
+            alert("Error: " + err.detail);
+        }
+    } catch (err) {
+        console.error("Error creando cuenta:", err);
+    }
 }
+
 let plannedExpenses = [];
 
 function saveNewExpense() {
@@ -798,10 +866,20 @@ function openExpenseDetail(dataset) {
  
     ModalManager.open("modalEditExpenses");
 }
+
+// Cargar avatar guardado al abrir el perfil
 function openUserProfile(user) {
-    document.getElementById("profile-avatar").textContent = "—";
     document.getElementById("profile-name").textContent = user.name;
     document.getElementById("profile-lastname").textContent = user.last_name;
     document.getElementById("profile-email").textContent = user.email;
+
     ModalManager.open("modalUserProfile");
+}
+// estado global de cuenta activa
+function setActiveAccount(account) {
+    activeAccount = account;
+    // recargar todo
+    loadTransactions(account.id);
+    loadBalance(account.id);
+    loadPlannedExpenses(account.id);
 }
