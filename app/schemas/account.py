@@ -9,7 +9,12 @@ class AccountCreate(BaseModel):
     account_type_id: int
     description: Optional[str] = None
     # si es grupal deberian enviarse los miembros
-    
+
+class AccountRequest(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+
 class AccountResponse(BaseModel):
     id: int
     name:str
