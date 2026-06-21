@@ -1036,3 +1036,119 @@ display: block;
 #modalUserProfile .tabla-detalle {
     margin: 8px 0;
 }
+
+/* ALERTAS */
+.alert {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease;
+    font-size: 14px;
+    align-items: flex-start;
+}
+@keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(400px); opacity: 0; }
+}
+.alert.removing {
+    animation: slideOut 0.3s ease forwards;
+}
+.alert-error {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+.alert-success {
+    background-color: #dcfce7;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+.alert-warning {
+    background-color: #fef3c7;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+.alert-info {
+    background-color: #dbeafe;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+.alert-icon {
+    flex-shrink: 0;
+    font-weight: bold;
+    margin-top: 2px;
+}
+.alert-content {
+    flex: 1;
+}
+.alert-title {
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+.alert-message {
+    font-size: 13px;
+    line-height: 1.4;
+}
+.alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    opacity: 0.7;
+}
+.alert-close:hover {
+    opacity: 1;
+}
+
+/* Errores en formularios */
+.form-group.has-error .input,
+.form-group.has-error select,
+.form-group.has-error textarea {
+    border: 2px solid #dc2626 !important;
+    background-color: #fef2f2;
+}
+
+.form-group.has-error .error {
+    display: block !important;
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.form-group2.has-error > div .input,
+.form-group2.has-error > div select,
+.form-group2.has-error > div textarea {
+    border: 2px solid #dc2626 !important;
+    background-color: #fef2f2;
+}
+
+@media (max-width: 768px) {
+    #alertsContainer {
+        left: 10px !important;
+        right: 10px !important;
+        top: 10px !important;
+        max-width: none !important;
+    }
+
+    .alert {
+        font-size: 13px;
+        padding: 12px 14px;
+    }
+}
+
+/* BOTON LOGOUT */
+.menu-item-logout {
+    transition: color 0.2s ease;
+}
+.menu-item-logout:hover {
+    color: #b91c1c;
+}

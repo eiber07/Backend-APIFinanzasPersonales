@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
+    <div id="alertsContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>
     <div class="grid-contenedor">
         
         <!-- HEADER -->
@@ -24,6 +25,14 @@
 
         <!-- SIDEBAR -->
         <div id="sidebar-placeholder"></div>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button class="btn-primary" onclick="ModalManager.open('modalGroupMembers')">
+        Gestionar Integrantes
+    </button>
+    <button class="btn-primary" onclick="ModalManager.open('modalDebts')">
+        Gestionar Deudas
+    </button>
+</div>
 
         <!-- CONTENIDO PRINCIPAL -->
         <main class="componente-main">
@@ -378,9 +387,209 @@
                 </div>
                 </div>
             </div>
+            <!-- MODAL: Integrantes de Grupo CRUD -->
+<div id="modalGroupMembers" class="modal">
+    <div class="content-modal" style="max-width: 600px;">
+        <span class="close" onclick="ModalManager.close('modalGroupMembers')">&times;</span>
+        <h2 style="color:#1F2937; margin:0">Integrantes del Grupo</h2>
 
+        <!-- Tabla de integrantes existentes -->
+        <div class="tabla-contenedor" style="margin-top: 1rem; max-height: 300px;">
+            <table class="tabla-transacciones">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="members-table-body">
+                    <tr class="empty-transactions-row">
+                        <td colspan="4">
+                            <div class="empty-transactions-message">
+                                Aún no hay integrantes en el grupo
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Formulario para agregar nuevo integrante -->
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+            <h3 style="color:#1F2937; margin-top: 0;">Agregar Integrante</h3>
+            <div class="form-section">
+                <div class="form-group">
+                    <label class="label">Nombre</label>
+                    <input type="text" class="input" id="member-name" placeholder="Nombre del integrante">
+                    <span class="error" id="error-member-name"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Email</label>
+                    <input type="email" class="input" id="member-email" placeholder="correo@ejemplo.com">
+                    <span class="error" id="error-member-email"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Rol</label>
+                    <select class="input" id="member-role">
+                        <option value="">Seleccionar</option>
+                        <option value="admin">Administrador</option>
+                        <option value="editor">Editor</option>
+                        <option value="viewer">Visualizador</option>
+                    </select>
+                    <span class="error" id="error-member-role"></span>
+                </div>
+
+                <div class="acciones-modal">
+                    <button id="btnAddMember" class="btn-primary">Agregar Integrante</button>
+                    <button class="btn-secondary" onclick="ModalManager.close('modalGroupMembers')">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Detalles de Integrante (para editar/eliminar) -->
+<div id="modalEditMember" class="modal">
+    <div class="content-modal">
+        <span class="close" onclick="ModalManager.close('modalEditMember')">&times;</span>
+        <h2 style="color:#1F2937; margin:0">Editar Integrante</h2>
+
+        <table class="tabla-detalle">
+            <tr><td>Nombre:</td><td id="member-detail-name"></td></tr>
+            <tr><td>Email:</td><td id="member-detail-email"></td></tr>
+            <tr><td>Rol:</td><td id="member-detail-role"></td></tr>
+        </table>
+
+        <div class="acciones-modal">
+            <button id="btnEditMember" class="btn-secondary">Editar</button>
+            <button id="btnDeleteMember" class="btn-primary btn-red">Eliminar</button>
+        </div>
+    </div>
+</div>
+<!-- MODAL: Cerrar Sesión -->
+<div id="modalLogout" class="modal">
+    <div class="content-modal" style="max-width: 400px; text-align: center;">
+        <h2 style="color:#1F2937; margin:20px 0;">¿Cerrar sesión?</h2>
+        <p style="color:#6B7280; margin:15px 0;">¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión nuevamente para acceder.</p>
+        <div class="acciones-modal" style="justify-content: center; gap: 15px;">
+            <button id="btnConfirmLogout" class="btn-primary btn-red" style="flex: 1;">Cerrar Sesión</button>
+            <button class="btn-secondary" onclick="ModalManager.close('modalLogout')" style="flex: 1;">Cancelar</button>
+        </div>
+    </div>
+</div>
+</div>
         </main>
     </div>
     <script src="/app/static/scripts.js"></script>
+    <div id="message-container"></div>
+
+<!-- MODAL: Agregar Deudas CRUD -->
+<div id="modalDebts" class="modal">
+    <div class="content-modal" style="max-width: 700px;">
+        <span class="close" onclick="ModalManager.close('modalDebts')">&times;</span>
+        <h2 style="color:#1F2937; margin:0">Deudas</h2>
+
+        <!-- Tabla de deudas existentes -->
+        <div class="tabla-contenedor" style="margin-top: 1rem; max-height: 350px;">
+            <table class="tabla-transacciones">
+                <thead>
+                    <tr>
+                        <th>Deudor</th>
+                        <th>Acreedor</th>
+                        <th>Monto</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="debts-table-body">
+                    <tr class="empty-transactions-row">
+                        <td colspan="6">
+                            <div class="empty-transactions-message">
+                                Aún no hay deudas registradas
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Formulario para agregar deuda -->
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
+            <h3 style="color:#1F2937; margin-top: 0;">Registrar Nueva Deuda</h3>
+            <div class="form-section">
+                <div class="form-group2">
+                    <div>
+                        <label class="label">Deudor (quién debe)</label>
+                        <select class="input" id="debtor">
+                            <option value="">Seleccionar</option>
+                            <!-- Se llenarán dinámicamente desde groupMembers -->
+                        </select>
+                        <span class="error" id="error-debtor"></span>
+                    </div>
+                    <div>
+                        <label class="label">Acreedor (quién presta)</label>
+                        <select class="input" id="creditor">
+                            <option value="">Seleccionar</option>
+                            <!-- Se llenarán dinámicamente desde groupMembers -->
+                        </select>
+                        <span class="error" id="error-creditor"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Monto</label>
+                    <input type="text" class="input" id="debt-amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                    <span class="error" id="error-debt-amount"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Fecha</label>
+                    <input type="date" class="input" id="debt-date">
+                    <span class="error" id="error-debt-date"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Descripción</label>
+                    <textarea class="input" id="debt-description" rows="2" placeholder="Motivo de la deuda" maxlength="50"></textarea>
+                    <div id="char-counter-debt">0 / 50 caracteres</div>
+                    <span class="error" id="error-debt-description"></span>
+                </div>
+
+                <div class="acciones-modal">
+                    <button id="btnAddDebt" class="btn-primary">Registrar Deuda</button>
+                    <button class="btn-secondary" onclick="ModalManager.close('modalDebts')">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Detalles de Deuda (para editar/eliminar) -->
+<div id="modalEditDebt" class="modal">
+    <div class="content-modal">
+        <span class="close" onclick="ModalManager.close('modalEditDebt')">&times;</span>
+        <h2 style="color:#1F2937; margin:0">Detalle de Deuda</h2>
+
+        <table class="tabla-detalle">
+            <tr><td>Deudor:</td><td id="debt-detail-debtor"></td></tr>
+            <tr><td>Acreedor:</td><td id="debt-detail-creditor"></td></tr>
+            <tr><td>Monto:</td><td id="debt-detail-amount"></td></tr>
+            <tr><td>Fecha:</td><td id="debt-detail-date"></td></tr>
+            <tr><td>Estado:</td><td id="debt-detail-status"></td></tr>
+            <tr><td>Descripción:</td><td id="debt-detail-description"></td></tr>
+        </table>
+
+        <div class="acciones-modal">
+            <button id="btnEditDebt" class="btn-secondary">Editar</button>
+            <button id="btnDeleteDebt" class="btn-primary btn-red">Eliminar</button>
+            <button id="btnMarkPaid" class="btn-primary">Marcar como Pagada</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
