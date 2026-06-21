@@ -81,5 +81,19 @@
       <tr><td>Email:</td><td id="profile-email"></td></tr>
     </table>
   </div>
+  <!-- MODAL: Cerrar Sesión -->
+<div id="modalLogout" class="modal">
+    <div class="content-modal" style="max-width: 400px; text-align: center;">
+        <h2 style="color:#1F2937; margin:20px 0;">¿Cerrar sesión?</h2>
+        <p style="color:#6B7280; margin:15px 0;">¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión nuevamente para acceder.</p>
+        <div class="acciones-modal" style="justify-content: center; gap: 15px;">
+            <button id="btnConfirmLogout" class="btn-primary btn-red" style="flex: 1;">Cerrar Sesión</button>
+            <button class="btn-secondary" onclick="ModalManager.close('modalLogout')" style="flex: 1;">Cancelar</button>
+        </div>
+    </div>
+</div>
+<div class="menu-item-logout" id="btnLogout" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #999; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #dc2626; cursor: pointer;">
+    Cerrar Sesión
+</div>
 </div>
 </body>

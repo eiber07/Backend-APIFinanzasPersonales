@@ -434,6 +434,34 @@ const ModalManager = (() => {
                 counter3.textContent = "0 / 25 caracteres";
                 counter3.style.color = "inherit";
             }
+        },modalGroupMembers: {
+            onClose() {
+                document.getElementById("member-name").value = "";
+                document.getElementById("member-email").value = "";
+                document.getElementById("member-role").value = "";
+                const err = document.getElementById("error-member-name");
+                err.textContent = "";
+                err.classList.remove("active");
+            }
+        },modalEditMember: {
+            onClose() {
+
+            }
+        },modalDebts: {
+            onClose() {
+        document.getElementById("debt-amount").value = "";
+        document.getElementById("debt-date").value = "";
+        document.getElementById("debtor").value = "";
+        document.getElementById("creditor").value = "";
+        document.getElementById("debt-description").value = "";
+        const counter = document.getElementById("char-counter-debt");
+        counter.textContent = "0 / 50 caracteres";
+        counter.style.color = "inherit";
+    }
+        },modalEditDebt: {
+            onClose() {}
+        },modalLogout: {
+            onClose() {}
         },modalExpenses: {
             onClose() {}
         },modalEditExpenses: {
@@ -883,3 +911,403 @@ function setActiveAccount(account) {
     loadBalance(account.id);
     loadPlannedExpenses(account.id);
 }
+
+/* ====== ALERTAS ====== */
+const AlertManager = (() => {
+    const container = document.getElementById("alertsContainer");
+    function create(type, title, message, duration = 5000) {
+        if (!container) return;
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type}`;
+        const icons = { error: "✕", success: "✓", warning: "⚠", info: "ℹ" };
+        alert.innerHTML = `
+            <div class="alert-icon">${icons[type]}</div>
+            <div class="alert-content">
+                <div class="alert-title">${title}</div>
+                <div class="alert-message">${message}</div>
+            </div>
+            <button class="alert-close">&times;</button>
+        `;
+        alert.querySelector(".alert-close").addEventListener("click", () => {
+            alert.classList.add("removing");
+            setTimeout(() => alert.remove(), 300);
+        });
+        container.appendChild(alert);
+        if (duration > 0) {
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.classList.add("removing");
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }, duration);
+        }
+        return alert;
+    }
+    return {
+        error: (title, message, duration) => create("error", title, message, duration ?? 5000),
+        success: (title, message, duration) => create("success", title, message, duration ?? 4000),
+        warning: (title, message, duration) => create("warning", title, message, duration ?? 5000),
+        info: (title, message, duration) => create("info", title, message, duration ?? 4000),
+    };
+})();
+
+function ShowErrorMessage(message, title = "Error") {
+    AlertManager.error(title, message);
+}
+function ShowSuccessMessage(message, title = "Éxito") {
+    AlertManager.success(title, message);
+}
+function ShowWarningMessage(message, title = "Advertencia") {
+    AlertManager.warning(title, message);
+}
+
+/* ====== INTEGRANTES DE GRUPO ====== */
+
+let groupMembers = [];
+
+document.getElementById("btnAddMember")?.addEventListener("click", addGroupMember);
+
+function addGroupMember() {
+    const nameInput = document.getElementById("member-name");
+    const emailInput = document.getElementById("member-email");
+    const roleInput = document.getElementById("member-role");
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const role = roleInput.value;
+
+    let valid = true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!name) {
+        document.getElementById("error-member-name").textContent = "Campo obligatorio";
+        document.getElementById("error-member-name").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-member-name").classList.remove("active");
+    }
+
+    if (!email || !emailRegex.test(email)) {
+        document.getElementById("error-member-email").textContent = "Email inválido";
+        document.getElementById("error-member-email").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-member-email").classList.remove("active");
+    }
+
+    if (!role) {
+        document.getElementById("error-member-role").textContent = "Campo obligatorio";
+        document.getElementById("error-member-role").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-member-role").classList.remove("active");
+    }
+
+    if (valid) {
+        const newMember = {
+            id: Date.now().toString(),
+            name: name,
+            email: email,
+            role: role
+        };
+
+        groupMembers.unshift(newMember);
+        renderGroupMembers();
+        updateDebtSelects();
+        
+        nameInput.value = "";
+        emailInput.value = "";
+        roleInput.value = "";
+
+        ShowSuccessMessage("Integrante agregado correctamente", "¡Éxito!");
+    }
+}
+
+function renderGroupMembers() {
+    const tableBody = document.getElementById("members-table-body");
+
+    if (!tableBody) return;
+
+    if (groupMembers.length === 0) {
+        tableBody.innerHTML = `
+            <tr class="empty-transactions-row">
+                <td colspan="4">
+                    <div class="empty-transactions-message">
+                        Aún no hay integrantes en el grupo
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = groupMembers.map(member => `
+        <tr class="clickable-row"
+            data-id="${member.id}"
+            data-name="${member.name}"
+            data-email="${member.email}"
+            data-role="${member.role}">
+            
+            <td>${member.name}</td>
+            <td>${member.email}</td>
+            <td>${member.role}</td>
+            <td>
+                <button class="btn-edit-member" style="background:none; border:none; color:#2563EB; cursor:pointer; font-size:12px;">Editar</button>
+            </td>
+        </tr>
+    `).join("");
+
+    document.querySelectorAll(".btn-edit-member").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const row = e.target.closest(".clickable-row");
+            openMemberDetail(row.dataset);
+        });
+    });
+}
+
+function openMemberDetail(dataset) {
+    const { id, name, email, role } = dataset;
+
+    document.getElementById("member-detail-name").textContent = name;
+    document.getElementById("member-detail-email").textContent = email;
+    document.getElementById("member-detail-role").textContent = role;
+
+    document.getElementById("btnDeleteMember").dataset.id = id;
+    document.getElementById("btnEditMember").dataset.id = id;
+
+    ModalManager.open("modalEditMember");
+}
+
+document.getElementById("btnDeleteMember")?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    if (!confirm(`¿Eliminar al integrante?`)) return;
+
+    groupMembers = groupMembers.filter(m => m.id !== id);
+    renderGroupMembers();
+    updateDebtSelects();
+    ModalManager.close("modalEditMember");
+    ShowSuccessMessage("Integrante eliminado", "¡Hecho!");
+});
+
+/* ====== DEUDAS ====== */
+
+let debts = [];
+
+const textareaDebt = document.getElementById('debt-description');
+const counterDebt = document.getElementById('char-counter-debt');
+
+if (textareaDebt && counterDebt) {
+    textareaDebt.addEventListener('input', () => {
+        const length = textareaDebt.value.length;
+        counterDebt.textContent = `${length} / 50 caracteres`;
+        counterDebt.style.color = length >= 50 ? '#dc2626' : 'inherit';
+    });
+}
+
+document.getElementById("btnAddDebt")?.addEventListener("click", addDebt);
+
+function addDebt() {
+    const debtorInput = document.getElementById("debtor");
+    const creditorInput = document.getElementById("creditor");
+    const amountInput = document.getElementById("debt-amount");
+    const dateInput = document.getElementById("debt-date");
+    const descriptionInput = document.getElementById("debt-description");
+
+    const debtor = debtorInput.value;
+    const creditor = creditorInput.value;
+    const amountRaw = amountInput.value.trim();
+    const date = dateInput.value;
+    const description = descriptionInput.value.trim();
+
+    let valid = true;
+
+    if (!debtor) {
+        document.getElementById("error-debtor").textContent = "Campo obligatorio";
+        document.getElementById("error-debtor").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-debtor").classList.remove("active");
+    }
+
+    if (!creditor) {
+        document.getElementById("error-creditor").textContent = "Campo obligatorio";
+        document.getElementById("error-creditor").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-creditor").classList.remove("active");
+    }
+
+    if (!amountRaw) {
+        document.getElementById("error-debt-amount").textContent = "Campo obligatorio";
+        document.getElementById("error-debt-amount").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-debt-amount").classList.remove("active");
+    }
+
+    if (!date) {
+        document.getElementById("error-debt-date").textContent = "Campo obligatorio";
+        document.getElementById("error-debt-date").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-debt-date").classList.remove("active");
+    }
+
+    if (valid) {
+        const debtorName = groupMembers.find(m => m.id === debtor)?.name || debtor;
+        const creditorName = groupMembers.find(m => m.id === creditor)?.name || creditor;
+        const amountNumber = parseTransactionAmount(amountRaw);
+
+        const newDebt = {
+            id: Date.now().toString(),
+            debtor: debtorName,
+            debtorId: debtor,
+            creditor: creditorName,
+            creditorId: creditor,
+            amount: formatTransactionMoney(amountNumber),
+            amountNumber: amountNumber,
+            date: formatTransactionDate(date),
+            dateRaw: date,
+            description: description,
+            status: "Pendiente"
+        };
+
+        debts.unshift(newDebt);
+        renderDebts();
+
+        debtorInput.value = "";
+        creditorInput.value = "";
+        amountInput.value = "";
+        dateInput.value = "";
+        descriptionInput.value = "";
+
+        ShowSuccessMessage("Deuda registrada correctamente", "¡Éxito!");
+    }
+}
+
+function updateDebtSelects() {
+    const debtorSelect = document.getElementById("debtor");
+    const creditorSelect = document.getElementById("creditor");
+
+    if (!debtorSelect || !creditorSelect) return;
+
+    debtorSelect.innerHTML = '<option value="">Seleccionar</option>';
+    creditorSelect.innerHTML = '<option value="">Seleccionar</option>';
+
+    groupMembers.forEach(member => {
+        const option1 = document.createElement("option");
+        option1.value = member.id;
+        option1.textContent = member.name;
+        debtorSelect.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = member.id;
+        option2.textContent = member.name;
+        creditorSelect.appendChild(option2);
+    });
+}
+
+function renderDebts() {
+    const tableBody = document.getElementById("debts-table-body");
+
+    if (!tableBody) return;
+
+    if (debts.length === 0) {
+        tableBody.innerHTML = `
+            <tr class="empty-transactions-row">
+                <td colspan="6">
+                    <div class="empty-transactions-message">
+                        Aún no hay deudas registradas
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = debts.map(debt => {
+        const statusClass = debt.status === "Pagada" ? "monto-positivo" : "";
+        return `
+            <tr class="clickable-row"
+                data-id="${debt.id}"
+                data-debtor="${debt.debtor}"
+                data-creditor="${debt.creditor}"
+                data-amount="${debt.amount}"
+                data-date="${debt.date}"
+                data-description="${debt.description}"
+                data-status="${debt.status}">
+                
+                <td>${debt.debtor}</td>
+                <td>${debt.creditor}</td>
+                <td>${debt.amount}</td>
+                <td>${debt.date}</td>
+                <td class="${statusClass}"><strong>${debt.status}</strong></td>
+                <td>
+                    <button class="btn-edit-debt" style="background:none; border:none; color:#2563EB; cursor:pointer; font-size:12px;">Ver</button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+
+    document.querySelectorAll(".btn-edit-debt").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const row = e.target.closest(".clickable-row");
+            openDebtDetail(row.dataset);
+        });
+    });
+}
+
+function openDebtDetail(dataset) {
+    const { id, debtor, creditor, amount, date, description, status } = dataset;
+
+    document.getElementById("debt-detail-debtor").textContent = debtor;
+    document.getElementById("debt-detail-creditor").textContent = creditor;
+    document.getElementById("debt-detail-amount").textContent = amount;
+    document.getElementById("debt-detail-date").textContent = date;
+    document.getElementById("debt-detail-description").textContent = description;
+    document.getElementById("debt-detail-status").textContent = status;
+
+    document.getElementById("btnDeleteDebt").dataset.id = id;
+    document.getElementById("btnEditDebt").dataset.id = id;
+    document.getElementById("btnMarkPaid").dataset.id = id;
+
+    ModalManager.open("modalEditDebt");
+}
+
+document.getElementById("btnDeleteDebt")?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    if (!confirm(`¿Eliminar esta deuda?`)) return;
+
+    debts = debts.filter(d => d.id !== id);
+    renderDebts();
+    ModalManager.close("modalEditDebt");
+    ShowSuccessMessage("Deuda eliminada", "¡Hecho!");
+});
+
+document.getElementById("btnMarkPaid")?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    const debt = debts.find(d => d.id === id);
+
+    if (debt) {
+        debt.status = debt.status === "Pagada" ? "Pendiente" : "Pagada";
+        renderDebts();
+        openDebtDetail(debt);
+        ShowSuccessMessage(`Deuda marcada como ${debt.status}`, "¡Actualizado!");
+    }
+});
+
+/* ====== LOGOUT ====== */
+document.getElementById("btnLogout")?.addEventListener("click", () => {
+    ModalManager.open("modalLogout");
+});
+document.getElementById("btnConfirmLogout")?.addEventListener("click", async () => {
+    try {
+        localStorage.removeItem("access_token");
+        ShowSuccessMessage("Sesión cerrada correctamente", "¡Hasta luego!");
+        setTimeout(() => {
+            window.location.href = "/app/templates/login.html";
+        }, 1500);
+    } catch (error) {
+        ShowErrorMessage("Error al cerrar sesión. Intenta nuevamente.");
+    }
+});
