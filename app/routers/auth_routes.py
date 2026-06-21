@@ -27,13 +27,6 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
     user_service = UserService(user_dal,account_dal,status_dal,account_type_dal)
     return await user_service.create(user)
 
-# @router.post("/login")
-# async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
-#     user_dal = UserDAL(db)
-#     user_service = UserService(user_dal)
-#     auth_service = AuthService(user_service)
-#     return await auth_service.authenticate_user(user.email, user.password)
-
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),

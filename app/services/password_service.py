@@ -1,8 +1,11 @@
 from fastapi import BackgroundTasks, HTTPException, background
 from fastapi.responses import JSONResponse
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
+<<<<<<< HEAD
 #from app.models import status
 from starlette import status
+=======
+>>>>>>> main
 from app.utils.emails import create_reset_password_token, decode_reset_password_token
 from app.schemas.password import ForgetPasswordRequest, ResetForegetPassword, SuccessMessage
 from app.services.user_service import UserService
@@ -56,7 +59,7 @@ class PasswordService:
         background.add_task(fm.send_message, message, template_name="mail/new_pass.html")
 
         return JSONResponse(
-            status_code=status.HTTP_200_OK,
+            status_code=200,
             content={"message": "Correo fue enviado", "success": True}
         )
 
@@ -64,7 +67,7 @@ class PasswordService:
         
         if reset_password_request.new_password != reset_password_request.confirm_password:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=400,
                 detail="Las contraseñas no coinciden."
             )
         
@@ -80,6 +83,6 @@ class PasswordService:
         await self.user_service.update(user)
 
         return JSONResponse(
-            status_code=status.HTTP_200_OK,
+            status_code=200,
             content={"message": "Contraseña reseteada exitosamente", "success": True}
         )

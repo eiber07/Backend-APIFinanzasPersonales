@@ -26,7 +26,6 @@ class ParametersService:
         for status in response:
             statuses_response.append(ParametersResponse(id=status.id, value=status.name))
 
-        print(statuses_response)
         return statuses_response
 
     async def get_account_types(self):
