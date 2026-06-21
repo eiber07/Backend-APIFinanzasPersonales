@@ -181,6 +181,14 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="label">Tipo de transacción</label>
+                            <select class="input" id="transaction-type-drop">
+                                <option value="">Seleccionar</option>
+                            </select>                                
+                            <span class="error" id="error-transaction-type"></span>
+                        </div>
+
+                        <div class="form-group">
                             <label class="label">Descripción</label>
                             <textarea class="input" id="description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
                             <div id="char-counter">0 / 25 caracteres</div>
@@ -194,11 +202,13 @@
                     </div>
                 </div>
             </div>
+
             <div id="modalEditTransax" class="modal">
                 <div class="content-modal">
                     <span class="close" onclick="ModalManager.close('modalEditTransax')">&times;</span> 
                     <h2 style="color:#1F2937; margin:0;">Modificar datos de Transacción</h2>
                     <div class="form-section">
+
                         <div class="form-group" >
                             <label class="label">Monto</label>
                             <input type="text" class="input" id="new-amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
@@ -214,9 +224,17 @@
                         <div class="form-group">
                             <label class="label">Categoría</label>
                             <select id="new-category-drop" class="input" >
-                            <option value="">Seleccionar</option>
+                                <option value="">Seleccionar</option>
                             </select>
                             <span class="error" id="error-category"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Tipo de transacción</label>                     
+                            <select id="transaction-type-drop" class="input">
+                                <option value="">Seleccionar</option>
+                            </select>
+                            <span class="error" id="error-transaction-type"></span>
                         </div>
 
                         <div class="form-group">

@@ -216,6 +216,50 @@ async function loadCurrentUser() {
     }
 }
 
+async function loadTransactionTypes() {
+    const typeSelect = document.getElementById("transaction-type-drop");
+
+    if (!typeSelect) return;
+
+    typeSelect.innerHTML = `<option value="">Seleccionar</option>`;
+
+    try {
+        const response = await fetchWithAuth(
+            "http://localhost:8000/parameters/parameters?parameters=transactionTypes"
+        );
+
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar los tipos de transacción.");
+        }
+
+        const data = await response.json();
+
+        data.result.forEach((transactionType) => {
+            const option = document.createElement("option");
+
+            option.value = transactionType.id;
+            option.textContent = formatParameterLabel(transactionType.value);
+
+            typeSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error al cargar tipos de transacción:", error);
+
+        const errorElement = document.getElementById("error-transaction-type");
+
+        if (errorElement) {
+            errorElement.textContent = "No se pudieron cargar los tipos.";
+            errorElement.classList.add("active");
+        }
+    }
+}
+
+function formatParameterLabel(value) {
+    if (!value) return "";
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 async function loadUserAccounts() {
     const container = document.getElementById("btnAccounts");
     if (!container) return;
@@ -243,8 +287,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
     document.getElementById("btn-save-new-transactions")
         ?.addEventListener("click", saveNewTransaction);
+
     renderRecentTransactions();
+    await loadTransactionTypes();
     renderFacturasPreview();
+
     document.getElementById("clickable-img2")
         ?.addEventListener("click", () => ModalManager.open("modalNewExpense"));
     document.getElementById("openModal")
@@ -290,7 +337,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const sidebarPlaceholder = document.getElementById('sidebar-placeholder');
     if (!sidebarPlaceholder) return;
- 
+
     try {
         const sidebarHTML = await fetch('/app/templates/sidebar.html').then(r => r.text());
         sidebarPlaceholder.innerHTML = sidebarHTML; 
@@ -592,6 +639,7 @@ const ModalManager = (() => {
             document.getElementById("amount").value = "";
             document.getElementById("date").value = "";
             document.getElementById("category-drop").value = "";
+            document.getElementById("transaction-type-drop").value = "";
             document.getElementById("description-text").value = "";
             const counter = document.getElementById("char-counter");
                     counter.textContent = "0 / 25 caracteres";
@@ -816,15 +864,20 @@ function saveNewTransaction() {
     const amountInput = document.getElementById("amount");
     const dateInput = document.getElementById("date");
     const categoryInput = document.getElementById("category-drop");
+    const transactionTypeInput = document.getElementById("transaction-type-drop");
     const descriptionInput = document.getElementById("description-text");
 
     const amountRaw = amountInput.value.trim();
     const dateRaw = dateInput.value;
     const categoryRaw = categoryInput.value;
+    const transactionTypeId = transactionTypeInput.value;
+    const transactionTypeName =
+        transactionTypeInput.options[transactionTypeInput.selectedIndex]?.text.trim();
+
     const descriptionRaw = descriptionInput.value.trim();
 
-    if (!amountRaw || !dateRaw || !categoryRaw || !descriptionRaw) {
-        alert("Completá todos los campos antes de guardar la transacción.");
+    if (!amountRaw || !dateRaw || !categoryRaw || !transactionTypeId|| !descriptionRaw) {
+        alert("Completa todos los campos antes de guardar la transacción.");
         return;
     }
 
@@ -835,13 +888,16 @@ function saveNewTransaction() {
         return;
     }
 
+    const isIncome = transactionTypeName.toLowerCase() === "ingreso";
+    
     const newTransaction = {
         id: Date.now().toString(),
-        type: "Egreso",
+        typeId: Number(transactionTypeId),
+        type: transactionTypeName,
         category: categoryRaw,
         description: descriptionRaw,
-        amountNumber: amountNumber * -1,
-        amount: `-${formatTransactionMoney(amountNumber)}`,
+        amountNumber: isIncome ? amountNumber : amountNumber * -1,
+        amount: `${isIncome ? "+" : "-"}${formatTransactionMoney(amountNumber)}`,
         date: formatTransactionDate(dateRaw)
     };
 

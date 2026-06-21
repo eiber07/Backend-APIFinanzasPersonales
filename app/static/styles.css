@@ -659,6 +659,8 @@ display: block;
     text-align: right;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    font-weight: 800;
 }
 
 .empty-transactions-row td {
@@ -690,9 +692,8 @@ display: block;
     font-size: 12px;
 }
 
-.monto-positivo {
+.tabla-transacciones td.monto-positivo {
     color: #22C55E;
-    font-weight: 800;
 }
 
 /* ============================= */
