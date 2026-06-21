@@ -12,6 +12,185 @@ async function fetchWithAuth(url, options = {}) {
     });
 }
 
+/* ====== SISTEMA DE ALERTAS Y ERRORES ====== */
+/**
+ * Uso: ShowAlert('error', 'Título', 'Mensaje de error aquí')
+ */
+const AlertManager = (() => {
+    const container = document.getElementById("alertsContainer");
+
+    function create(type, title, message, duration = 5000) {
+        if (!container) {
+            console.error("AlertsContainer no encontrado en el DOM");
+            return;
+        }
+
+        // Crear elemento de alerta
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type}`;
+
+        // Definir icono según tipo
+        const icons = {
+            error: "✕",
+            success: "✓",
+            warning: "⚠",
+            info: "ℹ"
+        };
+
+        alert.innerHTML = `
+            <div class="alert-icon">${icons[type]}</div>
+            <div class="alert-content">
+                <div class="alert-title">${title}</div>
+                <div class="alert-message">${message}</div>
+            </div>
+            <button class="alert-close">&times;</button>
+        `;
+
+        // Botón para cerrar
+        alert.querySelector(".alert-close").addEventListener("click", () => {
+            removeAlert(alert);
+        });
+
+        // Agregar al contenedor
+        container.appendChild(alert);
+
+        // Auto-remover después del tiempo especificado
+        if (duration > 0) {
+            setTimeout(() => {
+                removeAlert(alert);
+            }, duration);
+        }
+
+        return alert;
+    }
+
+    function removeAlert(alertElement) {
+        alertElement.classList.add("removing");
+        setTimeout(() => {
+            alertElement.remove();
+        }, 300);
+    }
+
+    return {
+        error: (title, message, duration) => 
+            create("error", title, message, duration ?? 5000),
+        success: (title, message, duration) => 
+            create("success", title, message, duration ?? 4000),
+        warning: (title, message, duration) => 
+            create("warning", title, message, duration ?? 5000),
+        info: (title, message, duration) => 
+            create("info", title, message, duration ?? 4000),
+        // Para compatibilidad con código antiguo
+        removeAll: () => {
+            document.querySelectorAll(".alert").forEach(alert => {
+                removeAlert(alert);
+            });
+        }
+    };
+})();
+
+// Alias para facilitar el uso
+function ShowAlert(type, title, message, duration) {
+    AlertManager[type](title, message, duration);
+}
+
+function ShowErrorMessage(message, title = "Error") {
+    AlertManager.error(title, message);
+}
+
+function ShowSuccessMessage(message, title = "Éxito") {
+    AlertManager.success(title, message);
+}
+
+function ShowWarningMessage(message, title = "Advertencia") {
+    AlertManager.warning(title, message);
+}
+
+/**
+ * Validador de formularios con soporte a errores dinámicos
+ */
+const FormValidator = {
+    /**
+     * Marcar un campo como con error
+     * @param {string} fieldId - ID del input
+     * @param {string} errorMessage - Mensaje de error
+     */
+    setError(fieldId, errorMessage) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        const formGroup = field.closest(".form-group") || field.closest(".form-group2")?.querySelector("div");
+        const errorElement = formGroup?.querySelector(".error");
+
+        if (formGroup) {
+            formGroup.classList.add("has-error");
+        }
+        if (errorElement) {
+            errorElement.textContent = errorMessage;
+            errorElement.classList.add("active");
+        }
+    },
+
+    /**
+     * Limpiar error de un campo
+     * @param {string} fieldId - ID del input
+     */
+    clearError(fieldId) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        const formGroup = field.closest(".form-group") || field.closest(".form-group2")?.querySelector("div");
+        const errorElement = formGroup?.querySelector(".error");
+
+        if (formGroup) {
+            formGroup.classList.remove("has-error");
+        }
+        if (errorElement) {
+            errorElement.textContent = "";
+            errorElement.classList.remove("active");
+        }
+    },
+
+    /**
+     * Limpiar todos los errores de un formulario/modal
+     * @param {string} containerSelector - Selector del contenedor
+     */
+    clearAll(containerSelector) {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+
+        container.querySelectorAll(".error").forEach(error => {
+            error.textContent = "";
+            error.classList.remove("active");
+        });
+        container.querySelectorAll(".has-error").forEach(field => {
+            field.classList.remove("has-error");
+        });
+    },
+
+    /**
+     * Validar email
+     */
+    isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    },
+
+    /**
+     * Validar campo no vacío
+     */
+    isNotEmpty(value) {
+        return value.trim() !== "";
+    },
+
+    /**
+     * Validar contraseña (mín 6 caracteres)
+     */
+    isValidPassword(password) {
+        return password.length >= 6;
+    }
+};
+
 async function loadCurrentUser() {
     const token = localStorage.getItem("access_token");
 
@@ -307,6 +486,10 @@ async function login() {
         errorPassword.classList.remove("active");
     }
 
+    if (!valid) {
+        ShowErrorMessage("Por favor, completa todos los campos");
+        return;
+
     if (valid) {
         try {
             const formData = new URLSearchParams();
@@ -321,14 +504,15 @@ async function login() {
             if (response.ok) {
                 const data = await response.json();
                 localStorage.setItem("access_token", data.access_token); //aqui se guarda el token
+                ShowSuccessMessage("Sesión iniciada correctamente", "¡Bienvenido!");
                 window.location.href = "dash_priv.html";
             } else {
                 const errorData = await response.json();
-                alert("Error: " + errorData.detail);
+                ShowErrorMessage(errorData.detail || "No se pudo iniciar sesión", "Error de autenticación");
             }
         } catch (error) {
             console.error("Error de conexión:", error);
-            alert("No se pudo conectar con el servidor.");
+            ShowErrorMessage("No se pudo conectar con el servidor.", "Error de conexión");
         }
     }
 }
@@ -462,6 +646,16 @@ const ModalManager = (() => {
                     counter.style.color = "inherit"
 
         }
+        },modalGroupMembers: {
+            onClose() {
+                document.getElementById("member-name").value = "";
+                document.getElementById("member-email").value = "";
+                document.getElementById("member-role").value = "";
+                const err = document.getElementById("error-member-name");
+                err.textContent = "";
+                err.classList.remove("active");
+            }
+
         },modalNewExpense:{
             onClose() {
                 document.getElementById("amount-exp").value = "";
@@ -474,6 +668,21 @@ const ModalManager = (() => {
                 counter2.textContent = "0 / 25 caracteres";
                 counter2.style.color = "inherit";
             }
+
+        },modalDebts: {
+            onClose() {
+                document.getElementById("debt-amount").value = "";
+                document.getElementById("debt-date").value = "";
+                document.getElementById("debtor").value = "";
+                document.getElementById("creditor").value = "";
+                document.getElementById("debt-description").value = "";
+                const counter = document.getElementById("char-counter-debt");
+                counter.textContent = "0 / 50 caracteres";
+                counter.style.color = "inherit";
+            }
+        },modalEditDebt: {
+            onClose() {}
+
         },modalNewAccount:{
             onClose() {
                 document.getElementById("account-name").value = "";
@@ -493,7 +702,14 @@ const ModalManager = (() => {
         },
         modalConfirmation: {
             onClose() {}
+        },modalEditDebt: {
+            onClose() {}
+        },modalEditMember: {
+            onClose() {}
+        },modalLogout: {
+            onClose() {}
         }
+        
 };
     /* abrir/cerrar*/
     function open(modalId) {
@@ -939,3 +1155,424 @@ function setActiveAccount(account) {
     loadBalance(account.id);
     loadPlannedExpenses(account.id);
 }
+
+/* ====== CERRAR SESIÓN ====== */
+
+document.getElementById("btnLogout")?.addEventListener("click", () => {
+    ModalManager.open("modalLogout");
+});
+
+document.getElementById("btnConfirmLogout")?.addEventListener("click", async () => {
+    try {
+        
+        localStorage.removeItem("access_token");
+        window.location.href = "/app/templates/login.html";
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+        ShowErrorMessage("Error al cerrar sesión. Intenta nuevamente.");
+    }
+});
+
+let groupMembers = [];
+
+document.getElementById("btnAddMember")?.addEventListener("click", addGroupMember);
+
+// Función para validar y agregar integrante
+function addGroupMember() {
+    const nameInput = document.getElementById("member-name");
+    const emailInput = document.getElementById("member-email");
+    const roleInput = document.getElementById("member-role");
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+    const role = roleInput.value;
+
+    // Validar campos
+    let valid = true;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!name) {
+        document.getElementById("error-member-name").textContent = "Campo obligatorio";
+        document.getElementById("error-member-name").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-member-name").classList.remove("active");
+    }
+
+    if (!email || !emailRegex.test(email)) {
+        document.getElementById("error-member-email").textContent = "Email inválido";
+        document.getElementById("error-member-email").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-member-email").classList.remove("active");
+    }
+
+    if (!role) {
+        document.getElementById("error-member-role").textContent = "Campo obligatorio";
+        document.getElementById("error-member-role").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-member-role").classList.remove("active");
+    }
+
+    if (valid) {
+        const newMember = {
+            id: Date.now().toString(),
+            name: name,
+            email: email,
+            role: role
+        };
+
+        groupMembers.unshift(newMember);
+        renderGroupMembers();
+        
+        // Limpiar formulario
+        nameInput.value = "";
+        emailInput.value = "";
+        roleInput.value = "";
+    }
+}
+
+// Función para mostrar integrantes en la tabla
+function renderGroupMembers() {
+    const tableBody = document.getElementById("members-table-body");
+
+    if (!tableBody) return;
+
+    if (groupMembers.length === 0) {
+        tableBody.innerHTML = `
+            <tr class="empty-transactions-row">
+                <td colspan="4">
+                    <div class="empty-transactions-message">
+                        Aún no hay integrantes en el grupo
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = groupMembers.map(member => `
+        <tr class="clickable-row"
+            data-id="${member.id}"
+            data-name="${member.name}"
+            data-email="${member.email}"
+            data-role="${member.role}">
+            
+            <td>${member.name}</td>
+            <td>${member.email}</td>
+            <td>${member.role}</td>
+            <td>
+                <button class="btn-edit-member" style="background:none; border:none; color:#2563EB; cursor:pointer; font-size:12px;">Editar</button>
+            </td>
+        </tr>
+    `).join("");
+
+    // Agregar eventos a los botones de editar
+    document.querySelectorAll(".btn-edit-member").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const row = e.target.closest(".clickable-row");
+            openMemberDetail(row.dataset);
+        });
+    });
+}
+
+// Función para abrir detalles de integrante
+function openMemberDetail(dataset) {
+    const { id, name, email, role } = dataset;
+
+    document.getElementById("member-detail-name").textContent = name;
+    document.getElementById("member-detail-email").textContent = email;
+    document.getElementById("member-detail-role").textContent = role;
+
+    document.getElementById("btnDeleteMember").dataset.id = id;
+    document.getElementById("btnEditMember").dataset.id = id;
+
+    ModalManager.open("modalEditMember");
+}
+
+// Evento para eliminar integrante
+document.getElementById("btnDeleteMember")?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    if (!confirm(`¿Eliminar al integrante?`)) return;
+
+    groupMembers = groupMembers.filter(m => m.id !== id);
+    renderGroupMembers();
+    ModalManager.close("modalEditMember");
+});
+
+let debts = [];
+
+const textareaDebt = document.getElementById('debt-description');
+const counterDebt = document.getElementById('char-counter-debt');
+
+if (textareaDebt && counterDebt) {
+    textareaDebt.addEventListener('input', () => {
+        const length = textareaDebt.value.length;
+        counterDebt.textContent = `${length} / 50 caracteres`;
+        counterDebt.style.color = length >= 50 ? '#dc2626' : 'inherit';
+    });
+}
+
+// Evento para agregar deuda
+document.getElementById("btnAddDebt")?.addEventListener("click", addDebt);
+
+function addDebt() {
+    const debtorInput = document.getElementById("debtor");
+    const creditorInput = document.getElementById("creditor");
+    const amountInput = document.getElementById("debt-amount");
+    const dateInput = document.getElementById("debt-date");
+    const descriptionInput = document.getElementById("debt-description");
+
+    const debtor = debtorInput.value;
+    const creditor = creditorInput.value;
+    const amountRaw = amountInput.value.trim();
+    const date = dateInput.value;
+    const description = descriptionInput.value.trim();
+
+    // Validar campos
+    let valid = true;
+
+    if (!debtor) {
+        document.getElementById("error-debtor").textContent = "Campo obligatorio";
+        document.getElementById("error-debtor").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-debtor").classList.remove("active");
+    }
+
+    if (!creditor) {
+        document.getElementById("error-creditor").textContent = "Campo obligatorio";
+        document.getElementById("error-creditor").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-creditor").classList.remove("active");
+    }
+
+    if (!amountRaw) {
+        document.getElementById("error-debt-amount").textContent = "Campo obligatorio";
+        document.getElementById("error-debt-amount").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-debt-amount").classList.remove("active");
+    }
+
+    if (!date) {
+        document.getElementById("error-debt-date").textContent = "Campo obligatorio";
+        document.getElementById("error-debt-date").classList.add("active");
+        valid = false;
+    } else {
+        document.getElementById("error-debt-date").classList.remove("active");
+    }
+
+    if (valid) {
+        const debtorName = groupMembers.find(m => m.id === debtor)?.name || debtor;
+        const creditorName = groupMembers.find(m => m.id === creditor)?.name || creditor;
+        const amountNumber = parseTransactionAmount(amountRaw);
+
+        const newDebt = {
+            id: Date.now().toString(),
+            debtor: debtorName,
+            debtorId: debtor,
+            creditor: creditorName,
+            creditorId: creditor,
+            amount: formatTransactionMoney(amountNumber),
+            amountNumber: amountNumber,
+            date: formatTransactionDate(date),
+            dateRaw: date,
+            description: description,
+            status: "Pendiente"
+        };
+
+        debts.unshift(newDebt);
+        renderDebts();
+        updateDebtSelects();
+
+        // Limpiar formulario
+        debtorInput.value = "";
+        creditorInput.value = "";
+        amountInput.value = "";
+        dateInput.value = "";
+        descriptionInput.value = "";
+    }
+}
+
+function updateDebtSelects() {
+    const debtorSelect = document.getElementById("debtor");
+    const creditorSelect = document.getElementById("creditor");
+
+    if (!debtorSelect || !creditorSelect) return;
+
+    // Limpiar opciones excepto la primera
+    debtorSelect.innerHTML = '<option value="">Seleccionar</option>';
+    creditorSelect.innerHTML = '<option value="">Seleccionar</option>';
+
+    // Agregar miembros como opciones
+    groupMembers.forEach(member => {
+        const option1 = document.createElement("option");
+        option1.value = member.id;
+        option1.textContent = member.name;
+        debtorSelect.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = member.id;
+        option2.textContent = member.name;
+        creditorSelect.appendChild(option2);
+    });
+}
+
+function renderDebts() {
+    const tableBody = document.getElementById("debts-table-body");
+
+    if (!tableBody) return;
+
+    if (debts.length === 0) {
+        tableBody.innerHTML = `
+            <tr class="empty-transactions-row">
+                <td colspan="6">
+                    <div class="empty-transactions-message">
+                        Aún no hay deudas registradas
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tableBody.innerHTML = debts.map(debt => {
+        const statusClass = debt.status === "Pagada" ? "monto-positivo" : "";
+        return `
+            <tr class="clickable-row"
+                data-id="${debt.id}"
+                data-debtor="${debt.debtor}"
+                data-creditor="${debt.creditor}"
+                data-amount="${debt.amount}"
+                data-date="${debt.date}"
+                data-description="${debt.description}"
+                data-status="${debt.status}">
+                
+                <td>${debt.debtor}</td>
+                <td>${debt.creditor}</td>
+                <td>${debt.amount}</td>
+                <td>${debt.date}</td>
+                <td class="${statusClass}"><strong>${debt.status}</strong></td>
+                <td>
+                    <button class="btn-edit-debt" style="background:none; border:none; color:#2563EB; cursor:pointer; font-size:12px;">Ver</button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+
+    // Agregar eventos a los botones de editar
+    document.querySelectorAll(".btn-edit-debt").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            const row = e.target.closest(".clickable-row");
+            openDebtDetail(row.dataset);
+        });
+    });
+}
+
+function openDebtDetail(dataset) {
+    const { id, debtor, creditor, amount, date, description, status } = dataset;
+
+    document.getElementById("debt-detail-debtor").textContent = debtor;
+    document.getElementById("debt-detail-creditor").textContent = creditor;
+    document.getElementById("debt-detail-amount").textContent = amount;
+    document.getElementById("debt-detail-date").textContent = date;
+    document.getElementById("debt-detail-description").textContent = description;
+    document.getElementById("debt-detail-status").textContent = status;
+
+    document.getElementById("btnDeleteDebt").dataset.id = id;
+    document.getElementById("btnEditDebt").dataset.id = id;
+    document.getElementById("btnMarkPaid").dataset.id = id;
+
+    ModalManager.open("modalEditDebt");
+}
+
+// Eliminar deuda
+document.getElementById("btnDeleteDebt")?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    if (!confirm(`¿Eliminar esta deuda?`)) return;
+
+    debts = debts.filter(d => d.id !== id);
+    renderDebts();
+    ModalManager.close("modalEditDebt");
+});
+
+// Marcar como pagada
+document.getElementById("btnMarkPaid")?.addEventListener("click", (e) => {
+    const id = e.target.dataset.id;
+    const debt = debts.find(d => d.id === id);
+
+    if (debt) {
+        debt.status = debt.status === "Pagada" ? "Pendiente" : "Pagada";
+        renderDebts();
+        openDebtDetail(debt);
+    }
+});
+
+/* ====== ALERTAS ====== */
+const AlertManager = (() => {
+    const container = document.getElementById("alertsContainer");
+    function create(type, title, message, duration = 5000) {
+        if (!container) return;
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type}`;
+        const icons = { error: "✕", success: "✓", warning: "⚠", info: "ℹ" };
+        alert.innerHTML = `
+            <div class="alert-icon">${icons[type]}</div>
+            <div class="alert-content">
+                <div class="alert-title">${title}</div>
+                <div class="alert-message">${message}</div>
+            </div>
+            <button class="alert-close">&times;</button>
+        `;
+        alert.querySelector(".alert-close").addEventListener("click", () => {
+            alert.classList.add("removing");
+            setTimeout(() => alert.remove(), 300);
+        });
+        container.appendChild(alert);
+        if (duration > 0) {
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.classList.add("removing");
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }, duration);
+        }
+        return alert;
+    }
+    return {
+        error: (title, message, duration) => create("error", title, message, duration ?? 5000),
+        success: (title, message, duration) => create("success", title, message, duration ?? 4000),
+        warning: (title, message, duration) => create("warning", title, message, duration ?? 5000),
+        info: (title, message, duration) => create("info", title, message, duration ?? 4000),
+    };
+})();
+
+function ShowErrorMessage(message, title = "Error") {
+    AlertManager.error(title, message);
+}
+function ShowSuccessMessage(message, title = "Éxito") {
+    AlertManager.success(title, message);
+}
+function ShowWarningMessage(message, title = "Advertencia") {
+    AlertManager.warning(title, message);
+}
+
+/* ====== LOGOUT ====== */
+document.getElementById("btnLogout")?.addEventListener("click", () => {
+    ModalManager.open("modalLogout");
+});
+document.getElementById("btnConfirmLogout")?.addEventListener("click", async () => {
+    try {
+        localStorage.removeItem("access_token");
+        ShowSuccessMessage("Sesión cerrada correctamente", "¡Hasta luego!");
+        setTimeout(() => {
+            window.location.href = "/app/templates/login.html";
+        }, 1500);
+    } catch (error) {
+        ShowErrorMessage("Error al cerrar sesión. Intenta nuevamente.");
+    }
+}
+); }
