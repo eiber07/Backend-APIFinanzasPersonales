@@ -8,6 +8,7 @@ from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.transaction import TransactionCreate, TransactionRequest, TransactionResponse
 from datetime import datetime
+from app.dals.planned_expense_dal import PlannedExpenseDAL
 
 
 class TransactionService:
@@ -92,8 +93,15 @@ class TransactionService:
         )
 
         created = await self.transactionDAL.create_transaction(new_transaction)
-        created = await self.transactionDAL.get_transaction_by_id(created.id)
+        # si es pago de cuota, actualizar planned_expense
+        if transaction.planned_expense_id and transaction.type_id == 3:
+            planned_expense_dal = PlannedExpenseDAL(self.transactionDAL.db)
+            planned_expense = await planned_expense_dal.get_planned_expense_by_id(transaction.planned_expense_id)
+            if planned_expense:
+                planned_expense.installments_paid += 1
+                await planned_expense_dal.update_planned_expense(planned_expense)
 
+        created = await self.transactionDAL.get_transaction_by_id(created.id)
         return await self._build_transaction_response(created)
 
     async def update_transaction(self, transaction: TransactionRequest, current_user: User):
