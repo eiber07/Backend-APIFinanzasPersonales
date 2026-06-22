@@ -19,9 +19,10 @@ async function fetchWithAuth(url, options = {}) {
 }
 
 // estado global de cuenta activa
-async function setActiveAccount(account) {
-        console.log("setActiveAccount:", account);
+async function setActiveAccount(account, displayName = account.name) {
     activeAccount = account;
+    const headerName = document.getElementById("header-account-name");
+    if (headerName) headerName.textContent = displayName;
     await loadTransactions(account.id);
     await loadPlannedExpenses(account.id);
 }
@@ -109,12 +110,20 @@ async function loadUserAccounts() {
         accounts.forEach((account, index) => {
             const item = document.createElement("div");
             item.classList.add("account-item");
-            item.textContent = index === 0 ? "Cuenta Personal" : account.name;
-            item.addEventListener("click", () => setActiveAccount(account));
+            const displayName = index === 0 ? "Cuenta Personal" : account.name; 
+            item.textContent = displayName;
+            item.dataset.displayName = displayName;
+            item.addEventListener("click", () => {
+                document.querySelectorAll(".account-item").forEach(i => i.classList.remove("active"));
+                item.classList.add("active");
+                setActiveAccount(account, displayName);
+            })
             container.appendChild(item);
         });
         if (accounts.length > 0) {
-            setActiveAccount(accounts[0]);
+            const firstItem = container.querySelector(".account-item");
+            firstItem?.classList.add("active");
+            setActiveAccount(accounts[0], "Cuenta Personal");
         }
     } catch (err) {
         console.error("Error cargando cuentas:", err);
@@ -122,7 +131,6 @@ async function loadUserAccounts() {
 }
 
 async function loadTransactions(accountId) {
-        console.log("loadTransactions:", accountId);
     const tableBody = document.getElementById("transactions-table-body");
     if (!tableBody) return;
 
@@ -171,6 +179,7 @@ async function loadPlannedExpenses(accountId) {
             dateExpiration: formatTransactionDate(e.due_date.split("T")[0]),
             installment: e.installment_number,
             amount: formatTransactionMoney(parseFloat(e.amount)),
+            installmentAmount: formatTransactionMoney(parseFloat(e.installment_amount)),
         }));
 
         renderExpenses();
@@ -182,6 +191,15 @@ async function loadPlannedExpenses(accountId) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
+        ModalManager.open("modalLogout");
+    });
+
+    document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
+        localStorage.removeItem("access_token");
+        window.location.href = "login.html";
+    });
+
     document.getElementById("clickable-img")
         ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
     await loadTransactionCategories();
@@ -204,7 +222,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!row) return;
         openExpenseDetail(row.dataset);
     });
-        document.getElementById("transaction-type-drop")?.addEventListener("change", (e) => {
+    document.getElementById("transaction-type-drop")?.addEventListener("change", (e) => {
     const selectedText = e.target.options[e.target.selectedIndex]?.text.trim().toLowerCase();
     const plannedGroup = document.getElementById("planned-expense-group");
     const plannedDrop = document.getElementById("planned-expense-drop");
@@ -221,7 +239,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
         plannedGroup.style.display = "none";
     }
-});
+}); 
+    document.getElementById("planned-expense-drop")?.addEventListener("change", (e) => {
+        const selectedId = e.target.value;
+        if (!selectedId) return;
+
+        const exp = plannedExpenses.find(exp => exp.id === selectedId);
+        if (!exp) return;
+
+        const amountInput = document.getElementById("amount");
+        // Convertir installmentAmount al formato del input
+        const raw = parseFloat(exp.installmentAmount.replace(/[^0-9.]/g, ""));
+        const formatted = (raw * 100).toFixed(0);
+        let parteEntera = Math.floor(raw).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        amountInput.value = `${parteEntera},${(raw % 1).toFixed(2).slice(2)}`;
+    });
     
     const textarea  = document.getElementById('description-text');
     const counter   = document.getElementById('char-counter');
@@ -721,8 +753,6 @@ btnEditEx?.addEventListener("click", (e) => {
 });
 
 document.getElementById("btnSaveEditTransax")?.addEventListener("click", async () => {
-    console.log("btnSaveEditTransax clicked, id:", currentEditTransactionId);
-
     const amountRaw = document.getElementById("edit-amount").value.trim();
     const dateRaw = document.getElementById("edit-date").value;
     const categoryId = document.getElementById("edit-category-drop").value;
@@ -752,7 +782,6 @@ document.getElementById("btnSaveEditTransax")?.addEventListener("click", async (
         if (res.ok) {
             ShowSuccessMessage("Transacción actualizada correctamente.");
             await loadTransactions(activeAccount.id);
-            loadBalance();
             ModalManager.close("modalEditTransax");
             ModalManager.close("modalTransax");
         } else {
@@ -766,8 +795,6 @@ document.getElementById("btnSaveEditTransax")?.addEventListener("click", async (
 });
 
 document.getElementById("btnSaveEditExp")?.addEventListener("click", async () => {
-    console.log("btnSaveEditExp clicked, id:", currentEditExpenseId);
-
     const amountRaw = document.getElementById("edit-amount-exp").value.trim();
     const startDateRaw = document.getElementById("edit-start-date-exp").value;
     const dueDateRaw = document.getElementById("edit-due-date-exp").value;
@@ -824,7 +851,6 @@ btnDelete?.addEventListener("click", async (e) => {
         if (res.ok) {
             ShowSuccessMessage("Transacción eliminada correctamente.");
             await loadTransactions(activeAccount.id);
-            loadBalance();
             ModalManager.close(MODAL_TX);
         } else {
             const err = await res.json();
@@ -927,7 +953,7 @@ async function saveNewTransaction() {
         if (res.ok) {
             ShowSuccessMessage("Transacción guardada correctamente.");
             await loadTransactions(activeAccount.id);
-            loadBalance();
+            if (plannedExpenseId) await loadPlannedExpenses(activeAccount.id);
             ModalManager.close("modalNewTransax");
         } else {
             const err = await res.json();
@@ -1130,12 +1156,14 @@ function renderExpenses() {
             data-date-start="${expense.dateStart}"
             data-date-expiration="${expense.dateExpiration}"
             data-installment="${expense.installment}"
-            data-amount="${expense.amount}">
+            data-amount="${expense.amount}"
+            data-installment-amount="${expense.installmentAmount}">
 
             <td>${expense.detail}</td>
             <td>${expense.dateStart}</td>
             <td>${expense.dateExpiration}</td>
             <td>${expense.installment}</td>
+            <td>${expense.installmentAmount}</td>
             <td>${expense.amount}</td>
         </tr>
     `).join("");
@@ -1143,6 +1171,8 @@ function renderExpenses() {
 
 function renderFacturasPreview() {
     const list = document.getElementById("installmentCards");
+
+
     if (!list) return;
 
     if (plannedExpenses.length === 0) {
@@ -1151,6 +1181,7 @@ function renderFacturasPreview() {
     }
 
     const ordered = [...plannedExpenses]
+    .filter(expense => getCurrentInstallment(expense) !== null)
     .sort((a, b) => new Date(a.dueDateRaw) - new Date(b.dueDateRaw))
     .slice(0, 3);
 
@@ -1158,46 +1189,50 @@ function renderFacturasPreview() {
         const date = new Date(`${expense.dueDateRaw}T00:00:00`);
         const month = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
         const day = date.getDate();
-
+        const currentInstallment = getCurrentInstallment(expense);
+        const completed = expense.installmentPaid >= expense.installment;
+            
         return `
-            <article class="factura-card clickable-row"
-                data-id="${expense.id}"
-                data-detail="${expense.detail}"
-                data-date-start="${expense.dateStart}"
-                data-date-expiration="${expense.dateExpiration}"
-                data-installment="${expense.installment}"
-                data-installment-paid="${expense.installmentPaid}"
-                data-amount="${expense.amount}">
+        <article class="factura-card clickable-row ${completed ? 'factura-completada' : ''}"
+            data-id="${expense.id}"
+            data-detail="${expense.detail}"
+            data-date-start="${expense.dateStart}"
+            data-date-expiration="${expense.dateExpiration}"
+            data-installment="${expense.installment}"
+            data-installment-paid="${expense.installmentPaid}"
+            data-amount="${expense.amount}"
+            data-installment-amount="${expense.installmentAmount}">
 
-                <div class="factura-fecha factura-fecha-gris">
-                    <span>${month}</span>
-                    <strong>${day}</strong>
-                </div>
+            <div class="factura-fecha factura-fecha-gris">
+                <span>${month}</span>
+                <strong>${day}</strong>
+            </div>
 
-                <div class="factura-info">
-                    <h3>${expense.detail}</h3>
-                    <p>${expense.installmentPaid} de ${expense.installment} cuotas</p>
-                </div>
+            <div class="factura-info">
+                <h3>${expense.detail}</h3>
+                <p>Cuota ${currentInstallment} de ${expense.installment}</p>
+            </div>
 
-                <div class="factura-monto">
-                    <strong>${expense.amount}</strong>
-                </div>
-            </article>
-        `;
+            <div class="factura-monto">
+                <strong>${expense.installmentAmount}</strong>
+            </div>
+        </article>
+    `;
     }).join("");
     list.querySelectorAll(".clickable-row").forEach(card => {
     card.addEventListener("click", () => openExpenseDetail(card.dataset));
 });
 }
 function openExpenseDetail(dataset) {
-    const { id, detail, dateStart, dateExpiration, installment, installmentPaid, amount } = dataset;
+    const { id, detail, dateStart, dateExpiration, installment, installmentPaid, amount, installmentAmount } = dataset;
     currentExpenseId = id;
     document.getElementById("expense-detail").textContent = detail;
     document.getElementById("expense-startdate").textContent = dateStart;
     document.getElementById("expense-startend").textContent = dateExpiration;
     document.getElementById("expense-installments").textContent = `${installmentPaid ?? 0} de ${installment} cuotas`;
     document.getElementById("expense-amount").textContent = amount;
- 
+    document.getElementById("expense-intallments-amount").textContent = installmentAmount ?? "-"
+
     ModalManager.open("modalEditExpenses");
 }
 
@@ -1246,14 +1281,6 @@ async function loadEditTransactionTypes() {
             select.appendChild(option);
         });
     } catch (err) { console.error(err); }
-}
-// estado global de cuenta activa
-function setActiveAccount(account) {
-    activeAccount = account;
-    // recargar todo
-    loadTransactions(account.id);
-    loadBalance(account.id);
-    loadPlannedExpenses(account.id);
 }
 
 /* ====== ALERTAS ====== */
@@ -1304,16 +1331,16 @@ function ShowSuccessMessage(message, title = "Éxito") {
 function ShowWarningMessage(message, title = "Advertencia") {
     AlertManager.warning(title, message);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
-        ModalManager.open("modalLogout");
-    });
-
-    document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
-        localStorage.removeItem("access_token");
-        window.location.href = "login.html";
-    });
-
-});
+function getCurrentInstallment(expense) {
+    const start = new Date(`${expense.dueDateStartRaw}T00:00:00`);
+    const now = new Date();
+    
+    const monthsDiff = (now.getFullYear() - start.getFullYear()) * 12 
+        + (now.getMonth() - start.getMonth());
+    
+    const currentInstallment = monthsDiff + 1;
+    
+    if (currentInstallment > Number(expense.installment)) return null;
+    
+    return currentInstallment;
+}

@@ -21,7 +21,7 @@ body {
     display: flex; 
     flex-direction: column; 
     margin: 0 80px; 
-    padding: 20px; 
+    padding: 5px; 
     border-radius: 8px; 
 }
 
@@ -891,7 +891,7 @@ display: block;
     display: flex;
     gap: 25px;
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .btn-red {
@@ -1131,13 +1131,22 @@ display: block;
     max-width: 400px;
 }
 
-.acciones-modal {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-}
-
 .acciones-modal button {
     min-width: 140px;
+}
+.factura-completada {
+    opacity: 0.5;
+    filter: grayscale(2);
+}
+.account-item.active {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: 600;
+}
+.account-item:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    padding: 4px 8px;
 }
