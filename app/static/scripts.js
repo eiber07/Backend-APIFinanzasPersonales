@@ -482,6 +482,11 @@ const ModalManager = (() => {
                 counter3.textContent = "0 / 25 caracteres";
                 counter3.style.color = "inherit";
             }
+        
+
+        },modalLogout: {
+            onClose() {}
+
         },modalExpenses: {
             onClose() {}
         },modalEditExpenses: {
@@ -939,3 +944,65 @@ function setActiveAccount(account) {
     loadBalance(account.id);
     loadPlannedExpenses(account.id);
 }
+
+/* ====== ALERTAS ====== */
+const AlertManager = (() => {
+    const container = document.getElementById("alertsContainer");
+    function create(type, title, message, duration = 5000) {
+        if (!container) return;
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type}`;
+        const icons = { error: "✕", success: "✓", warning: "⚠", info: "ℹ" };
+        alert.innerHTML = `
+            <div class="alert-icon">${icons[type]}</div>
+            <div class="alert-content">
+                <div class="alert-title">${title}</div>
+                <div class="alert-message">${message}</div>
+            </div>
+            <button class="alert-close">&times;</button>
+        `;
+        alert.querySelector(".alert-close").addEventListener("click", () => {
+            alert.classList.add("removing");
+            setTimeout(() => alert.remove(), 300);
+        });
+        container.appendChild(alert);
+        if (duration > 0) {
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.classList.add("removing");
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }, duration);
+        }
+        return alert;
+    }
+    return {
+        error: (title, message, duration) => create("error", title, message, duration ?? 5000),
+        success: (title, message, duration) => create("success", title, message, duration ?? 4000),
+        warning: (title, message, duration) => create("warning", title, message, duration ?? 5000),
+        info: (title, message, duration) => create("info", title, message, duration ?? 4000),
+    };
+})();
+
+function ShowErrorMessage(message, title = "Error") {
+    AlertManager.error(title, message);
+}
+function ShowSuccessMessage(message, title = "Éxito") {
+    AlertManager.success(title, message);
+}
+function ShowWarningMessage(message, title = "Advertencia") {
+    AlertManager.warning(title, message);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
+        ModalManager.open("modalLogout");
+    });
+
+    document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
+        localStorage.removeItem("access_token");
+        window.location.href = "login.html";
+    });
+
+});

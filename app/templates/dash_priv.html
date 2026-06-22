@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
+<div class="logout-container">
+    <button id="btnLogoutTop" class="btn-logout">
+        Cerrar Sesión
+    </button>
+</div>
+<div id="alertsContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>
     <div class="grid-contenedor">
         
         <!-- HEADER -->
@@ -400,5 +406,26 @@
         </main>
     </div>
     <script src="/app/static/scripts.js"></script>
+
+  <!-- MODAL: Cerrar Sesión -->
+<div id="modalLogout" class="modal">
+    <div class="content-modal">
+        <h2>¿Cerrar sesión?</h2>
+
+        <p>
+            ¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión nuevamente para acceder.
+        </p>
+
+        <div class="acciones-modal">
+            <button id="btnConfirmLogout" class="btn-primary btn-red">
+                Cerrar Sesión
+            </button>
+
+            <button class="btn-secondary" onclick="ModalManager.close('modalLogout')">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
