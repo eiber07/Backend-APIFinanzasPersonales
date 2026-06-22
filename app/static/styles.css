@@ -1129,3 +1129,22 @@ display: block;
 .alert-close:hover {
     opacity: 1;
 }
+
+.alerts-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 400px;
+}
+
+.acciones-modal {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.acciones-modal button {
+    min-width: 140px;
+}
