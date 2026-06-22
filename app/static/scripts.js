@@ -55,14 +55,18 @@ async function loadTransactionTypes() {
 
         const data = await response.json();
 
-        data.result.forEach((transactionType) => {
-            const option = document.createElement("option");
-
-            option.value = transactionType.id;
-            option.textContent = formatParameterLabel(transactionType.value);
-
-            typeSelect.appendChild(option);
-        });
+        data.result
+            .filter((transactionType) =>
+                transactionType.value.toLowerCase() !== "gasto planificado"
+            )
+            .forEach((transactionType) => {
+                const option = document.createElement("option");
+            
+                option.value = transactionType.id;
+                option.textContent = formatParameterLabel(transactionType.value);
+            
+                typeSelect.appendChild(option);
+            });
     } catch (error) {
         console.error("Error al cargar tipos de transacción:", error);
 
@@ -70,6 +74,44 @@ async function loadTransactionTypes() {
 
         if (errorElement) {
             errorElement.textContent = "No se pudieron cargar los tipos.";
+            errorElement.classList.add("active");
+        }
+    }
+}
+
+async function loadTransactionCategories() {
+    const categorySelect = document.getElementById("category-drop");
+
+    if (!categorySelect) return;
+
+    categorySelect.innerHTML = `<option value="">Seleccionar</option>`;
+
+    try {
+        const response = await fetchWithAuth(
+            "http://localhost:8000/parameters/parameters?parameters=transactionCategories"
+        );
+
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar las categorías.");
+        }
+
+        const data = await response.json();
+
+        data.result.forEach((transactionCategory) => {
+            const option = document.createElement("option");
+
+            option.value = transactionCategory.id;
+            option.textContent = formatParameterLabel(transactionCategory.value);
+
+            categorySelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error al cargar categorías:", error);
+
+        const errorElement = document.getElementById("error-category");
+
+        if (errorElement) {
+            errorElement.textContent = "No se pudieron cargar las categorías.";
             errorElement.classList.add("active");
         }
     }
@@ -111,6 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderRecentTransactions();
     await loadTransactionTypes();
+    await loadTransactionCategories();
     renderFacturasPreview();
 
     document.getElementById("clickable-img2")
@@ -653,14 +696,17 @@ function saveNewTransaction() {
 
     const amountRaw = amountInput.value.trim();
     const dateRaw = dateInput.value;
-    const categoryRaw = categoryInput.value;
+    const categoryId = categoryInput.value;
+    const categoryName =
+        categoryInput.options[categoryInput.selectedIndex]?.text.trim();
+
     const transactionTypeId = transactionTypeInput.value;
     const transactionTypeName =
         transactionTypeInput.options[transactionTypeInput.selectedIndex]?.text.trim();
 
     const descriptionRaw = descriptionInput.value.trim();
 
-    if (!amountRaw || !dateRaw || !categoryRaw || !transactionTypeId|| !descriptionRaw) {
+    if (!amountRaw || !dateRaw || !categoryId || !transactionTypeId|| !descriptionRaw) {
         alert("Completa todos los campos antes de guardar la transacción.");
         return;
     }
@@ -678,7 +724,8 @@ function saveNewTransaction() {
         id: Date.now().toString(),
         typeId: Number(transactionTypeId),
         type: transactionTypeName,
-        category: categoryRaw,
+        categoryId: Number(categoryId),
+        category: categoryName,
         description: descriptionRaw,
         amountNumber: isIncome ? amountNumber : amountNumber * -1,
         amount: `${isIncome ? "+" : "-"}${formatTransactionMoney(amountNumber)}`,
