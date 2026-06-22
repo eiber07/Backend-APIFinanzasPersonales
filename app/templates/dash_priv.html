@@ -185,7 +185,12 @@
                             <div id="char-counter">0 / 25 caracteres</div>
                             <span class="error" id="error-description"></span>
                         </div>
-
+                        <div class="form-group" id="planned-expense-group" style="display:none;">
+                            <label class="label">Gasto planificado (opcional)</label>
+                            <select class="input" id="planned-expense-drop">
+                                <option value="">Ninguno</option>
+                            </select>
+                        </div>
                         <div class="acciones-modal">
                             <button id="btn-save-new-transactions" class="btn-primary">Guardar Transacción</button>
                             <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewTransax')">Cancelar</button>
@@ -199,45 +204,39 @@
                     <span class="close" onclick="ModalManager.close('modalEditTransax')">&times;</span> 
                     <h2 style="color:#1F2937; margin:0;">Modificar datos de Transacción</h2>
                     <div class="form-section">
-
-                        <div class="form-group" >
+                        <div class="form-group">
                             <label class="label">Monto</label>
-                            <input type="text" class="input" id="new-amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-amount"></span>
+                            <input type="text" class="input" id="edit-amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                            <span class="error" id="error-edit-amount"></span>
                         </div>
-
                         <div class="form-group">
                             <label class="label">Fecha</label>
-                            <input type="date" class="input" id="new-date">
-                            <span class="error" id="error-date"></span>
-                        </div> 
-
+                            <input type="date" class="input" id="edit-date">
+                            <span class="error" id="error-edit-date"></span>
+                        </div>
                         <div class="form-group">
                             <label class="label">Categoría</label>
-                            <select id="new-category-drop" class="input" >
+                            <select id="edit-category-drop" class="input">
                                 <option value="">Seleccionar</option>
                             </select>
-                            <span class="error" id="error-category"></span>
+                            <span class="error" id="error-edit-category"></span>
                         </div>
-
                         <div class="form-group">
-                            <label class="label">Tipo de transacción</label>                     
-                            <select id="transaction-type-drop" class="input">
+                            <label class="label">Tipo de transacción</label>
+                            <select id="edit-transaction-type-drop" class="input">
                                 <option value="">Seleccionar</option>
                             </select>
-                            <span class="error" id="error-transaction-type"></span>
+                            <span class="error" id="error-edit-transaction-type"></span>
                         </div>
-
                         <div class="form-group">
                             <label class="label">Descripción</label>
-                            <textarea class="input" id="new-description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
-                            <div id="char-counter">0 / 25 caracteres</div>
-                            <span class="error" id="error-description"></span>
+                            <textarea class="input" id="edit-description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
+                            <div id="edit-char-counter">0 / 25 caracteres</div>
+                            <span class="error" id="error-edit-description"></span>
                         </div>
-
                         <div class="acciones-modal">
-                            <button id="btnSave" class="btn-primary">Guardar cambios</button>
-                            <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalEditTransax')">Cancelar</button>
+                            <button id="btnSaveEditTransax" class="btn-primary">Guardar cambios</button>
+                            <button class="btn-secondary" onclick="ModalManager.close('modalEditTransax')">Cancelar</button>
                         </div>
                     </div>
                 </div>
@@ -351,52 +350,46 @@
                     <div class="form-section">
                         <div class="form-group">
                             <label class="label">Monto total</label>
-                            <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-amount-exp"></span>
+                            <input type="text" class="input" id="edit-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                            <span class="error" id="error-edit-amount-exp"></span>
                         </div>
-
                         <div class="form-group2">
                             <div>
                                 <label class="label">Fecha de inicio</label>
-                                <input type="date" class="input" id="start-date-exp">
-                                <span class="error" id="error-start-date-exp"></span>
+                                <input type="date" class="input" id="edit-start-date-exp">
+                                <span class="error" id="error-edit-start-date-exp"></span>
                             </div>
                             <div>
                                 <label class="label">Fecha de vencimiento</label>
-                                <input type="date" class="input" id="due-date-exp">
-                                <span class="error" id="error-due-date-exp"></span>
+                                <input type="date" class="input" id="edit-due-date-exp">
+                                <span class="error" id="error-edit-due-date-exp"></span>
                             </div>
                         </div>
-
                         <div class="form-group2">
                             <div>
                                 <label class="label">Cantidad de cuotas</label>
-                                <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1">
-                                <span class="error" id="error-installment-number-exp"></span>
+                                <input type="number" class="input" id="edit-installment-number-exp" placeholder="Ej: 12" min="1">
+                                <span class="error" id="error-edit-installment-number-exp"></span>
                             </div>
                             <div>
                                 <label class="label">Monto por cuota</label>
-                                <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                                <span class="error" id="error-installment-amount-exp"></span>
+                                <input type="text" class="input" id="edit-installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                                <span class="error" id="error-edit-installment-amount-exp"></span>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label class="label">Descripción</label>
-                            <textarea class="input" id="description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
-                            <div id="char-counter-exp">0 / 25 caracteres</div>
-                            <span class="error" id="error-description-exp"></span>
+                            <textarea class="input" id="edit-description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
+                            <div id="edit-char-counter-exp">0 / 25 caracteres</div>
+                            <span class="error" id="error-edit-description-exp"></span>
                         </div>
-
                         <div class="acciones-modal">
-                            <button id="btnSaveExp" class="btn-primary">Guardar Gasto</button>
+                            <button id="btnSaveEditExp" class="btn-primary">Guardar cambios</button>
                             <button class="btn-secondary" onclick="ModalManager.close('modalModifExpens')">Cancelar</button>
                         </div>
                     </div>
                 </div>
-                </div>
             </div>
-
         </main>
     </div>
     <script src="/app/static/scripts.js"></script>

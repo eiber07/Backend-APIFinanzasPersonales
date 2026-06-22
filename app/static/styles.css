@@ -309,6 +309,7 @@ display: block;
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding-bottom: 0;
+    align-items: center;
 }
 
 .cont-profile{
@@ -323,8 +324,8 @@ display: block;
 }
 
 .cont-profile img {
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     object-fit: cover;
     border-radius: 50%;
 }
@@ -377,7 +378,7 @@ display: block;
 
 .grid-contenedor {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 250px 1fr;
     grid-template-rows: 68px 1fr;
     grid-template-areas:
         "sidebar header"
@@ -599,7 +600,6 @@ display: block;
 
 .titulo-seccion h2 {
     font-size: 20px;
-    font-weight: 800;
     color: #1F2937;
     margin: 0;
 }
@@ -731,14 +731,13 @@ display: block;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-weight: 800;
 }
 
 .factura-fecha span {
     font-size: 10px;
 }
 
-.factura-fecha strong {
+.factura-fecha {
     font-size: 16px;
 }
 
@@ -750,7 +749,6 @@ display: block;
 
 .factura-info h3 {
     font-size: 14px;
-    font-weight: 800;
     color: #111827;
     margin: 0 0 4px;
 }
@@ -763,12 +761,8 @@ display: block;
 
 .factura-monto {
     text-align: right;
-}
-
-.factura-monto strong {
     display: block;
     font-size: 16px;
-    font-weight: 800;
     color: #000000;
     margin-bottom: 6px;
 }
@@ -782,7 +776,6 @@ display: block;
     background: #1D4ED8;
     color: #ffffff;
     font-size: 14px;
-    font-weight: 700;
     cursor: pointer;
 }
 
