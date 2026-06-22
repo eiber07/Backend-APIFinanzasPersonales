@@ -624,7 +624,6 @@ const ModalManager = (() => {
 
         },modalLogout: {
             onClose() {}
-
         },modalExpenses: {
             onClose() {}
         },modalModifExpens: {
