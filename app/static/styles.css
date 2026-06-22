@@ -125,30 +125,6 @@ body {
     background-color: #EFF6FF;
 }
 
-.btn-google { 
-    display: flex; 
-    justify-content: center;
-    align-items: center; 
-    border-radius: 8px; 
-    border: 2px solid #1D4ED8; 
-    padding: 12px; 
-    gap: 15px; 
-    cursor: pointer; 
-}
-
-.btn-google img { 
-    border-radius: 8px; 
-    width: 24px; 
-    height: 24px; 
-    object-fit: fill; 
-}
-
-.btn-google span { 
-    color: #1D4ED8; 
-    font-size: 16px; 
-    font-weight: bold; 
-}
-
 .divider { 
     height: 1px; 
     background: #DDE1E6; 
@@ -182,8 +158,8 @@ body {
     margin-top: 20px; 
     border-radius: 8px; 
 }
-.btn-primary, .btn-google { 
-    width: 100%; 
+.btn-primary  { 
+width: 100%; 
 }
 }
 
@@ -197,7 +173,7 @@ body {
 .input { 
     font-size: 14px; 
 }
-.btn-primary span, .btn-google span { 
+.btn-primary span { 
     font-size: 14px; 
 }
 }
