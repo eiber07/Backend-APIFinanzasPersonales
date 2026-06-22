@@ -1,4 +1,10 @@
 /* DATOS DE BACKEND */
+let activeAccount = null;
+let currentEditTransactionId = null;
+let currentEditExpenseId = null;
+let currentTransactionId = null;
+let currentExpenseId = null;
+
 // Helper para requests autenticados
 async function fetchWithAuth(url, options = {}) {
     const token = localStorage.getItem("access_token");
@@ -10,6 +16,15 @@ async function fetchWithAuth(url, options = {}) {
             ...options.headers
         }
     });
+}
+
+// estado global de cuenta activa
+async function setActiveAccount(account, displayName = account.name) {
+    activeAccount = account;
+    const headerName = document.getElementById("header-account-name");
+    if (headerName) headerName.textContent = displayName;
+    await loadTransactions(account.id);
+    await loadPlannedExpenses(account.id);
 }
 
 async function loadCurrentUser() {
@@ -95,20 +110,101 @@ async function loadUserAccounts() {
         accounts.forEach((account, index) => {
             const item = document.createElement("div");
             item.classList.add("account-item");
-            item.textContent = index === 0 ? "Cuenta Personal" : account.name;
+            const displayName = index === 0 ? "Cuenta Personal" : account.name; 
+            item.textContent = displayName;
+            item.dataset.displayName = displayName;
+            item.addEventListener("click", () => {
+                document.querySelectorAll(".account-item").forEach(i => i.classList.remove("active"));
+                item.classList.add("active");
+                setActiveAccount(account, displayName);
+            })
             container.appendChild(item);
         });
+        if (accounts.length > 0) {
+            const firstItem = container.querySelector(".account-item");
+            firstItem?.classList.add("active");
+            setActiveAccount(accounts[0], "Cuenta Personal");
+        }
     } catch (err) {
         console.error("Error cargando cuentas:", err);
     }
 }
 
+async function loadTransactions(accountId) {
+    const tableBody = document.getElementById("transactions-table-body");
+    if (!tableBody) return;
+
+    try {
+        const res = await fetchWithAuth(`http://localhost:8000/transactions/account/${accountId}`);
+        if (!res.ok) return;
+
+        const transactions = await res.json();
+
+        recentTransactions = transactions.map(t => ({
+            id: t.id.toString(),
+            type: t.type,
+            typeId: t.type_id,
+            category: t.category,
+            categoryId: t.category_id,
+            description: t.description,
+            dateRaw: t.transaction_date.split("T")[0],
+            amountNumber: t.type === "ingreso" ? parseFloat(t.amount) : parseFloat(t.amount) * -1,
+            amount: `${t.type === "ingreso" ? "+" : "-"}${formatTransactionMoney(parseFloat(t.amount))}`,
+            date: formatTransactionDate(t.transaction_date.split("T")[0])
+        }));
+
+        renderRecentTransactions();
+
+    } catch (err) {
+        console.error("Error cargando transacciones:", err);
+    }
+}
+
+async function loadPlannedExpenses(accountId) {
+    const list = document.getElementById("installmentCards");
+    const tableBody = document.getElementById("gastos-table-body");
+
+    try {
+        const res = await fetchWithAuth(`http://localhost:8000/planned_expenses/account/${accountId}`);
+        if (!res.ok) return;
+
+        const expenses = await res.json();
+        plannedExpenses = expenses.map(e => ({
+            id: e.id.toString(),
+            detail: e.description,
+            dueDateRaw: e.due_date.split("T")[0],
+            dueDateStartRaw: e.start_date.split("T")[0],
+            installmentPaid: e.installments_paid,
+            dateStart: formatTransactionDate(e.start_date.split("T")[0]),
+            dateExpiration: formatTransactionDate(e.due_date.split("T")[0]),
+            installment: e.installment_number,
+            amount: formatTransactionMoney(parseFloat(e.amount)),
+            installmentAmount: formatTransactionMoney(parseFloat(e.installment_amount)),
+        }));
+
+        renderExpenses();
+        renderFacturasPreview();
+
+    } catch (err) {
+        console.error("Error cargando gastos planificados:", err);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+    document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
+        ModalManager.open("modalLogout");
+    });
+
+    document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
+        localStorage.removeItem("access_token");
+        window.location.href = "login.html";
+    });
+
     document.getElementById("clickable-img")
         ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
+    await loadTransactionCategories();
     document.getElementById("btn-save-new-transactions")
         ?.addEventListener("click", saveNewTransaction);
-
     renderRecentTransactions();
     await loadTransactionTypes();
     renderFacturasPreview();
@@ -125,6 +221,38 @@ document.addEventListener("DOMContentLoaded", async () => {
         const row = event.target.closest(".clickable-row");
         if (!row) return;
         openExpenseDetail(row.dataset);
+    });
+    document.getElementById("transaction-type-drop")?.addEventListener("change", (e) => {
+    const selectedText = e.target.options[e.target.selectedIndex]?.text.trim().toLowerCase();
+    const plannedGroup = document.getElementById("planned-expense-group");
+    const plannedDrop = document.getElementById("planned-expense-drop");
+
+    if (selectedText === "gasto planificado") {
+        plannedGroup.style.display = "block";
+        plannedDrop.innerHTML = `<option value="">Ninguno</option>`;
+        plannedExpenses.forEach(exp => {
+            const option = document.createElement("option");
+            option.value = exp.id;
+            option.textContent = exp.detail;
+            plannedDrop.appendChild(option);
+        });
+    } else {
+        plannedGroup.style.display = "none";
+    }
+}); 
+    document.getElementById("planned-expense-drop")?.addEventListener("change", (e) => {
+        const selectedId = e.target.value;
+        if (!selectedId) return;
+
+        const exp = plannedExpenses.find(exp => exp.id === selectedId);
+        if (!exp) return;
+
+        const amountInput = document.getElementById("amount");
+        // Convertir installmentAmount al formato del input
+        const raw = parseFloat(exp.installmentAmount.replace(/[^0-9.]/g, ""));
+        const formatted = (raw * 100).toFixed(0);
+        let parteEntera = Math.floor(raw).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        amountInput.value = `${parteEntera},${(raw % 1).toFixed(2).slice(2)}`;
     });
     
     const textarea  = document.getElementById('description-text');
@@ -457,11 +585,21 @@ const ModalManager = (() => {
             document.getElementById("category-drop").value = "";
             document.getElementById("transaction-type-drop").value = "";
             document.getElementById("description-text").value = "";
+            document.getElementById("planned-expense-drop").value = "";
+            document.getElementById("planned-expense-group").style.display = "none";
             const counter = document.getElementById("char-counter");
                     counter.textContent = "0 / 25 caracteres";
                     counter.style.color = "inherit"
 
-        }
+        }},modalEditTransax: {
+            onClose() {
+                currentEditTransactionId = null;
+                document.getElementById("edit-amount").value = "";
+                document.getElementById("edit-date").value = "";
+                document.getElementById("edit-category-drop").value = "";
+                document.getElementById("edit-transaction-type-drop").value = "";
+                document.getElementById("edit-description-text").value = "";
+            }
         },modalNewExpense:{
             onClose() {
                 document.getElementById("amount-exp").value = "";
@@ -488,8 +626,19 @@ const ModalManager = (() => {
             onClose() {}
         },modalExpenses: {
             onClose() {}
+        },modalModifExpens: {
+            onClose() {
+                currentEditExpenseId = null;
+                document.getElementById("edit-amount-exp").value = "";
+                document.getElementById("edit-start-date-exp").value = "";
+                document.getElementById("edit-due-date-exp").value = "";
+                document.getElementById("edit-installment-number-exp").value = "";
+                document.getElementById("edit-description-text-exp").value = "";
+            }
         },modalEditExpenses: {
-            onClose() {}
+            onClose() {
+                currentEditExpenseId = null;
+            }
         },modalUserProfile: { 
             onClose() {} 
         },modalEnvioConfir: {
@@ -553,6 +702,7 @@ document.getElementById("transactions-table-body")?.addEventListener("click", (e
 
     if (!row) return;
         const {id, type, category, description, amount, date} = row.dataset;
+        currentTransactionId = id;
         document.getElementById("data-id").textContent      = id;
         document.getElementById("data-type").textContent = type;
         document.getElementById("data-category").textContent = category;
@@ -565,60 +715,176 @@ document.getElementById("transactions-table-body")?.addEventListener("click", (e
         ModalManager.open(MODAL_TX);
 });
 
-btnDelete?.addEventListener("click", async (e) => {
-    const id = e.target.dataset.id;
-    if (!confirm(`¿Eliminar la transacción #${id}?`)) return;
+btnEdit?.addEventListener("click", async (e) => {
+    const id = currentTransactionId;
+    currentEditTransactionId = id;
 
-    try {
-        const res = await fetch(`http://localhost:8000/transactions/${id}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" }
-        });
+    // Buscar la transacción en el array local
+    const t = recentTransactions.find(t => t.id === id);
+    if (!t) return;
 
-        if (res.ok) {
-            ModalManager.close(MODAL_TX);
-            document.querySelector(`.clickable-row[data-id="${id}"]`)?.remove();
-        } else {
-            const err = await res.json();
-            alert("Error: " + err.detail);
-        }
-    } catch {
-        alert("No se pudo establecer conexión con el servidor.");
-    }
-});
+    // Prellenar campos
+    document.getElementById("edit-amount").value = formatTransactionMoney(Math.abs(t.amountNumber)).replace("$", "");
+    document.getElementById("edit-date").value = t.dateRaw || "";
+    document.getElementById("edit-description-text").value = t.description;
 
-btnEdit?.addEventListener("click", (e) => {
-    const id = e.target.dataset.id;
-    /*console.log("Modificar transacción ID:", id);*/
+    // Poblar y seleccionar categoría
+    await loadEditTransactionCategories();
+    await loadEditTransactionTypes();
+
     ModalManager.open("modalEditTransax");
 });
 
 btnEditEx?.addEventListener("click", (e) => {
-    const id = e.target.dataset.id;
-    /*console.log("Modificar transacción ID:", id);*/
+    const id = currentExpenseId;
+    currentEditExpenseId = id;
+
+    const exp = plannedExpenses.find(e => e.id === id);
+    if (!exp) return;
+
+    document.getElementById("edit-amount-exp").value = formatTransactionMoney(parseFloat(exp.amount.replace(/[^0-9.]/g, ""))).replace("$", "");
+    document.getElementById("edit-start-date-exp").value = exp.dueDateStartRaw || "";
+    document.getElementById("edit-due-date-exp").value = exp.dueDateRaw || "";
+    document.getElementById("edit-installment-number-exp").value = exp.installment;
+    document.getElementById("edit-description-text-exp").value = exp.detail;
+
     ModalManager.open("modalModifExpens");
 });
 
-btnDeleteEx?.addEventListener("click", async (e) => {
-    const id = e.target.dataset.id;
-    if (!confirm(`¿Eliminar el gasto #${id}?`)) return;
+document.getElementById("btnSaveEditTransax")?.addEventListener("click", async () => {
+    const amountRaw = document.getElementById("edit-amount").value.trim();
+    const dateRaw = document.getElementById("edit-date").value;
+    const categoryId = document.getElementById("edit-category-drop").value;
+    const typeId = document.getElementById("edit-transaction-type-drop").value;
+    const description = document.getElementById("edit-description-text").value.trim();
+
+    if (!amountRaw || !dateRaw || !categoryId || !typeId || !description) {
+        ShowErrorMessage("Completá todos los campos.");
+        return;
+    }
+
+    const amountNumber = parseTransactionAmount(amountRaw);
 
     try {
-        const res = await fetch(`http://localhost:8000/transactions/${id}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" }
+        const res = await fetchWithAuth("http://localhost:8000/transactions/", {
+            method: "PUT",
+            body: JSON.stringify({
+                id: Number(currentEditTransactionId),
+                type_id: Number(typeId),
+                amount: amountNumber,
+                description: description,
+                category_id: Number(categoryId),
+                transaction_date: `${dateRaw}T00:00:00`
+            })
         });
 
         if (res.ok) {
-            ModalManager.close(MODAL_TX);
-            document.querySelector(`.clickable-row[data-id="${id}"]`)?.remove();
+            ShowSuccessMessage("Transacción actualizada correctamente.");
+            await loadTransactions(activeAccount.id);
+            ModalManager.close("modalEditTransax");
+            ModalManager.close("modalTransax");
         } else {
             const err = await res.json();
-            alert("Error: " + err.detail);
+            ShowErrorMessage(err.detail || "Error al actualizar la transacción.");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        ShowErrorMessage("No se pudo conectar con el servidor.");
+    }
+});
+
+document.getElementById("btnSaveEditExp")?.addEventListener("click", async () => {
+    const amountRaw = document.getElementById("edit-amount-exp").value.trim();
+    const startDateRaw = document.getElementById("edit-start-date-exp").value;
+    const dueDateRaw = document.getElementById("edit-due-date-exp").value;
+    const installmentNumber = document.getElementById("edit-installment-number-exp").value.trim();
+    const installmentAmountRaw = document.getElementById("edit-installment-amount-exp").value.trim();
+    const description = document.getElementById("edit-description-text-exp").value.trim();
+
+    if (!amountRaw || !startDateRaw || !dueDateRaw || !installmentNumber || !description) {
+        ShowErrorMessage("Completá todos los campos.");
+        return;
+    }
+
+    const amountNumber = parseTransactionAmount(amountRaw);
+    const installmentAmountNumber = installmentAmountRaw ? parseTransactionAmount(installmentAmountRaw) : null;
+
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/planned_expenses/", {
+            method: "PUT",
+            body: JSON.stringify({
+                id: Number(currentEditExpenseId),
+                amount: amountNumber,
+                description: description,
+                start_date: `${startDateRaw}T00:00:00`,
+                due_date: `${dueDateRaw}T00:00:00`,
+                installment_number: Number(installmentNumber),
+                installment_amount: installmentAmountNumber
+            })
+        });
+
+        if (res.ok) {
+            ShowSuccessMessage("Gasto actualizado correctamente.");
+            await loadPlannedExpenses(activeAccount.id);
+            ModalManager.close("modalModifExpens");
+            ModalManager.close("modalEditExpenses");
+        } else {
+            const err = await res.json();
+            ShowErrorMessage(err.detail || "Error al actualizar el gasto.");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        ShowErrorMessage("No se pudo conectar con el servidor.");
+    }
+});
+
+btnDelete?.addEventListener("click", async (e) => {
+    const id = currentTransactionId;
+    if (!confirm(`¿Eliminar la transacción #${id}?`)) return;
+
+    try {
+        const res = await fetchWithAuth(`http://localhost:8000/transactions/deactivate/${id}`, {
+            method: "PUT"
+        });
+
+        if (res.ok) {
+            ShowSuccessMessage("Transacción eliminada correctamente.");
+            await loadTransactions(activeAccount.id);
+            ModalManager.close(MODAL_TX);
+        } else {
+            const err = await res.json();
+            ShowErrorMessage(err.detail || "Error al eliminar la transacción.");
         }
     } catch {
-        alert("No se pudo establecer conexión con el servidor.");
+        ShowErrorMessage("No se pudo establecer conexión con el servidor.");
     }
+    ModalManager.close(MODAL_TX);
+    await loadTransactions(activeAccount.id);
+});
+
+btnDeleteEx?.addEventListener("click", async (e) => {
+    const id = currentExpenseId;
+    if (!confirm(`¿Eliminar el gasto #${id}?`)) return;
+
+    try {
+        const res = await fetchWithAuth(`http://localhost:8000/planned_expenses/deactivate/${id}`, {
+            method: "PUT"
+        });
+
+        if (res.ok) {
+            ShowSuccessMessage("Gasto eliminado correctamente.");
+            await loadPlannedExpenses(activeAccount.id);
+            ModalManager.close("modalEditExpenses");
+        } else {
+            const err = await res.json();
+            ShowErrorMessage(err.detail || "Error al eliminar el gasto.");
+        }
+    } catch {
+        ShowErrorMessage("No se pudo establecer conexión con el servidor.");
+    }
+    ModalManager.close("modalEditExpenses");
+    ModalManager.close("modalExpenses");
+    await loadPlannedExpenses(activeAccount.id);
 });
 
 //FORMULARIO DE TRANSACCION - MONTO INPUT
@@ -648,52 +914,78 @@ function moneyFormat(input) {
 
 let recentTransactions = [];
 
-function saveNewTransaction() {
-    const amountInput = document.getElementById("amount");
-    const dateInput = document.getElementById("date");
-    const categoryInput = document.getElementById("category-drop");
+async function saveNewTransaction() {
+    const amountRaw = document.getElementById("amount").value.trim();
+    const dateRaw = document.getElementById("date").value;
+    const categoryId = document.getElementById("category-drop").value;
     const transactionTypeInput = document.getElementById("transaction-type-drop");
-    const descriptionInput = document.getElementById("description-text");
-
-    const amountRaw = amountInput.value.trim();
-    const dateRaw = dateInput.value;
-    const categoryRaw = categoryInput.value;
     const transactionTypeId = transactionTypeInput.value;
-    const transactionTypeName =
-        transactionTypeInput.options[transactionTypeInput.selectedIndex]?.text.trim();
+    const transactionTypeName = transactionTypeInput.options[transactionTypeInput.selectedIndex]?.text.trim();
+    const descriptionRaw = document.getElementById("description-text").value.trim();
+    const plannedExpenseId = document.getElementById("planned-expense-drop")?.value || null;
 
-    const descriptionRaw = descriptionInput.value.trim();
-
-    if (!amountRaw || !dateRaw || !categoryRaw || !transactionTypeId|| !descriptionRaw) {
-        alert("Completa todos los campos antes de guardar la transacción.");
+    if (!amountRaw || !dateRaw || !categoryId || !transactionTypeId || !descriptionRaw) {
+        ShowErrorMessage("Completá todos los campos antes de guardar la transacción.");
         return;
     }
 
     const amountNumber = parseTransactionAmount(amountRaw);
-
     if (!amountNumber || amountNumber <= 0) {
-        alert("Ingresá un monto válido.");
+        ShowErrorMessage("Ingresá un monto válido.");
         return;
     }
 
-    const isIncome = transactionTypeName.toLowerCase() === "ingreso";
-    
-    const newTransaction = {
-        id: Date.now().toString(),
-        typeId: Number(transactionTypeId),
-        type: transactionTypeName,
-        category: categoryRaw,
-        description: descriptionRaw,
-        amountNumber: isIncome ? amountNumber : amountNumber * -1,
-        amount: `${isIncome ? "+" : "-"}${formatTransactionMoney(amountNumber)}`,
-        date: formatTransactionDate(dateRaw)
-    };
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/transactions/", {
+            method: "POST",
+            body: JSON.stringify({
+                account_id: activeAccount.id,
+                type_id: Number(transactionTypeId),
+                amount: amountNumber,
+                description: descriptionRaw,
+                category_id: Number(categoryId),
+                planned_expense_id: plannedExpenseId ? Number(plannedExpenseId) : null,
+                transaction_date: `${dateRaw}T00:00:00`
+            })
+        });
 
-    recentTransactions.unshift(newTransaction);
+        if (res.ok) {
+            ShowSuccessMessage("Transacción guardada correctamente.");
+            await loadTransactions(activeAccount.id);
+            if (plannedExpenseId) await loadPlannedExpenses(activeAccount.id);
+            ModalManager.close("modalNewTransax");
+        } else {
+            const err = await res.json();
+            ShowErrorMessage(err.detail || "Error al guardar la transacción.");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        ShowErrorMessage("No se pudo conectar con el servidor.");
+    }
+}
 
-    renderRecentTransactions();
+async function loadTransactionCategories() {
+    const categorySelect = document.getElementById("category-drop");
+    if (!categorySelect) return;
 
-    ModalManager.close("modalNewTransax");
+    categorySelect.innerHTML = `<option value="">Seleccionar</option>`;
+
+    try {
+        const res = await fetchWithAuth(
+            "http://localhost:8000/parameters/parameters?parameters=transactionCategories"
+        );
+        if (!res.ok) return;
+
+        const data = await res.json();
+        data.result.forEach(cat => {
+            const option = document.createElement("option");
+            option.value = cat.id;
+            option.textContent = formatParameterLabel(cat.value);
+            categorySelect.appendChild(option);
+        });
+    } catch (err) {
+        console.error("Error cargando categorías:", err);
+    }
 }
 
 function renderRecentTransactions() {
@@ -795,41 +1087,48 @@ async function createAccount() {
 
 let plannedExpenses = [];
 
-function saveNewExpense() {
-    const amountInput = document.getElementById("amount-exp");
-    const startDateInput = document.getElementById("start-date-exp");
-    const dueDateInput = document.getElementById("due-date-exp");
-    const installmentNumberInput = document.getElementById("installment-number-exp");
-    const installmentAmountInput = document.getElementById("installment-amount-exp");
-    const descriptionInput = document.getElementById("description-text-exp");
-
-    const amountRaw = amountInput.value.trim();
-    const startDateRaw = startDateInput.value;
-    const dueDateRaw = dueDateInput.value;
-    const installmentNumber = installmentNumberInput.value.trim();
-    const installmentAmountRaw = installmentAmountInput.value.trim();
-    const descriptionRaw = descriptionInput.value.trim();
+async function saveNewExpense() {
+    const amountRaw = document.getElementById("amount-exp").value.trim();
+    const startDateRaw = document.getElementById("start-date-exp").value;
+    const dueDateRaw = document.getElementById("due-date-exp").value;
+    const installmentNumber = document.getElementById("installment-number-exp").value.trim();
+    const installmentAmountRaw = document.getElementById("installment-amount-exp").value.trim();
+    const descriptionRaw = document.getElementById("description-text-exp").value.trim();
 
     if (!amountRaw || !startDateRaw || !dueDateRaw || !installmentNumber || !installmentAmountRaw || !descriptionRaw) {
-        alert("Completá todos los campos antes de guardar el gasto.");
+        ShowErrorMessage("Completá todos los campos antes de guardar el gasto.");
         return;
     }
 
-    const newExpense = {
-        id: Date.now().toString(),
-        detail: descriptionRaw,
-        dueDateRaw: dueDateRaw,
-        installmentPaid: 0,
-        dateStart: formatTransactionDate(startDateRaw),
-        dateExpiration: formatTransactionDate(dueDateRaw),
-        installment: installmentNumber,
-        amount: formatTransactionMoney(parseTransactionAmount(amountRaw)),
-    };
+    const amountNumber = parseTransactionAmount(amountRaw);
+    const installmentAmountNumber = parseTransactionAmount(installmentAmountRaw);
 
-    plannedExpenses.unshift(newExpense);
-    renderExpenses();
-    renderFacturasPreview();
-    ModalManager.close("modalNewExpense");
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/planned_expenses/", {
+            method: "POST",
+            body: JSON.stringify({
+                account_id: activeAccount.id,
+                amount: amountNumber,
+                description: descriptionRaw,
+                start_date: `${startDateRaw}T00:00:00`,
+                due_date: `${dueDateRaw}T00:00:00`,
+                installment_number: Number(installmentNumber),
+                installment_amount: installmentAmountNumber
+            })
+        });
+
+        if (res.ok) {
+            ShowSuccessMessage("Gasto planificado guardado correctamente.");
+            await loadPlannedExpenses(activeAccount.id);
+            ModalManager.close("modalNewExpense");
+        } else {
+            const err = await res.json();
+            ShowErrorMessage(err.detail || "Error al guardar el gasto.");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        ShowErrorMessage("No se pudo conectar con el servidor.");
+    }
 }
 
 function renderExpenses() {
@@ -856,12 +1155,14 @@ function renderExpenses() {
             data-date-start="${expense.dateStart}"
             data-date-expiration="${expense.dateExpiration}"
             data-installment="${expense.installment}"
-            data-amount="${expense.amount}">
+            data-amount="${expense.amount}"
+            data-installment-amount="${expense.installmentAmount}">
 
             <td>${expense.detail}</td>
             <td>${expense.dateStart}</td>
             <td>${expense.dateExpiration}</td>
             <td>${expense.installment}</td>
+            <td>${expense.installmentAmount}</td>
             <td>${expense.amount}</td>
         </tr>
     `).join("");
@@ -869,6 +1170,8 @@ function renderExpenses() {
 
 function renderFacturasPreview() {
     const list = document.getElementById("installmentCards");
+
+
     if (!list) return;
 
     if (plannedExpenses.length === 0) {
@@ -877,6 +1180,7 @@ function renderFacturasPreview() {
     }
 
     const ordered = [...plannedExpenses]
+    .filter(expense => getCurrentInstallment(expense) !== null)
     .sort((a, b) => new Date(a.dueDateRaw) - new Date(b.dueDateRaw))
     .slice(0, 3);
 
@@ -884,46 +1188,50 @@ function renderFacturasPreview() {
         const date = new Date(`${expense.dueDateRaw}T00:00:00`);
         const month = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
         const day = date.getDate();
-
+        const currentInstallment = getCurrentInstallment(expense);
+        const completed = expense.installmentPaid >= expense.installment;
+            
         return `
-            <article class="factura-card clickable-row"
-                data-id="${expense.id}"
-                data-detail="${expense.detail}"
-                data-date-start="${expense.dateStart}"
-                data-date-expiration="${expense.dateExpiration}"
-                data-installment="${expense.installment}"
-                data-installment-paid="${expense.installmentPaid}"
-                data-amount="${expense.amount}">
+        <article class="factura-card clickable-row ${completed ? 'factura-completada' : ''}"
+            data-id="${expense.id}"
+            data-detail="${expense.detail}"
+            data-date-start="${expense.dateStart}"
+            data-date-expiration="${expense.dateExpiration}"
+            data-installment="${expense.installment}"
+            data-installment-paid="${expense.installmentPaid}"
+            data-amount="${expense.amount}"
+            data-installment-amount="${expense.installmentAmount}">
 
-                <div class="factura-fecha factura-fecha-gris">
-                    <span>${month}</span>
-                    <strong>${day}</strong>
-                </div>
+            <div class="factura-fecha factura-fecha-gris">
+                <span>${month}</span>
+                <strong>${day}</strong>
+            </div>
 
-                <div class="factura-info">
-                    <h3>${expense.detail}</h3>
-                    <p>${expense.installmentPaid} de ${expense.installment} cuotas</p>
-                </div>
+            <div class="factura-info">
+                <h3>${expense.detail}</h3>
+                <p>Cuota ${currentInstallment} de ${expense.installment}</p>
+            </div>
 
-                <div class="factura-monto">
-                    <strong>${expense.amount}</strong>
-                </div>
-            </article>
-        `;
+            <div class="factura-monto">
+                <strong>${expense.installmentAmount}</strong>
+            </div>
+        </article>
+    `;
     }).join("");
     list.querySelectorAll(".clickable-row").forEach(card => {
     card.addEventListener("click", () => openExpenseDetail(card.dataset));
 });
 }
 function openExpenseDetail(dataset) {
-    const { detail, dateStart, dateExpiration, installment, installmentPaid, amount } = dataset;
- 
+    const { id, detail, dateStart, dateExpiration, installment, installmentPaid, amount, installmentAmount } = dataset;
+    currentExpenseId = id;
     document.getElementById("expense-detail").textContent = detail;
     document.getElementById("expense-startdate").textContent = dateStart;
     document.getElementById("expense-startend").textContent = dateExpiration;
     document.getElementById("expense-installments").textContent = `${installmentPaid ?? 0} de ${installment} cuotas`;
     document.getElementById("expense-amount").textContent = amount;
- 
+    document.getElementById("expense-intallments-amount").textContent = installmentAmount ?? "-"
+
     ModalManager.open("modalEditExpenses");
 }
 
@@ -935,13 +1243,43 @@ function openUserProfile(user) {
 
     ModalManager.open("modalUserProfile");
 }
-// estado global de cuenta activa
-function setActiveAccount(account) {
-    activeAccount = account;
-    // recargar todo
-    loadTransactions(account.id);
-    loadBalance(account.id);
-    loadPlannedExpenses(account.id);
+
+async function loadEditTransactionCategories() {
+    const select = document.getElementById("edit-category-drop");
+    if (!select) return;
+    select.innerHTML = `<option value="">Seleccionar</option>`;
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/parameters/parameters?parameters=transactionCategories");
+        if (!res.ok) return;
+        const data = await res.json();
+        const t = recentTransactions.find(t => t.id === currentEditTransactionId);
+        data.result.forEach(cat => {
+            const option = document.createElement("option");
+            option.value = cat.id;
+            option.textContent = formatParameterLabel(cat.value);
+            if (cat.value === t?.category) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (err) { console.error(err); }
+}
+
+async function loadEditTransactionTypes() {
+    const select = document.getElementById("edit-transaction-type-drop");
+    if (!select) return;
+    select.innerHTML = `<option value="">Seleccionar</option>`;
+    try {
+        const res = await fetchWithAuth("http://localhost:8000/parameters/parameters?parameters=transactionTypes");
+        if (!res.ok) return;
+        const data = await res.json();
+        const t = recentTransactions.find(t => t.id === currentEditTransactionId);
+        data.result.forEach(type => {
+            const option = document.createElement("option");
+            option.value = type.id;
+            option.textContent = formatParameterLabel(type.value);
+            if (type.value === t?.type) option.selected = true;
+            select.appendChild(option);
+        });
+    } catch (err) { console.error(err); }
 }
 
 /* ====== ALERTAS ====== */
@@ -992,16 +1330,16 @@ function ShowSuccessMessage(message, title = "Éxito") {
 function ShowWarningMessage(message, title = "Advertencia") {
     AlertManager.warning(title, message);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
-        ModalManager.open("modalLogout");
-    });
-
-    document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
-        localStorage.removeItem("access_token");
-        window.location.href = "login.html";
-    });
-
-});
+function getCurrentInstallment(expense) {
+    const start = new Date(`${expense.dueDateStartRaw}T00:00:00`);
+    const now = new Date();
+    
+    const monthsDiff = (now.getFullYear() - start.getFullYear()) * 12 
+        + (now.getMonth() - start.getMonth());
+    
+    const currentInstallment = monthsDiff + 1;
+    
+    if (currentInstallment > Number(expense.installment)) return null;
+    
+    return currentInstallment;
+}
