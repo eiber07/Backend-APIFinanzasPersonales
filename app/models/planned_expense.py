@@ -12,7 +12,7 @@ class PlannedExpense(Base, AuditMixin):
     start_date = Column(DateTime, nullable=False)
     due_date = Column(DateTime, nullable=False)
     installment_number = Column(Integer, nullable=False)
-    installments_paid = Column(Integer, nullable=False, default=0) # esto agg para registrar las cuotas abonadas
+    installments_paid = Column(Integer, nullable=False, default=0, server_default="0") # esto agg para registrar las cuotas abonadas
     installment_amount = Column(DECIMAL(13, 2), nullable=False)
     status_id = Column(Integer, ForeignKey("statuses.id"), nullable=False)
 
