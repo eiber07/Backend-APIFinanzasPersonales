@@ -71,13 +71,13 @@ async function loadTransactionTypes() {
         const data = await response.json();
 
         data.result.forEach((transactionType) => {
-            const option = document.createElement("option");
-
-            option.value = transactionType.id;
-            option.textContent = formatParameterLabel(transactionType.value);
-
-            typeSelect.appendChild(option);
-        });
+                const option = document.createElement("option");
+            
+                option.value = transactionType.id;
+                option.textContent = formatParameterLabel(transactionType.value);
+            
+                typeSelect.appendChild(option);
+            });
     } catch (error) {
         console.error("Error al cargar tipos de transacción:", error);
 
