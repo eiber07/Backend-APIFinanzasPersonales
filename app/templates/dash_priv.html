@@ -291,11 +291,11 @@
             </div>
 
             <div id="modalExpenses" class="modal">
-                <div class="content-modal" style="max-width: 800px; width: 90%;">
+                <div class="content-modal" style="max-width: 1000px; width: 95%;">
                     <span class="close" onclick="ModalManager.close('modalExpenses')">&times;</span>
                     <h2 style="color:#1F2937; margin:0">Gastos Planeados</h2>
 
-                    <div class="tabla-contenedor" style="margin-top: 1rem;">
+                    <div class="tabla-contenedor" style="margin-top: 1rem; overflow-x:auto;"></div>">
                         <table class="tabla-transacciones">
                             <thead>
                                 <tr>
@@ -308,7 +308,7 @@
                             </thead>
                             <tbody id="gastos-table-body">
                                 <tr class="empty-transactions-row">
-                                    <td colspan="6">
+                                    <td colspan="5">
                                         <div class="empty-transactions-message">
                                             Aún no se han registrado gastos planeados
                                         </div>
