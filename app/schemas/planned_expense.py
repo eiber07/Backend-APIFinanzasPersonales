@@ -5,32 +5,28 @@ from datetime import datetime
 
 class PlannedExpenseCreate(BaseModel):
     account_id: int
-    amount: Decimal
     description: Optional[str] = None
-    start_date: datetime
-    due_date: datetime
-    installment_number: int
     installment_amount: Decimal
+    installments: int  # cantidad de cuotas
+    due_date: datetime  # fecha de la primera cuota
+    status_id: int
 
 class PlannedExpenseRequest(BaseModel):
-    id: int
-    amount: Optional[Decimal] = None
-    description: Optional[str] = None
-    start_date: Optional[datetime] = None
-    due_date: Optional[datetime] = None
-    installment_number: Optional[int] = None
+    id_planned_expense: int
+    installment_number: int
     installment_amount: Optional[Decimal] = None
+    description: Optional[str] = None
+    due_date: Optional[datetime] = None
+    status_id: Optional[int] = None
 
 class PlannedExpenseResponse(BaseModel):
-    id: int
-    account_id: int
-    amount: Decimal
-    description: Optional[str] = None
-    start_date: datetime
-    due_date: datetime
+    id_planned_expense: int
     installment_number: int
+    account_id: int
     installment_amount: Decimal
-    installments_paid: int
-    
+    description: Optional[str]
+    due_date: datetime
+    status_id: int
+
     class Config:
         orm_mode = True
