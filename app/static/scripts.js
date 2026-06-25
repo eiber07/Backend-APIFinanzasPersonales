@@ -154,6 +154,7 @@ async function loadTransactions(accountId) {
         }));
 
         renderRecentTransactions();
+        updateAccountTotals();
 
     } catch (err) {
         console.error("Error cargando transacciones:", err);
@@ -988,6 +989,39 @@ async function loadTransactionCategories() {
     }
 }
 
+function updateAccountTotals() {
+    const balanceElement = document.getElementById("balance-total");
+    const incomeElement = document.getElementById("income-total");
+    const expenseElement = document.getElementById("expense-total");
+
+    let incomeTotal = 0;
+    let expenseTotal = 0;
+
+    recentTransactions.forEach((transaction) => {
+        const amount = Number(transaction.amountNumber) || 0;
+
+        if (amount > 0) {
+            incomeTotal += amount;
+        } else {
+            expenseTotal += Math.abs(amount);
+        }
+    });
+
+    const balanceTotal = incomeTotal - expenseTotal;
+
+    if (balanceElement) {
+        balanceElement.textContent = formatDashboardMoney(balanceTotal);
+    }
+
+    if (incomeElement) {
+        incomeElement.textContent = formatDashboardMoney(incomeTotal);
+    }
+
+    if (expenseElement) {
+        expenseElement.textContent = formatDashboardMoney(expenseTotal);
+    }
+}
+
 function renderRecentTransactions() {
     const tableBody = document.getElementById("transactions-table-body");
 
@@ -1043,6 +1077,20 @@ function formatTransactionMoney(amount) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
+}
+
+function formatDashboardMoney(amount) {
+    const numericAmount = Number(amount) || 0;
+    const absoluteAmount = Math.abs(numericAmount);
+
+    const formattedAmount = absoluteAmount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    return numericAmount < 0
+        ? `-$${formattedAmount}`
+        : `$${formattedAmount}`;
 }
 
 function formatTransactionDate(dateValue) {
