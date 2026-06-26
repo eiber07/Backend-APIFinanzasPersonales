@@ -636,6 +636,8 @@ const ModalManager = (() => {
             onClose() {
                 currentEditTransactionId = null;
                 document.getElementById("edit-amount").value = "";
+                document.getElementById("edit-amount").removeAttribute("readonly");
+                document.getElementById("edit-amount").style.background = "";
                 document.getElementById("edit-date").value = "";
                 document.getElementById("edit-category-drop").value = "";
                 document.getElementById("edit-transaction-type-drop").value = "";
@@ -757,7 +759,14 @@ btnEdit?.addEventListener("click", async (e) => {
     document.getElementById("edit-date").value = t.dateRaw || "";
     document.getElementById("edit-description-text").value = t.description;
 
-    // Poblar y seleccionar categoría
+    const editAmount = document.getElementById("edit-amount");
+    if (currentTransactionPlannedExpenseId) {
+        editAmount.setAttribute("readonly", true);
+        editAmount.style.background = "#D1D5DB";
+    } else {
+        editAmount.removeAttribute("readonly");
+        editAmount.style.background = "";
+    }
     await loadEditTransactionCategories();
     await loadEditTransactionTypes();
 
