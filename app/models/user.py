@@ -6,8 +6,8 @@ from app.database.database import Base
 class User(Base, AuditMixin): 
     __tablename__ = "users" 
     id = Column(Integer, primary_key=True, index=True) 
-    name = Column(String, unique=False, nullable=False) 
-    last_name = Column(String, unique=False, nullable=False) 
+    name = Column(String, nullable=False) 
+    last_name = Column(String, nullable=False) 
     dni = Column(String, unique=True, index=True, nullable=True) 
     email = Column(String, unique=True, index=True, nullable=False) 
     phone = Column(String, unique=True, index=True, nullable=True) 
