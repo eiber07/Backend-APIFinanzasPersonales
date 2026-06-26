@@ -23,9 +23,19 @@ class TransactionService:
         self.accountDAL = accountDAL
 
     async def _build_transaction_response(self, transaction: Transaction) -> TransactionResponse:
+        user_name = None
+        
+        if transaction.creator is not None:
+            user_name = (
+                f"{transaction.creator.name}"
+                f"{transaction.creator.last_name}"
+            ).strip()
+            
         return TransactionResponse(
             id=transaction.id,
             account_id=transaction.account_id,
+            user_id=transaction.user_id,
+            user_name=user_name,
             type=transaction.type.name,
             amount=transaction.amount,
             description=transaction.description,
