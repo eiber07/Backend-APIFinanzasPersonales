@@ -23,9 +23,33 @@ async function fetchWithAuth(url, options = {}) {
 async function setActiveAccount(account, displayName = account.name) {
     activeAccount = account;
     const headerName = document.getElementById("header-account-name");
-    if (headerName) headerName.textContent = displayName;
+    if (headerName) {
+        headerName.textContent = displayName;
+    }
+    updateMembersSection();
+
     await loadTransactions(account.id);
     await loadPlannedExpenses(account.id);
+}
+
+function isGroupAccount(account) {
+    return String(account?.account_type || "")
+        .trim()
+        .toLowerCase() === "grupal";
+}
+
+function updateMembersSection() {
+    const membersSection = document.getElementById("members-section");
+
+    if (!membersSection) return;
+
+    const isGroup = isGroupAccount(activeAccount);
+
+    membersSection.hidden = !isGroup;
+
+    if (!isGroup) {
+        ModalManager.close("modalMembers");
+    }
 }
 
 async function loadCurrentUser() {
@@ -222,6 +246,13 @@ async function loadPlannedExpenses(accountId) {
 document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
         ModalManager.open("modalLogout");
+    });
+
+    document.getElementById("btnOpenMembers")
+    ?.addEventListener("click", () => {
+        if (!isGroupAccount(activeAccount)) return;
+
+        ModalManager.open("modalMembers");
     });
 
     document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
