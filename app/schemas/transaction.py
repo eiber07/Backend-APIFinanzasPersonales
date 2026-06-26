@@ -10,6 +10,8 @@ class TransactionCreate(BaseModel):
     description: Optional[str] = None
     category_id: int
     planned_expense_id: Optional[int] = None
+    planned_expense_installment_number: Optional[int] = None
+
     transaction_date: datetime
 
 class TransactionRequest(BaseModel):
@@ -29,6 +31,7 @@ class TransactionResponse(BaseModel):
     category: str
     category_id: int
     planned_expense_id: Optional[int] = None
+    planned_expense_installment_number: Optional[int] = None
     transaction_date: datetime
     
     class Config:

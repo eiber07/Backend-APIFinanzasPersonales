@@ -9,7 +9,8 @@ class Transaction(Base, AuditMixin):
     __tablename__ = "transactions" 
     id = Column(Integer, primary_key=True, index=True) 
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False, index=True)
-    planned_expense_id = Column(Integer, ForeignKey("planned_expenses.id"), nullable=True)
+    planned_expense_id = Column(Integer, nullable=True)
+    planned_expense_installment_number = Column(Integer, nullable=True)
     type_id = Column(Integer, ForeignKey("transaction_types.id"), nullable=False)
     amount = Column(DECIMAL(13, 2), nullable=False)
     description = Column(String, nullable=True)
@@ -18,7 +19,6 @@ class Transaction(Base, AuditMixin):
     transaction_date = Column(DateTime, nullable=False, default=datetime.now) #cargada por el usuario desde el front! No sobreescribre el audit_mixin
 
     type = relationship("TransactionType", back_populates="transactions")
-    planned_expense = relationship("PlannedExpense", back_populates="transactions")
     category = relationship("TransactionCategory", back_populates="transactions")
     status = relationship("Status", back_populates="transactions")
     account = relationship("Account", back_populates="transactions")
