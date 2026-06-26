@@ -26,6 +26,16 @@ async function setActiveAccount(account, displayName = account.name) {
     if (headerName) headerName.textContent = displayName;
     await loadTransactions(account.id);
     await loadPlannedExpenses(account.id);
+    // Mostrar deudas solo en cuentas grupales
+    const seccionDeudas = document.getElementById("debts-component");
+    if (seccionDeudas) {
+        if (account.account_type === "grupal") {
+            seccionDeudas.style.display = "block";
+            await loadGroupDebts(account.id);
+        } else {
+            seccionDeudas.style.display = "none";
+        }
+    }
 }
 
 async function loadCurrentUser() {
@@ -1378,4 +1388,76 @@ function openExpenseDetail(dataset) {
     if (btnDeleteEx) btnDeleteEx.disabled = false;
 
     ModalManager.open("modalEditExpenses");
+}
+
+async function loadGroupDebts(accountId) {
+    const section = document.getElementById("debts-component");
+    const container = document.getElementById("debts-container");
+    if (!section || !container) return;
+
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    try {
+        const res = await fetchWithAuth(
+            `http://localhost:8000/group-settlement/${accountId}?month=${month}&year=${year}`
+        );
+        if (!res.ok) return;
+
+        const data = await res.json();
+
+        if (!data.debts || data.debts.length === 0) {
+            container.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">No hay deudas para este período.</p>`;
+            return;
+        }
+
+        // Traer nombres de usuarios
+        const userIds = [...new Set([
+            ...data.debts.map(d => d.from_user_id),
+            ...data.debts.map(d => d.to_user_id)
+        ])];
+
+        const userMap = {};
+        await Promise.all(userIds.map(async (id) => {
+            try {
+                const r = await fetchWithAuth(`http://localhost:8000/users/by_id?id=${id}`);
+                if (r.ok) {
+                    const u = await r.json();
+                    userMap[id] = u.name;
+                }
+            } catch {
+                userMap[id] = `Usuario ${id}`;
+            }
+        }));
+
+        container.innerHTML = data.debts.map(debt => {
+            const fromName = userMap[debt.from_user_id] || `Usuario ${debt.from_user_id}`;
+            const toName = userMap[debt.to_user_id] || `Usuario ${debt.to_user_id}`;
+            const fromInitial = fromName.charAt(0).toUpperCase();
+            const toInitial = toName.charAt(0).toUpperCase();
+            const amount = formatTransactionMoney(parseFloat(debt.amount));
+
+            return `
+                <div class="debts-card">
+                    <div class="user-debts">
+                        <div class="debts-avatar">${fromInitial}</div>
+                        <span class="debts-name">${fromName}</span>
+                    </div>
+                    <div class="arrow-debts">
+                        <span>→</span>
+                        <span class="debts-ammount">${amount}</span>
+                    </div>
+                    <div class="user-debts">
+                        <div class="debts-avatar">${toInitial}</div>
+                        <span class="debts-name">${toName}</span>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error("Error cargando deudas:", err);
+        container.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">No se pudieron cargar las deudas.</p>`;
+    }
 }
