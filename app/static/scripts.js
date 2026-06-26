@@ -230,26 +230,6 @@ async function saveMember() {
     }
 }
 
-function isGroupAccount(account) {
-    return String(account?.account_type || "")
-        .trim()
-        .toLowerCase() === "grupal";
-}
-
-function updateMembersSection() {
-    const membersSection = document.getElementById("members-section");
-
-    if (!membersSection) return;
-
-    const isGroup = isGroupAccount(activeAccount);
-
-    membersSection.hidden = !isGroup;
-
-    if (!isGroup) {
-        ModalManager.close("modalMembers");
-    }
-}
-
 async function loadCurrentUser() {
     const token = localStorage.getItem("access_token");
 
@@ -938,7 +918,7 @@ const ModalManager = (() => {
             }
         }, modalMembers: {
             onClose() {
-                const emailInput = document.getElementById("member-emial");
+                const emailInput = document.getElementById("member-email");
 
                 if (emailInput) {
                     emailInput.value = "";

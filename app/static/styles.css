@@ -671,6 +671,7 @@ display: block;
 
 .componente-cuentas {
     width: 100%;
+    height: 340px;
 }
 
 .lista-facturas {
@@ -1132,7 +1133,13 @@ display: block;
 }
 
 .componente-miembros {
-    align-self: end;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 32px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1px solid #D9E0EF;
+    border-radius: 8px;
 }
 
 .miembros-header {

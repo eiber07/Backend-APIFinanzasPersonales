@@ -17,7 +17,7 @@ class AccountDAL:
             .options(selectinload(Account.account_type))
             .where(Account.status_id == 1, or_(Account.id_admin_user == user_id, GroupAccountMember.user_id == user_id,))
         )
-        return result.unique.scalars().all()
+        return result.unique().scalars().all()
     
     async def get_account_by_id(self, account_id: int):
         result = await self.db.execute(
