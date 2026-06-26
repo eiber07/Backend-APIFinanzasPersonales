@@ -8,7 +8,7 @@ class PlannedExpenseDAL:
 
     async def get_by_account_id(self, account_id: int):
         result = await self.db.execute(
-            select(PlannedExpense).where(PlannedExpense.account_id == account_id)
+            select(PlannedExpense).where(PlannedExpense.account_id == account_id, PlannedExpense.status_id == 1)
         )
         return result.scalars().all()
 

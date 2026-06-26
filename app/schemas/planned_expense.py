@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from decimal import Decimal
 from datetime import datetime
@@ -7,9 +7,8 @@ class PlannedExpenseCreate(BaseModel):
     account_id: int
     description: Optional[str] = None
     installment_amount: Decimal
-    installments: int  # cantidad de cuotas
+    installments: int = Field(ge=1, le=360)
     due_date: datetime  # fecha de la primera cuota
-    status_id: int
 
 class PlannedExpenseRequest(BaseModel):
     id_planned_expense: int

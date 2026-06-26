@@ -64,10 +64,12 @@ class PlannedExpenseService:
 
     async def create_planned_expense(self, data: PlannedExpenseCreate, current_user: User):
         await self._validate_account_access(data.account_id, current_user)
-
+    
         group_id = await self.plannedExpenseDAL.get_next_group_id()
         created_installments = []
         
+        active_status = await self.statusDAL.get_by_name('activa')
+
         for i in range(1, data.installments + 1):
             due_date = data.due_date + relativedelta(months=i-1)
             installment = PlannedExpense(
@@ -77,7 +79,7 @@ class PlannedExpenseService:
                 installment_amount=data.installment_amount,
                 description=data.description,
                 due_date=due_date.replace(tzinfo=None),
-                status_id=data.status_id,
+                status_id=active_status.id,
             )
             created = await self.plannedExpenseDAL.create_planned_expense(installment)
             created_installments.append(created)
