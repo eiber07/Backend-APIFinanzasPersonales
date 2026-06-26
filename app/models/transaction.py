@@ -9,6 +9,7 @@ class Transaction(Base, AuditMixin):
     __tablename__ = "transactions" 
     id = Column(Integer, primary_key=True, index=True) 
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     planned_expense_id = Column(Integer, ForeignKey("planned_expenses.id"), nullable=True)
     type_id = Column(Integer, ForeignKey("transaction_types.id"), nullable=False)
     amount = Column(DECIMAL(13, 2), nullable=False)

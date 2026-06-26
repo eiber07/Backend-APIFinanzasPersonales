@@ -83,6 +83,7 @@ class TransactionService:
 
         new_transaction = Transaction(
             account_id=transaction.account_id,
+            user_id=current_user.id,
             type_id=transaction.type_id,
             amount=transaction.amount,
             description=transaction.description,

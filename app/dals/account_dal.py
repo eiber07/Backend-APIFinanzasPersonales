@@ -2,16 +2,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from app.models.account import Account
+from app.models.group_account_member import GroupAccountMember
 
 class AccountDAL:
     def __init__(self, db: AsyncSession):
         self.db = db
 
     async def get_accounts_by_user_id(self, user_id: int):
+        group_account_ids = await self.db.execute(
+            select(GroupAccountMember.account_id).where(GroupAccountMember.user_id == user_id)
+        )
+        group_account_ids = {row[0] for row in group_account_ids.all()}
+
         result = await self.db.execute(
             select(Account)
             .options(selectinload(Account.account_type))
-            .where(Account.id_admin_user == user_id, Account.status_id == 1)
+            .where(
+                (Account.id_admin_user == user_id) | (Account.id.in_(group_account_ids)),
+                Account.status_id == 1,
+            )
         )
         return result.scalars().all()
     
