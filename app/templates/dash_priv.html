@@ -30,14 +30,19 @@
             <section class="componente-tarjetas">
 
                 <article class="componente-tarjetas1">
-                    <div class="tarjeta-info">
-                        <p class="tarjeta-titulo">Balance total</p>
-                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
-
-                        <div class="tarjeta-fecha">
-                            <span class="punto-verde"></span>
-                            <span>Junio 2026</span>
+                    <div class="tarjeta-info tarjeta-balance-info">
+                    
+                        <div class="tarjeta-balance-encabezado">
+                            <p class="tarjeta-titulo">Balance total</p>
+                        
+                            <div class="filtro-periodo">
+                                <select id="filter-month" class="select-periodo" aria-label="Filtrar por mes"></select>
+                                <select id="filter-year" class="select-periodo select-periodo-year" aria-label="Filtrar por año"></select>
+                            </div>
                         </div>
+                    
+                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
+                    
                     </div>
                 </article>
 
