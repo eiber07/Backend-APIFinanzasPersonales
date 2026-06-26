@@ -1348,6 +1348,8 @@ async function saveNewTransaction() {
         if (res.ok) {
             ShowSuccessMessage("Transacción guardada correctamente.");
             await loadTransactions(activeAccount.id);
+            await loadGroupDebts(activeAccount.id);
+            await loadPlannedExpenses(activeAccount.id);
             if (plannedExpenseId) await loadPlannedExpenses(activeAccount.id);
             ModalManager.close("modalNewTransax");
         } else {
@@ -1828,40 +1830,55 @@ async function loadGroupDebts(accountId) {
     const year = now.getFullYear();
 
     try {
+        // 1. Obtener deudas
         const res = await fetchWithAuth(
-            `http://localhost:8000/group-settlement/${accountId}?month=${month}&year=${year}`
+            `http://localhost:8000/transactions/group-settlement/${accountId}?month=${month}&year=${year}`
         );
-        if (!res.ok) return;
+
+        if (!res.ok) {
+            container.innerHTML = `<p style="color:#6B7280;">No se pudieron cargar las deudas.</p>`;
+            return;
+        }
 
         const data = await res.json();
 
         if (!data.debts || data.debts.length === 0) {
-            container.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">No hay deudas para este período.</p>`;
+            container.innerHTML = `<p style="color:#6B7280;">No hay deudas para este período.</p>`;
             return;
         }
 
-        // Traer nombres de usuarios
+        // 2. Obtener IDs únicos
         const userIds = [...new Set([
             ...data.debts.map(d => d.from_user_id),
             ...data.debts.map(d => d.to_user_id)
         ])];
 
+        // 3. Obtener nombres desde /users/by_id
         const userMap = {};
-        await Promise.all(userIds.map(async (id) => {
-            try {
-                const r = await fetchWithAuth(`http://localhost:8000/users/by_id?id=${id}`);
-                if (r.ok) {
-                    const u = await r.json();
-                    userMap[id] = u.name;
-                }
-            } catch {
-                userMap[id] = `Usuario ${id}`;
-            }
-        }));
 
+        await Promise.all(
+            userIds.map(async (id) => {
+                try {
+                    const r = await fetchWithAuth(
+                        `http://localhost:8000/users/by_id?id=${id}`
+                    );
+
+                    if (r.ok) {
+                        const u = await r.json();
+                        userMap[id] = `${u.name} ${u.last_name}`;
+                    } else {
+                        userMap[id] = `Usuario ${id}`;
+                    }
+                } catch {
+                    userMap[id] = `Usuario ${id}`;
+                }
+            })
+        );
+
+        // 4. Renderizar tarjetas
         container.innerHTML = data.debts.map(debt => {
-            const fromName = userMap[debt.from_user_id] || `Usuario ${debt.from_user_id}`;
-            const toName = userMap[debt.to_user_id] || `Usuario ${debt.to_user_id}`;
+            const fromName = userMap[debt.from_user_id];
+            const toName = userMap[debt.to_user_id];
             const fromInitial = fromName.charAt(0).toUpperCase();
             const toInitial = toName.charAt(0).toUpperCase();
             const amount = formatTransactionMoney(parseFloat(debt.amount));
@@ -1886,6 +1903,6 @@ async function loadGroupDebts(accountId) {
 
     } catch (err) {
         console.error("Error cargando deudas:", err);
-        container.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">No se pudieron cargar las deudas.</p>`;
+        container.innerHTML = `<p style="color:#6B7280;">Error al conectar con el servidor.</p>`;
     }
 }
