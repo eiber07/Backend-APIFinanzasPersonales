@@ -9,7 +9,7 @@ class Account(Base, AuditMixin):
     __tablename__ = "accounts" 
     id = Column(Integer, primary_key=True, index=True) 
     id_admin_user = Column(Integer, ForeignKey("users.id"), nullable=False)
-    name = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, unique=False, index=True, nullable=False)
     status_id = Column(Integer, ForeignKey("statuses.id"), nullable=False)
     description = Column(String, nullable=True)
     # balance = Column(Integer, nullable=False) // revisar si es necesario

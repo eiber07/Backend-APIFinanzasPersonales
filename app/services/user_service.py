@@ -19,7 +19,14 @@ class UserService:
         return await self.userDal.get_by_email(email)
 
     async def get_by_id(self, id: int):
-        return await self.userDal.get_by_id(id)
+        user = await self.userDal.get_by_id(id)
+        user_response = UserResponse(
+            id=user.id,
+            name=user.name,
+            last_name=user.last_name,
+            email=user.email
+        )
+        return user_response
     
     async def create(self, user: UserCreate):
 

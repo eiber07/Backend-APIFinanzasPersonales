@@ -17,6 +17,7 @@ class Transaction(Base, AuditMixin):
     category_id = Column(Integer, ForeignKey("transaction_categories.id"), nullable=False)
     status_id = Column(Integer, ForeignKey("statuses.id"), nullable=False) 
     transaction_date = Column(DateTime, nullable=False, default=datetime.now) #cargada por el usuario desde el front! No sobreescribre el audit_mixin
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     type = relationship("TransactionType", back_populates="transactions")
     category = relationship("TransactionCategory", back_populates="transactions")
