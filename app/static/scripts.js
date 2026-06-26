@@ -2,9 +2,29 @@
 let activeAccount = null;
 let currentUser = null;
 let currentEditTransactionId = null;
+let filteredTransactions = [];
+
+let selectedFilterMonth = new Date().getMonth() + 1;
+let selectedFilterYear = new Date().getFullYear();
+
+const MONTH_NAMES = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre"
+];
 let currentTransactionId = null;
 let currentExpenseId = null;
 let currentTransactionPlannedExpenseId = null;
+
 
 
 // Helper para requests autenticados
@@ -374,6 +394,120 @@ async function loadUserAccounts() {
     }
 }
 
+function initializePeriodFilter() {
+    const monthSelect = document.getElementById("filter-month");
+    const yearSelect = document.getElementById("filter-year");
+
+    if (!monthSelect || !yearSelect) return;
+
+    monthSelect.innerHTML = MONTH_NAMES.map((month, index) => `
+        <option value="${index + 1}">
+            ${month}
+        </option>
+    `).join("");
+
+    monthSelect.value = String(selectedFilterMonth);
+
+    updateYearFilterOptions();
+
+    monthSelect.addEventListener("change", handlePeriodFilterChange);
+    yearSelect.addEventListener("change", handlePeriodFilterChange);
+}
+
+function handlePeriodFilterChange() {
+    const monthSelect = document.getElementById("filter-month");
+    const yearSelect = document.getElementById("filter-year");
+
+    selectedFilterMonth = Number(monthSelect.value);
+    selectedFilterYear = Number(yearSelect.value);
+
+    applyPeriodFilter();
+}
+
+function updateYearFilterOptions() {
+    const yearSelect = document.getElementById("filter-year");
+
+    if (!yearSelect) return;
+
+    const currentYear = new Date().getFullYear();
+
+    /*
+        Rango inicial visible:
+        2021 a 2031 si el año actual es 2026.
+    */
+    const years = new Set();
+
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        years.add(year);
+    }
+
+    /*
+        También agrega años existentes en transacciones,
+        aunque estén fuera del rango anterior.
+    */
+    recentTransactions.forEach((transaction) => {
+        const year = Number(String(transaction.dateRaw).slice(0, 4));
+
+        if (year) {
+            years.add(year);
+        }
+    });
+
+    /*
+        También agrega años existentes en cuotas/facturas.
+    */
+    plannedExpenses.forEach((expense) => {
+        expense.allInstallments.forEach((installment) => {
+            const year = Number(
+                String(installment.dueDateRaw).slice(0, 4)
+            );
+
+            if (year) {
+                years.add(year);
+            }
+        });
+    });
+
+    const orderedYears = [...years].sort((yearA, yearB) => {
+        return yearB - yearA;
+    });
+
+    yearSelect.innerHTML = orderedYears.map((year) => `
+        <option value="${year}">
+            ${year}
+        </option>
+    `).join("");
+
+    yearSelect.value = String(selectedFilterYear);
+}
+
+function dateMatchesSelectedPeriod(dateValue) {
+    if (!dateValue) return false;
+
+    const [year, month] = String(dateValue)
+        .split("-")
+        .map(Number);
+
+    return (
+        year === selectedFilterYear &&
+        month === selectedFilterMonth
+    );
+}
+
+function getSelectedPeriodLabel() {
+    return `${MONTH_NAMES[selectedFilterMonth - 1]} ${selectedFilterYear}`;
+}
+
+function applyPeriodFilter() {
+    filteredTransactions = recentTransactions.filter((transaction) =>
+        dateMatchesSelectedPeriod(transaction.dateRaw)
+    );
+
+    renderRecentTransactions();
+    updateAccountTotals();
+    renderFacturasPreview();
+}
+
 async function loadTransactions(accountId) {
     const tableBody = document.getElementById("transactions-table-body");
     if (!tableBody) return;
@@ -398,8 +532,8 @@ async function loadTransactions(accountId) {
             date: formatTransactionDate(t.transaction_date.split("T")[0])
         }));
 
-        renderRecentTransactions();
-        updateAccountTotals();
+    updateYearFilterOptions();
+    applyPeriodFilter();
 
     } catch (err) {
         console.error("Error cargando transacciones:", err);
@@ -455,7 +589,8 @@ async function loadPlannedExpenses(accountId) {
         });
 
         renderExpenses();
-        renderFacturasPreview();
+        updateYearFilterOptions();
+        applyPeriodFilter();
 
     } catch (err) {
         console.error("Error cargando gastos planificados:", err);
@@ -484,6 +619,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("clickable-img")
         ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
+        
+    initializePeriodFilter();
+
     await loadTransactionCategories();
     document.getElementById("btn-save-new-transactions")
         ?.addEventListener("click", saveNewTransaction);
@@ -1244,7 +1382,7 @@ function updateAccountTotals() {
     let incomeTotal = 0;
     let expenseTotal = 0;
 
-    recentTransactions.forEach((transaction) => {
+    filteredTransactions.forEach((transaction) => {
         const amount = Number(transaction.amountNumber) || 0;
 
         if (amount > 0) {
@@ -1274,12 +1412,12 @@ function renderRecentTransactions() {
 
     if (!tableBody) return;
 
-    if (recentTransactions.length === 0) {
+    if (filteredTransactions.length === 0) {
         tableBody.innerHTML = `
             <tr class="empty-transactions-row">
                 <td colspan="4">
                     <div class="empty-transactions-message">
-                        Aún no se han registrado transacciones
+                        No se registraron transacciones en ${getSelectedPeriodLabel()}
                     </div>
                 </td>
             </tr>
@@ -1287,7 +1425,7 @@ function renderRecentTransactions() {
         return;
     }
 
-    tableBody.innerHTML = recentTransactions.map(transaction => {
+    tableBody.innerHTML = filteredTransactions.map(transaction => {
         const amountClass = transaction.amountNumber > 0 ? "monto-positivo" : "";
 
         return `
@@ -1465,39 +1603,62 @@ function renderExpenses() {
 
 function renderFacturasPreview() {
     const list = document.getElementById("installmentCards");
+
     if (!list) return;
 
-    if (plannedExpenses.length === 0) {
-        list.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">Aún no hay gastos planeados</p>`;
+    const periodInstallments = plannedExpenses
+        .flatMap((expense) =>
+            expense.allInstallments
+                .filter((installment) =>
+                    dateMatchesSelectedPeriod(installment.dueDateRaw)
+                )
+                .map((installment) => ({
+                    expense,
+                    installment
+                }))
+        )
+        .sort((itemA, itemB) =>
+            new Date(itemA.installment.dueDateRaw) -
+            new Date(itemB.installment.dueDateRaw)
+        );
+
+    if (periodInstallments.length === 0) {
+        list.innerHTML = `
+            <p style="color:#6B7280; font-size:0.9rem;">
+                No hay facturas para ${getSelectedPeriodLabel()}
+            </p>
+        `;
+
         return;
     }
 
-    const pending = plannedExpenses
-        .filter(expense => !expense.completed && expense.nextDueDateRaw)
-        .sort((a, b) => new Date(a.nextDueDateRaw) - new Date(b.nextDueDateRaw))
-        .slice(0, 3);
+    list.innerHTML = periodInstallments.map(({ expense, installment }) => {
+        const date = new Date(
+            `${installment.dueDateRaw}T00:00:00`
+        );
 
-    if (pending.length === 0) {
-        list.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">No hay gastos pendientes</p>`;
-        return;
-    }
+        const month = date
+            .toLocaleDateString("es-ES", { month: "short" })
+            .toUpperCase();
 
-    list.innerHTML = pending.map(expense => {
-        const date = new Date(`${expense.nextDueDateRaw}T00:00:00`);
-        const month = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
         const day = date.getDate();
 
+        const paidClass = installment.statusId === 2
+            ? "factura-completada"
+            : "";
+
         return `
-            <article class="factura-card clickable-row"
+            <article
+                class="factura-card clickable-row ${paidClass}"
                 data-id="${expense.id}"
                 data-detail="${expense.detail}"
                 data-total-installments="${expense.totalInstallments}"
                 data-paid-installments="${expense.paidInstallments}"
-                data-next-installment="${expense.nextInstallment}"
-                data-next-due-date="${expense.nextDueDateRaw}"
+                data-next-installment="${installment.installmentNumber}"
+                data-next-due-date="${installment.dueDateRaw}"
                 data-installment-amount="${expense.installmentAmount}"
-                data-completed="${expense.completed}">
-
+                data-completed="${expense.completed}"
+            >
                 <div class="factura-fecha factura-fecha-gris">
                     <span>${month}</span>
                     <strong>${day}</strong>
@@ -1505,7 +1666,10 @@ function renderFacturasPreview() {
 
                 <div class="factura-info">
                     <h3>${expense.detail}</h3>
-                    <p>Cuota ${expense.nextInstallment} de ${expense.totalInstallments}</p>
+                    <p>
+                        Cuota ${installment.installmentNumber}
+                        de ${expense.totalInstallments}
+                    </p>
                 </div>
 
                 <div class="factura-monto">
@@ -1515,13 +1679,14 @@ function renderFacturasPreview() {
         `;
     }).join("");
 
-    list.querySelectorAll(".clickable-row").forEach(card => {
+    list.querySelectorAll(".clickable-row").forEach((card) => {
         card.addEventListener("click", () => {
             if (card.dataset.completed === "true") return;
-            openExpenseDetail(card.dataset)});
+
+            openExpenseDetail(card.dataset);
+        });
     });
 }
-
 
 async function loadEditTransactionCategories() {
     const select = document.getElementById("edit-category-drop");
