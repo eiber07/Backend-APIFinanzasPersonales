@@ -1,5 +1,6 @@
 /* DATOS DE BACKEND */
 let activeAccount = null;
+let currentUser = null;
 let currentEditTransactionId = null;
 let currentTransactionId = null;
 let currentExpenseId = null;
@@ -22,14 +23,211 @@ async function fetchWithAuth(url, options = {}) {
 // estado global de cuenta activa
 async function setActiveAccount(account, displayName = account.name) {
     activeAccount = account;
+
     const headerName = document.getElementById("header-account-name");
+
     if (headerName) {
         headerName.textContent = displayName;
     }
-    updateMembersSection();
+
+    await updateMembersSection();
 
     await loadTransactions(account.id);
     await loadPlannedExpenses(account.id);
+}
+
+function isGroupAccount(account) {
+    return String(account?.account_type || "")
+        .trim()
+        .toLowerCase() === "grupal";
+}
+
+async function updateMembersSection() {
+    const membersSection = document.getElementById("members-section");
+
+    if (!membersSection) return;
+
+    const isGroup = isGroupAccount(activeAccount);
+
+    membersSection.hidden = !isGroup;
+
+    if (!isGroup) {
+        ModalManager.close("modalMembers");
+        return;
+    }
+
+    await loadMembers(activeAccount.id);
+}
+
+async function loadMembers(accountId) {
+    const membersList = document.getElementById("members-list");
+
+    if (!membersList) return;
+
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/accounts/${accountId}/members`
+        );
+
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar los miembros.");
+        }
+
+        const members = await response.json();
+
+        renderMembers(members);
+    } catch (error) {
+        console.error("Error cargando miembros:", error);
+
+        membersList.innerHTML = `
+            <p class="members-empty">
+                No se pudieron cargar los miembros.
+            </p>
+        `;
+    }
+}
+
+function renderMembers(members) {
+    const membersList = document.getElementById("members-list");
+    const addButton = document.getElementById("btnOpenMembers");
+
+    if (!membersList) return;
+
+    membersList.innerHTML = "";
+
+    if (!members || members.length === 0) {
+        membersList.innerHTML = `
+            <p class="members-empty">
+                Aún no hay miembros cargados.
+            </p>
+        `;
+
+        if (addButton) {
+            addButton.hidden = true;
+        }
+
+        return;
+    }
+
+    const currentMember = members.find(
+        (member) => Number(member.user_id) === Number(currentUser?.id)
+    );
+
+    if (addButton) {
+        addButton.hidden = currentMember?.role !== "admin";
+    }
+
+    members.forEach((member) => {
+        const item = document.createElement("article");
+        item.classList.add("member-item");
+
+        const information = document.createElement("div");
+
+        const name = document.createElement("p");
+        name.classList.add("member-name");
+        name.textContent = `${member.name} ${member.last_name}`.trim();
+
+        const status = document.createElement("p");
+        status.classList.add("member-status");
+
+        if (Number(member.user_id) === Number(currentUser?.id)) {
+            status.textContent = "Vos";
+        } else if (member.role === "admin") {
+            status.textContent = "Administrador";
+        } else {
+            status.textContent = "Activo";
+        }
+
+        information.appendChild(name);
+        information.appendChild(status);
+        item.appendChild(information);
+
+        membersList.appendChild(item);
+    });
+}
+
+function showMemberEmailError(message) {
+    const errorElement = document.getElementById("error-member-email");
+
+    if (!errorElement) return;
+
+    errorElement.textContent = message;
+    errorElement.classList.add("active");
+}
+
+function clearMemberEmailError() {
+    const errorElement = document.getElementById("error-member-email");
+
+    if (!errorElement) return;
+
+    errorElement.textContent = "";
+    errorElement.classList.remove("active");
+}
+
+async function saveMember() {
+    const emailInput = document.getElementById("member-email");
+    const saveButton = document.getElementById("btnSaveMember");
+
+    if (!activeAccount || !isGroupAccount(activeAccount)) {
+        ShowErrorMessage("Seleccioná una cuenta grupal.");
+        return;
+    }
+
+    const email = emailInput?.value.trim().toLowerCase();
+
+    if (!email) {
+        showMemberEmailError("Ingresá un correo electrónico.");
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        showMemberEmailError("Ingresá un correo electrónico válido.");
+        return;
+    }
+
+    clearMemberEmailError();
+
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = "Agregando...";
+    }
+
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/accounts/${activeAccount.id}/members`,
+            {
+                method: "POST",
+                body: JSON.stringify({ email }),
+            }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            showMemberEmailError(
+                data.detail || "No se pudo agregar el miembro."
+            );
+            return;
+        }
+
+        emailInput.value = "";
+
+        ModalManager.close("modalMembers");
+
+        await loadMembers(activeAccount.id);
+
+        ShowSuccessMessage("Miembro agregado correctamente.");
+    } catch (error) {
+        console.error("Error agregando miembro:", error);
+        showMemberEmailError("No se pudo conectar con el servidor.");
+    } finally {
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = "Agregar miembro";
+        }
+    }
 }
 
 function isGroupAccount(account) {
@@ -121,37 +319,78 @@ function formatParameterLabel(value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function getAccountDisplayName(account) {
+    const accountType = String(account.account_type || "")
+        .trim()
+        .toLowerCase();
+
+    return accountType === "personal"
+        ? "Cuenta Personal"
+        : account.name;
+}
+
 async function loadUserAccounts() {
     const container = document.getElementById("btnAccounts");
+
     if (!container) return;
-    
+
     container.innerHTML = "";
 
     try {
-        const res = await fetchWithAuth("http://localhost:8000/accounts/user");
-        if (!res.ok) return;
+        const response = await fetchWithAuth("http://localhost:8000/accounts/user");
 
-        const accounts = await res.json();
-        accounts.forEach((account, index) => {
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar las cuentas.");
+        }
+
+        const accounts = await response.json();
+
+        const orderedAccounts = [...accounts].sort((accountA, accountB) => {
+            const accountAIsPersonal =
+                String(accountA.account_type || "").toLowerCase() === "personal";
+
+            const accountBIsPersonal =
+                String(accountB.account_type || "").toLowerCase() === "personal";
+
+            return Number(accountBIsPersonal) - Number(accountAIsPersonal);
+        });
+
+        orderedAccounts.forEach((account) => {
             const item = document.createElement("div");
+            const displayName = getAccountDisplayName(account);
+
             item.classList.add("account-item");
-            const displayName = index === 0 ? "Cuenta Personal" : account.name; 
             item.textContent = displayName;
             item.dataset.displayName = displayName;
-            item.addEventListener("click", () => {
-                document.querySelectorAll(".account-item").forEach(i => i.classList.remove("active"));
+
+            item.addEventListener("click", async () => {
+                document
+                    .querySelectorAll(".account-item")
+                    .forEach((accountItem) =>
+                        accountItem.classList.remove("active")
+                    );
+
                 item.classList.add("active");
-                setActiveAccount(account, displayName);
-            })
+
+                await setActiveAccount(account, displayName);
+            });
+
             container.appendChild(item);
         });
-        if (accounts.length > 0) {
+
+        if (orderedAccounts.length > 0) {
+            const firstAccount = orderedAccounts[0];
             const firstItem = container.querySelector(".account-item");
+
             firstItem?.classList.add("active");
-            setActiveAccount(accounts[0], "Cuenta Personal");
+
+            await setActiveAccount(
+                firstAccount,
+                getAccountDisplayName(firstAccount)
+            );
         }
-    } catch (err) {
-        console.error("Error cargando cuentas:", err);
+    } catch (error) {
+        console.error("Error cargando cuentas:", error);
     }
 }
 
@@ -254,6 +493,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         ModalManager.open("modalMembers");
     });
+
+    document.getElementById("btnSaveMember")
+    ?.addEventListener("click", saveMember);
 
     document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
         localStorage.removeItem("access_token");
@@ -391,6 +633,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const user = await loadCurrentUser();
     if (user) {
+        currentUser = user;
         const elName  = document.getElementById("user-name");
         const elEmail = document.getElementById("user-email");
         if (elName)  elName.textContent  = `${user.name} ${user.last_name}`;
@@ -693,7 +936,16 @@ const ModalManager = (() => {
                 counter3.textContent = "0 / 25 caracteres";
                 counter3.style.color = "inherit";
             }
-        
+        }, modalMembers: {
+            onClose() {
+                const emailInput = document.getElementById("member-emial");
+
+                if (emailInput) {
+                    emailInput.value = "";
+                }
+
+                clearMemberEmailError();
+            }
 
         },modalLogout: {
             onClose() {}

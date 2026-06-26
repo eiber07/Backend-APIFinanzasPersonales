@@ -1,4 +1,5 @@
 from app.models.user import User
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from ..auth.password import get_password_hash
@@ -9,7 +10,9 @@ class UserDAL:
         self.db = db
 
     async def get_by_email(self, email: str):
-        result = await self.db.execute(select(User).where(User.email == email))
+        normalized_email = email.strip().lower()
+        
+        result = await self.db.execute(select(User).where(func.lower(User.email) == normalized_email))
         return result.scalars().first()
 
     async def get_by_id(self, id: int):
