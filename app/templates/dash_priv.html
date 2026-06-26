@@ -1,416 +1,355 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinanceTracker</title>
-    <link rel="stylesheet" href="../static/styles.css">
-</head>
-<body>
-<div class="logout-container">
-    <button id="btnLogoutTop" class="btn-logout">
-        Cerrar Sesión
-    </button>
-</div>
-<div id="alertsContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>
-    <div class="grid-contenedor">
-        
-        <!-- HEADER -->
-        <header class="componente-header">
-            <h1 id="header-account-name">Dashboard privado</h1>
-        </header>
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FinanceTracker</title>
+        <link rel="stylesheet" href="../static/styles.css">
+    </head>
+    <body>
+    <div class="logout-container">
+        <button id="btnLogoutTop" class="btn-logout">
+            Cerrar Sesión
+        </button>
+    </div>
+    <div id="alertsContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>
+        <div class="grid-contenedor">
+            
+            <!-- HEADER -->
+            <header class="componente-header">
+                <h1 id="header-account-name">Dashboard privado</h1>
+            </header>
 
-        <!-- SIDEBAR -->
-        <div id="sidebar-placeholder"></div>
+            <!-- SIDEBAR -->
+            <div id="sidebar-placeholder"></div>
 
-        <!-- CONTENIDO PRINCIPAL -->
-        <main class="componente-main">
+            <!-- CONTENIDO PRINCIPAL -->
+            <main class="componente-main">
 
-            <!-- TARJETAS SUPERIORES -->
-            <section class="componente-tarjetas">
+                <!-- TARJETAS SUPERIORES -->
+                <section class="componente-tarjetas">
 
-                <article class="componente-tarjetas1">
-                    <div class="tarjeta-info">
-                        <p class="tarjeta-titulo">Balance total</p>
-                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
+                    <article class="componente-tarjetas1">
+                        <div class="tarjeta-info">
+                            <p class="tarjeta-titulo">Balance total</p>
+                            <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
 
-                        <div class="tarjeta-fecha">
-                            <span class="punto-verde"></span>
-                            <span>Junio 2026</span>
+                            <div class="tarjeta-fecha">
+                                <span class="punto-verde"></span>
+                                <span>Junio 2026</span>
+                            </div>
                         </div>
-                    </div>
-                </article>
+                    </article>
 
-                <article class="tarjeta-resumen tarjeta-resumen-grande">
-                    <div class="tarjeta-resumen-icono ingreso">
-                        ↗
-                    </div>
-                
-                    <div class="tarjeta-resumen-info">
-                        <p>Ingreso total</p>
-                        <h3 id="income-total">$0.00</h3>
-                    </div>
-                </article>
+                    <article class="tarjeta-resumen tarjeta-resumen-grande">
+                        <div class="tarjeta-resumen-icono ingreso">
+                            ↗
+                        </div>
+                    
+                        <div class="tarjeta-resumen-info">
+                            <p>Ingreso total</p>
+                            <h3 id="income-total">$0.00</h3>
+                        </div>
+                    </article>
 
-                <article class="tarjeta-resumen tarjeta-resumen-grande">
-                    <div class="tarjeta-resumen-icono egreso">
-                        ↘
-                    </div>
-                
-                    <div class="tarjeta-resumen-info">
-                        <p>Egreso total</p>
-                        <h3 id="expense-total">$0.00</h3>
-                    </div>
-                </article>
-
-            </section>
-
-            <!-- ZONA INFERIOR -->
-            <section class="componente-main2">
-
-                <!-- TRANSACCIONES -->
-                <section class="componente-transacciones">
-
-                    <div class="titulo-seccion">
-                        <h2>Transacciones recientes</h2>
-                        <a href="#">Ver todo</a>
-                        <img src="../static/img/icono-mas.png" height="25px" id="clickable-img"/>
-                    </div>
-
-                    <div class="tabla-contenedor">
-                        <table class="tabla-transacciones">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Categoría</th>
-                                    <th>Descripción</th>
-                                    <th>Monto</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transactions-table-body">
-                                <tr class="empty-transactions-row">
-                                    <td colspan="4">
-                                        <div class="empty-transactions-message">
-                                            Aún no se han registrado transacciones
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!--<tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
-                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">-->
-                            </tbody>
-                        </table>
-                    </div>
+                    <article class="tarjeta-resumen tarjeta-resumen-grande">
+                        <div class="tarjeta-resumen-icono egreso">
+                            ↘
+                        </div>
+                    
+                        <div class="tarjeta-resumen-info">
+                            <p>Egreso total</p>
+                            <h3 id="expense-total">$0.00</h3>
+                        </div>
+                    </article>
 
                 </section>
 
-                <!-- PRÓXIMAS FACTURAS -->
-                <aside class="componente-cuentas">
+                <!-- ZONA INFERIOR -->
+                <section class="componente-main2">
 
-                    <div class="titulo-seccion">
-                        <h2>Próximas facturas</h2>
-                        <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
-                    </div>
-                    <div class="installmentCards" id="installmentCards">
-                    </div>
-                    <button type="button" class="boton-gestionar">
-                        Gestionar todos los gastos
-                    </button>
+                    <!-- TRANSACCIONES -->
+                    <section class="componente-transacciones">
 
-                </aside>
-
-            </section>
-            <div id="modalTransax" class="modal">
-                <div class="content-modal">
-                    <span class="close" onclick="ModalManager.close('modalTransax')">&times;</span> 
-                    <h2 style="color:#1F2937; margin:0">Detalle de Transacción</h2>
-                    
-                    <table class="tabla-detalle">
-                        <tr><td>ID:</td><td id="data-id"></td></tr>
-                        <tr><td>Tipo:</td><td id="data-type"></td></tr>
-                        <tr><td>Categoría:</td><td id="data-category"></td></tr>
-                        <tr><td>Descripción:</td><td id="data-description"></td></tr>
-                        <tr><td>Monto:</td><td id="data-amount"></td></tr>
-                        <tr><td>Fecha:</td><td id="data-date"></td></tr>
-                    </table>
-                    <div class="acciones-modal">
-                        <button id="btnEdit" class="btn-secondary">Editar</button>
-                        <button id="btnDelete" class="btn-primary btn-red">Eliminar</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="modalNewTransax" class="modal">
-                <div class="content-modal">
-                    <span class="close" onclick="ModalManager.close('modalNewTransax')">&times;</span> 
-                    <h2 style="color:#1F2937; margin:0;">Nueva Transacción</h2>
-                    <div class="form-section">
-
-                        <div class="form-group">
-                            <label class="label">Tipo de transacción</label>
-                            <select class="input" id="transaction-type-drop">
-                                <option value="">Seleccionar</option>
-                            </select>                                
-                            <span class="error" id="error-transaction-type"></span>
+                        <div class="titulo-seccion">
+                            <h2>Transacciones recientes</h2>
+                            <a href="#">Ver todo</a>
+                            <img src="../static/img/icono-mas.png" height="25px" id="clickable-img"/>
                         </div>
 
-                        <div class="form-group" id="planned-expense-group" style="display:none;">
-                            <label class="label">Gasto planificado (opcional)</label>
-                            <select class="input" id="planned-expense-drop">
-                                <option value="">Ninguno</option>
-                            </select>
+                        <div class="tabla-contenedor">
+                            <table class="tabla-transacciones">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Categoría</th>
+                                        <th>Descripción</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-table-body">
+                                    <tr class="empty-transactions-row">
+                                        <td colspan="4">
+                                            <div class="empty-transactions-message">
+                                                Aún no se han registrado transacciones
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!--<tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
+                                    data-category="{category_id}" data-description="{description}" data-date="{creation_date}">-->
+                                </tbody>
+                            </table>
                         </div>
 
-                        <div class="form-group">
-                            <label class="label">Monto</label>
-                            <input type="text" class="input" id="amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-amount"></span>
-                        </div>
+                    </section>
 
-                        <div class="form-group">
-                            <label class="label">Fecha</label>
-                            <input type="date" class="input" id="date">
-                            <span class="error" id="error-date"></span>
-                        </div>
+                    <!-- PRÓXIMAS FACTURAS -->
+                    <aside class="componente-cuentas">
 
-                        <div class="form-group">
-                            <label class="label">Categoría</label>
-                            <select class="input" id="category-drop">
-                                <option value="">Seleccionar</option>
-                            </select>
-                            <span class="error" id="error-category"></span>
+                        <div class="titulo-seccion">
+                            <h2>Próximas facturas</h2>
+                            <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
                         </div>
-
-                        <div class="form-group">
-                            <label class="label">Descripción</label>
-                            <textarea class="input" id="description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
-                            <div id="char-counter">0 / 25 caracteres</div>
-                            <span class="error" id="error-description"></span>
+                        <div class="installmentCards" id="installmentCards">
                         </div>
+                        <button type="button" class="boton-gestionar">
+                            Gestionar todos los gastos
+                        </button>
 
+                    </aside>
+
+                </section>
+                <div id="modalTransax" class="modal">
+                    <div class="content-modal">
+                        <span class="close" onclick="ModalManager.close('modalTransax')">&times;</span> 
+                        <h2 style="color:#1F2937; margin:0">Detalle de Transacción</h2>
+                        
+                        <table class="tabla-detalle">
+                            <tr><td>ID:</td><td id="data-id"></td></tr>
+                            <tr><td>Tipo:</td><td id="data-type"></td></tr>
+                            <tr><td>Categoría:</td><td id="data-category"></td></tr>
+                            <tr><td>Descripción:</td><td id="data-description"></td></tr>
+                            <tr><td>Monto:</td><td id="data-amount"></td></tr>
+                            <tr><td>Fecha:</td><td id="data-date"></td></tr>
+                        </table>
                         <div class="acciones-modal">
-                            <button id="btn-save-new-transactions" class="btn-primary">Guardar Transacción</button>
-                            <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewTransax')">Cancelar</button>
+                            <button id="btnEdit" class="btn-secondary">Editar</button>
+                            <button id="btnDelete" class="btn-primary btn-red">Eliminar</button>
                         </div>
                     </div>
                 </div>
-            </div>
+                
+                <div id="modalNewTransax" class="modal">
+                    <div class="content-modal">
+                        <span class="close" onclick="ModalManager.close('modalNewTransax')">&times;</span> 
+                        <h2 style="color:#1F2937; margin:0;">Nueva Transacción</h2>
+                        <div class="form-section">
 
-            <div id="modalEditTransax" class="modal">
-                <div class="content-modal">
-                    <span class="close" onclick="ModalManager.close('modalEditTransax')">&times;</span> 
-                    <h2 style="color:#1F2937; margin:0;">Modificar datos de Transacción</h2>
-                    <div class="form-section">
-                        <div class="form-group">
-                            <label class="label">Monto</label>
-                            <input type="text" class="input" id="edit-amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-edit-amount"></span>
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Fecha</label>
-                            <input type="date" class="input" id="edit-date">
-                            <span class="error" id="error-edit-date"></span>
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Categoría</label>
-                            <select id="edit-category-drop" class="input">
-                                <option value="">Seleccionar</option>
-                            </select>
-                            <span class="error" id="error-edit-category"></span>
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Tipo de transacción</label>
-                            <select id="edit-transaction-type-drop" class="input">
-                                <option value="">Seleccionar</option>
-                            </select>
-                            <span class="error" id="error-edit-transaction-type"></span>
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Descripción</label>
-                            <textarea class="input" id="edit-description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
-                            <div id="edit-char-counter">0 / 25 caracteres</div>
-                            <span class="error" id="error-edit-description"></span>
-                        </div>
-                        <div class="acciones-modal">
-                            <button id="btnSaveEditTransax" class="btn-primary">Guardar cambios</button>
-                            <button class="btn-secondary" onclick="ModalManager.close('modalEditTransax')">Cancelar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="modalNewExpense" class="modal">
-                <div class="content-modal">
-                    <span class="close" onclick="ModalManager.close('modalNewExpense')">&times;</span> 
-                    <h2 style="color:#1F2937; margin:0;">Nuevo Gasto Planeado</h2>
-                    <div class="form-section">
-                        <div class="form-group">
-                            <label class="label">Monto total</label>
-                            <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-amount-exp"></span>
-                        </div>
-
-                        <div class="form-group2">
-                            <div>
-                                <label class="label">Fecha de inicio</label>
-                                <input type="date" class="input" id="start-date-exp">
-                                <span class="error" id="error-start-date-exp"></span>
+                            <div class="form-group">
+                                <label class="label">Tipo de transacción</label>
+                                <select class="input" id="transaction-type-drop">
+                                    <option value="">Seleccionar</option>
+                                </select>                                
+                                <span class="error" id="error-transaction-type"></span>
                             </div>
-                            <div>
-                                <label class="label">Fecha de vencimiento</label>
-                                <input type="date" class="input" id="due-date-exp">
-                                <span class="error" id="error-due-date-exp"></span>
+
+                            <div class="form-group" id="planned-expense-group" style="display:none;">
+                                <label class="label">Gasto planificado</label>
+                                <select class="input" id="planned-expense-drop">
+                                    <option value="">Ninguno</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="label">Monto</label>
+                                <input type="text" class="input" id="amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                                <span class="error" id="error-amount"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="label">Fecha</label>
+                                <input type="date" class="input" id="date">
+                                <span class="error" id="error-date"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="label">Categoría</label>
+                                <select class="input" id="category-drop">
+                                    <option value="">Seleccionar</option>
+                                </select>
+                                <span class="error" id="error-category"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="label">Descripción</label>
+                                <textarea class="input" id="description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
+                                <div id="char-counter">0 / 25 caracteres</div>
+                                <span class="error" id="error-description"></span>
+                            </div>
+
+                            <div class="acciones-modal">
+                                <button id="btn-save-new-transactions" class="btn-primary">Guardar Transacción</button>
+                                <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewTransax')">Cancelar</button>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="form-group2">
-                            <div>
+                <div id="modalEditTransax" class="modal">
+                    <div class="content-modal">
+                        <span class="close" onclick="ModalManager.close('modalEditTransax')">&times;</span> 
+                        <h2 style="color:#1F2937; margin:0;">Modificar datos de Transacción</h2>
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label class="label">Monto</label>
+                                <input type="text" class="input" id="edit-amount" placeholder="$ 0.00" oninput="moneyFormat(this)">
+                                <span class="error" id="error-edit-amount"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="label">Fecha</label>
+                                <input type="date" class="input" id="edit-date">
+                                <span class="error" id="error-edit-date"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="label">Categoría</label>
+                                <select id="edit-category-drop" class="input">
+                                    <option value="">Seleccionar</option>
+                                </select>
+                                <span class="error" id="error-edit-category"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="label">Tipo de transacción</label>
+                                <select id="edit-transaction-type-drop" class="input">
+                                    <option value="">Seleccionar</option>
+                                </select>
+                                <span class="error" id="error-edit-transaction-type"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="label">Descripción</label>
+                                <textarea class="input" id="edit-description-text" name="description" rows="3" cols="40" placeholder="¿Para qué era esto?" maxlength="25"></textarea>
+                                <div id="edit-char-counter">0 / 25 caracteres</div>
+                                <span class="error" id="error-edit-description"></span>
+                            </div>
+                            <div class="acciones-modal">
+                                <button id="btnSaveEditTransax" class="btn-primary">Guardar cambios</button>
+                                <button class="btn-secondary" onclick="ModalManager.close('modalEditTransax')">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="modalNewExpense" class="modal">
+                    <div class="content-modal">
+                        <span class="close" onclick="ModalManager.close('modalNewExpense')">&times;</span> 
+                        <h2 style="color:#1F2937; margin:0;">Nuevo Gasto Planeado</h2>
+                        <div class="form-section">
+
+                            <div class="form-group">
+                                <label class="label">Descripción</label>
+                                <textarea class="input" id="description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
+                                <div id="char-counter-exp">0 / 25 caracteres</div>
+                                <span class="error" id="error-description-exp"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="label">Monto total</label>
+                                <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this); amountInstallment()">
+                                <span class="error" id="error-amount-exp"></span>
+                            </div>
+
+                            <div class="form-group">
                                 <label class="label">Cantidad de cuotas</label>
-                                <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1">
+                                <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1" oninput="amountInstallment()">
                                 <span class="error" id="error-installment-number-exp"></span>
                             </div>
-                            <div>
+
+                            <div class="form-group">
                                 <label class="label">Monto por cuota</label>
-                                <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                                <span class="error" id="error-installment-amount-exp"></span>
+                                <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" readonly style="background:#D1D5DB;">
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <label class="label">Descripción</label>
-                            <textarea class="input" id="description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
-                            <div id="char-counter-exp">0 / 25 caracteres</div>
-                            <span class="error" id="error-description-exp"></span>
-                        </div>
+                            <div class="form-group">
+                                <label class="label">Fecha de primer pago</label>
+                                <input type="date" class="input" id="payment-date-exp">
+                                <span class="error" id="error-payment-date-exp"></span>
+                            </div>
 
-                        <div class="acciones-modal">
-                            <button id="btnSaveExp" class="btn-primary">Guardar Gasto</button>
-                            <button class="btn-secondary" onclick="ModalManager.close('modalNewExpense')">Cancelar</button>
+                            <div class="acciones-modal">
+                                <button id="btnSaveExp" class="btn-primary">Guardar Gasto</button>
+                                <button class="btn-secondary" onclick="ModalManager.close('modalNewExpense')">Cancelar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="modalExpenses" class="modal">
-                <div class="content-modal" style="max-width: 800px; width: 90%;">
-                    <span class="close" onclick="ModalManager.close('modalExpenses')">&times;</span>
-                    <h2 style="color:#1F2937; margin:0">Gastos Planeados</h2>
+                <div id="modalExpenses" class="modal">
+                    <div class="content-modal" style="max-width: 800px; width: 90%;">
+                        <span class="close" onclick="ModalManager.close('modalExpenses')">&times;</span>
+                        <h2 style="color:#1F2937; margin:0">Gastos Planeados</h2>
 
-                    <div class="tabla-contenedor" style="margin-top: 1rem;">
-                        <table class="tabla-transacciones">
-                            <thead>
-                                <tr>
-                                    <th>Detalle</th>
-                                    <th>Fecha inicio</th>
-                                    <th>Fecha vencimiento</th>
-                                    <th>Cuotas</th>
-                                    <th>Monto</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="gastos-table-body">
-                                <tr class="empty-transactions-row">
-                                    <td colspan="6">
-                                        <div class="empty-transactions-message">
-                                            Aún no se han registrado gastos planeados
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
+                        <div class="tabla-contenedor" style="margin-top: 1rem;">
+                            <table class="tabla-transacciones">
+                                <thead>
+                                    <tr>
+                                        <th>Detalle</th>
+                                        <th>Cuotas</th>
+                                        <th>Próximo vencimiento</th>
+                                        <th>Monto cuota</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gastos-table-body">
+                                    <tr class="empty-transactions-row">
+                                        <td colspan="6">
+                                            <div class="empty-transactions-message">
+                                                Aún no se han registrado gastos planeados
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modalEditExpenses" class="modal">
+                    <div class="content-modal">
+                        <span class="close" onclick="ModalManager.close('modalEditExpenses')">&times;</span>
+                        <h2 style="color:#1F2937; margin:0">Detalle de Gasto Planeado</h2>
+
+                        <table class="tabla-detalle">
+                            <tr><td>Detalle:</td><td id="expense-detail"></td></tr>
+                            <tr><td>Próximo vencimiento:</td><td id="expense-startdate"></td></tr>
+                            <tr><td>Cuotas:</td><td id="expense-installments"></td></tr>
+                            <tr><td>Monto por cuota:</td><td id="expense-intallments-amount"></td></tr>
                         </table>
-                    </div>
-                </div>
-            </div>
 
-            <div id="modalEditExpenses" class="modal">
-                <div class="content-modal">
-                    <span class="close" onclick="ModalManager.close('modalEditExpenses')">&times;</span>
-                    <h2 style="color:#1F2937; margin:0">Detalle de Gasto Planeado</h2>
-
-                    <table class="tabla-detalle">
-                        <tr><td>Detalle:</td><td id="expense-detail"></td></tr>
-                        <tr><td>Fecha inicio:</td><td id="expense-startdate"></td></tr>
-                        <tr><td>Fecha vencimiento:</td><td id="expense-startend"></td></tr>
-                        <tr><td>Cuotas:</td><td id="expense-installments"></td></tr>
-                        <tr><td>Monto cuotas:</td><td id="expense-intallments-amount"></td></tr>
-                        <tr><td>Monto total:</td><td id="expense-amount"></td></tr>
-                    </table>
-
-                    <div class="acciones-modal">
-                        <button id="btnEditEx" class="btn-secondary">Editar</button>
-                        <button id="btnDeleteEx" class="btn-primary btn-red">Eliminar</button>
-                    </div>
-                </div>
-            </div>
-            <div id="modalModifExpens" class="modal">
-                <div class="content-modal">
-                    <span class="close" onclick="ModalManager.close('modalModifExpens')">&times;</span> 
-                    <h2 style="color:#1F2937; margin:0;">Editar Gasto Planeado</h2>
-                    <div class="form-section">
-                        <div class="form-group">
-                            <label class="label">Monto total</label>
-                            <input type="text" class="input" id="edit-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-edit-amount-exp"></span>
-                        </div>
-                        <div class="form-group2">
-                            <div>
-                                <label class="label">Fecha de inicio</label>
-                                <input type="date" class="input" id="edit-start-date-exp">
-                                <span class="error" id="error-edit-start-date-exp"></span>
-                            </div>
-                            <div>
-                                <label class="label">Fecha de vencimiento</label>
-                                <input type="date" class="input" id="edit-due-date-exp">
-                                <span class="error" id="error-edit-due-date-exp"></span>
-                            </div>
-                        </div>
-                        <div class="form-group2">
-                            <div>
-                                <label class="label">Cantidad de cuotas</label>
-                                <input type="number" class="input" id="edit-installment-number-exp" placeholder="Ej: 12" min="1">
-                                <span class="error" id="error-edit-installment-number-exp"></span>
-                            </div>
-                            <div>
-                                <label class="label">Monto por cuota</label>
-                                <input type="text" class="input" id="edit-installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                                <span class="error" id="error-edit-installment-amount-exp"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Descripción</label>
-                            <textarea class="input" id="edit-description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
-                            <div id="edit-char-counter-exp">0 / 25 caracteres</div>
-                            <span class="error" id="error-edit-description-exp"></span>
-                        </div>
                         <div class="acciones-modal">
-                            <button id="btnSaveEditExp" class="btn-primary">Guardar cambios</button>
-                            <button class="btn-secondary" onclick="ModalManager.close('modalModifExpens')">Cancelar</button>
+                            <button id="btnDeleteEx" class="btn-primary btn-red">Eliminar</button>
                         </div>
                     </div>
                 </div>
+            </main>
+        </div>
+        <script src="/app/static/scripts.js"></script>
+
+    <!-- MODAL: Cerrar Sesión -->
+    <div id="modalLogout" class="modal">
+        <div class="content-modal">
+            <h2>¿Cerrar sesión?</h2>
+
+            <p>
+                ¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión nuevamente para acceder.
+            </p>
+
+            <div class="acciones-modal">
+                <button id="btnConfirmLogout" class="btn-primary btn-red">
+                    Cerrar Sesión
+                </button>
+
+                <button class="btn-secondary" onclick="ModalManager.close('modalLogout')">
+                    Cancelar
+                </button>
             </div>
-        </main>
-    </div>
-    <script src="/app/static/scripts.js"></script>
-
-  <!-- MODAL: Cerrar Sesión -->
-<div id="modalLogout" class="modal">
-    <div class="content-modal">
-        <h2>¿Cerrar sesión?</h2>
-
-        <p>
-            ¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión nuevamente para acceder.
-        </p>
-
-        <div class="acciones-modal">
-            <button id="btnConfirmLogout" class="btn-primary btn-red">
-                Cerrar Sesión
-            </button>
-
-            <button class="btn-secondary" onclick="ModalManager.close('modalLogout')">
-                Cancelar
-            </button>
         </div>
     </div>
-</div>
-</body>
-</html>
+    </body>
+    </html>

@@ -1,9 +1,10 @@
 /* DATOS DE BACKEND */
 let activeAccount = null;
 let currentEditTransactionId = null;
-let currentEditExpenseId = null;
 let currentTransactionId = null;
 let currentExpenseId = null;
+let currentTransactionPlannedExpenseId = null;
+
 
 // Helper para requests autenticados
 async function fetchWithAuth(url, options = {}) {
@@ -150,6 +151,7 @@ async function loadTransactions(accountId) {
             dateRaw: t.transaction_date.split("T")[0],
             amountNumber: t.type === "ingreso" ? parseFloat(t.amount) : parseFloat(t.amount) * -1,
             amount: `${t.type === "ingreso" ? "+" : "-"}${formatTransactionMoney(parseFloat(t.amount))}`,
+            plannedExpenseId: t.planned_expense_id ? t.planned_expense_id.toString() : null,
             date: formatTransactionDate(t.transaction_date.split("T")[0])
         }));
 
@@ -162,26 +164,52 @@ async function loadTransactions(accountId) {
 }
 
 async function loadPlannedExpenses(accountId) {
-    const list = document.getElementById("installmentCards");
-    const tableBody = document.getElementById("gastos-table-body");
-
     try {
         const res = await fetchWithAuth(`http://localhost:8000/planned_expenses/account/${accountId}`);
         if (!res.ok) return;
 
         const expenses = await res.json();
-        plannedExpenses = expenses.map(e => ({
-            id: e.id.toString(),
-            detail: e.description,
-            dueDateRaw: e.due_date.split("T")[0],
-            dueDateStartRaw: e.start_date.split("T")[0],
-            installmentPaid: e.installments_paid,
-            dateStart: formatTransactionDate(e.start_date.split("T")[0]),
-            dateExpiration: formatTransactionDate(e.due_date.split("T")[0]),
-            installment: e.installment_number,
-            amount: formatTransactionMoney(parseFloat(e.amount)),
-            installmentAmount: formatTransactionMoney(parseFloat(e.installment_amount)),
-        }));
+        const grouped = {};
+        expenses.forEach(e => {
+            const groupId = e.id_planned_expense;
+            if (!grouped[groupId]) {
+                grouped[groupId] = {
+                    id: groupId.toString(),
+                    detail: e.description,
+                    installmentAmount: formatTransactionMoney(parseFloat(e.installment_amount)),
+                    installmentAmountRaw: parseFloat(e.installment_amount),
+                    installments: [],
+                };
+            }
+            grouped[groupId].installments.push({
+                installmentNumber: e.installment_number,
+                dueDateRaw: e.due_date.split("T")[0],
+                dueDate: formatTransactionDate(e.due_date.split("T")[0]),
+                statusId: e.status_id,
+            });
+        });
+
+        plannedExpenses = Object.values(grouped).map(group => {
+            const total = group.installments.length;
+            const paid = group.installments.filter(i => i.statusId === 2).length;
+            const nextPending = group.installments
+                .filter(i => i.statusId === 1)
+                .sort((a, b) => new Date(a.dueDateRaw) - new Date(b.dueDateRaw))[0];
+
+            return {
+                id: group.id,
+                detail: group.detail,
+                installmentAmount: group.installmentAmount,
+                installmentAmountRaw: group.installmentAmountRaw,
+                totalInstallments: total,
+                paidInstallments: paid,
+                nextInstallment: nextPending ? nextPending.installmentNumber : null,
+                nextDueDateRaw: nextPending ? nextPending.dueDateRaw : null,
+                nextDueDate: nextPending ? nextPending.dueDate : null,
+                allInstallments: group.installments,
+                completed: paid === total,
+            };
+        });
 
         renderExpenses();
         renderFacturasPreview();
@@ -221,26 +249,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("gastos-table-body")?.addEventListener("click", (event) => {
         const row = event.target.closest(".clickable-row");
         if (!row) return;
+        if (row.dataset.completed === "true") return;
         openExpenseDetail(row.dataset);
     });
-    document.getElementById("transaction-type-drop")?.addEventListener("change", (e) => {
-    const selectedText = e.target.options[e.target.selectedIndex]?.text.trim().toLowerCase();
-    const plannedGroup = document.getElementById("planned-expense-group");
-    const plannedDrop = document.getElementById("planned-expense-drop");
 
-    if (selectedText === "gasto planificado") {
-        plannedGroup.style.display = "block";
-        plannedDrop.innerHTML = `<option value="">Ninguno</option>`;
-        plannedExpenses.forEach(exp => {
-            const option = document.createElement("option");
-            option.value = exp.id;
-            option.textContent = exp.detail;
-            plannedDrop.appendChild(option);
-        });
-    } else {
-        plannedGroup.style.display = "none";
-    }
-}); 
+    document.getElementById("transaction-type-drop")?.addEventListener("change", (e) => {
+        const amountInput = document.getElementById("amount");
+        amountInput.removeAttribute("readonly");
+        amountInput.style.background = "";
+        amountInput.value = "";
+        const selectedText = e.target.options[e.target.selectedIndex]?.text.trim().toLowerCase();
+        const plannedGroup = document.getElementById("planned-expense-group");
+        const plannedDrop = document.getElementById("planned-expense-drop");
+
+        if (selectedText === "gasto planificado") {
+            plannedGroup.style.display = "block";
+            plannedDrop.innerHTML = `<option value="">Ninguno</option>`;
+            plannedExpenses
+                .filter(exp => !exp.completed)
+                .forEach(exp => {
+                    const option = document.createElement("option");
+                    option.value = exp.id;
+                    option.dataset.installmentNumber = exp.nextInstallment;
+                    option.textContent = `${exp.detail} — Cuota ${exp.nextInstallment} de ${exp.totalInstallments}`;
+                    plannedDrop.appendChild(option);
+                });
+        } else {
+            plannedGroup.style.display = "none";
+        }
+    });
+
     document.getElementById("planned-expense-drop")?.addEventListener("change", (e) => {
         const selectedId = e.target.value;
         if (!selectedId) return;
@@ -251,17 +289,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         const amountInput = document.getElementById("amount");
         // Convertir installmentAmount al formato del input
         const raw = parseFloat(exp.installmentAmount.replace(/[^0-9.]/g, ""));
-        const formatted = (raw * 100).toFixed(0);
         let parteEntera = Math.floor(raw).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         amountInput.value = `${parteEntera},${(raw % 1).toFixed(2).slice(2)}`;
+        amountInput.setAttribute("readonly", true);
+        amountInput.style.background = "#D1D5DB";
     });
     
     const textarea  = document.getElementById('description-text');
     const counter   = document.getElementById('char-counter');
     const textarea2 = document.getElementById('description-text-exp');
     const counter2  = document.getElementById('char-counter-exp');
-    const textarea3 = document.getElementById('account-description');
-    const counter3  = document.getElementById('char-counter3');
 
     if (textarea && counter) {
         textarea.addEventListener('input', () => {
@@ -275,13 +312,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const l = textarea2.value.length;
             counter2.textContent = `${l} / 25 caracteres`;
             counter2.style.color = l >= 25 ? '#dc2626' : 'inherit';
-        });
-    }
-    if (textarea3 && counter3) {
-        textarea3.addEventListener('input', () => {
-            const l = textarea3.value.length;
-            counter3.textContent = `${l} / 25 caracteres`;
-            counter3.style.color = l >= 25 ? '#dc2626' : 'inherit';
         });
     }
 
@@ -314,6 +344,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         document.getElementById("btnNewAccount")
             ?.addEventListener("click", () => ModalManager.open("modalNewAccount"));
+        
+        const textarea3 = document.getElementById('account-description');
+        const counter3  = document.getElementById('char-counter3');
+            if (textarea3 && counter3) {
+        textarea3.addEventListener('input', () => {
+            const l = textarea3.value.length;
+            counter3.textContent = `${l} / 25 caracteres`;
+            counter3.style.color = l >= 25 ? '#dc2626' : 'inherit';
+        });
+    }
 
     } catch (err) {
         console.error("Error cargando sidebar:", err);
@@ -325,8 +365,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (elName)  elName.textContent  = `${user.name} ${user.last_name}`;
         if (elEmail) elEmail.textContent = user.email;
         await loadUserAccounts();
-        document.getElementById("btnProdfile")
-            ?.addEventListener("click", () => openUserProfile(user));
     }
 });
 
@@ -582,6 +620,8 @@ const ModalManager = (() => {
         },modalNewTransax:{
             onClose() {
             document.getElementById("amount").value = "";
+            document.getElementById("amount").removeAttribute("readonly");
+            document.getElementById("amount").style.background = "";
             document.getElementById("date").value = "";
             document.getElementById("category-drop").value = "";
             document.getElementById("transaction-type-drop").value = "";
@@ -603,11 +643,10 @@ const ModalManager = (() => {
             }
         },modalNewExpense:{
             onClose() {
-                document.getElementById("amount-exp").value = "";
-                document.getElementById("start-date-exp").value = "";
-                document.getElementById("due-date-exp").value = "";
                 document.getElementById("installment-number-exp").value = "";
+                document.getElementById("amount-exp").value = "";
                 document.getElementById("installment-amount-exp").value = "";
+                document.getElementById("payment-date-exp").value = "";
                 document.getElementById("description-text-exp").value = "";
                 const counter2 = document.getElementById("char-counter-exp");
                 counter2.textContent = "0 / 25 caracteres";
@@ -627,21 +666,10 @@ const ModalManager = (() => {
             onClose() {}
         },modalExpenses: {
             onClose() {}
-        },modalModifExpens: {
-            onClose() {
-                currentEditExpenseId = null;
-                document.getElementById("edit-amount-exp").value = "";
-                document.getElementById("edit-start-date-exp").value = "";
-                document.getElementById("edit-due-date-exp").value = "";
-                document.getElementById("edit-installment-number-exp").value = "";
-                document.getElementById("edit-description-text-exp").value = "";
-            }
         },modalEditExpenses: {
             onClose() {
-                currentEditExpenseId = null;
+                currentExpenseId = null;
             }
-        },modalUserProfile: { 
-            onClose() {} 
         },modalEnvioConfir: {
             onClose() {}
         },
@@ -679,7 +707,6 @@ const ModalManager = (() => {
 
 const btnEdit   = document.getElementById("btnEdit");
 const btnDelete = document.getElementById("btnDelete");
-const btnEditEx   = document.getElementById("btnEditEx");
 const btnDeleteEx = document.getElementById("btnDeleteEx");
 const MODAL_TX    = "modalTransax";
 
@@ -702,8 +729,9 @@ document.getElementById("transactions-table-body")?.addEventListener("click", (e
     const row = event.target.closest(".clickable-row");
 
     if (!row) return;
-        const {id, type, category, description, amount, date} = row.dataset;
+        const {id, type, category, description, amount, date, plannedExpenseId} = row.dataset;
         currentTransactionId = id;
+        currentTransactionPlannedExpenseId = plannedExpenseId || null;
         document.getElementById("data-id").textContent      = id;
         document.getElementById("data-type").textContent = type;
         document.getElementById("data-category").textContent = category;
@@ -736,21 +764,6 @@ btnEdit?.addEventListener("click", async (e) => {
     ModalManager.open("modalEditTransax");
 });
 
-btnEditEx?.addEventListener("click", (e) => {
-    const id = currentExpenseId;
-    currentEditExpenseId = id;
-
-    const exp = plannedExpenses.find(e => e.id === id);
-    if (!exp) return;
-
-    document.getElementById("edit-amount-exp").value = formatTransactionMoney(parseFloat(exp.amount.replace(/[^0-9.]/g, ""))).replace("$", "");
-    document.getElementById("edit-start-date-exp").value = exp.dueDateStartRaw || "";
-    document.getElementById("edit-due-date-exp").value = exp.dueDateRaw || "";
-    document.getElementById("edit-installment-number-exp").value = exp.installment;
-    document.getElementById("edit-description-text-exp").value = exp.detail;
-
-    ModalManager.open("modalModifExpens");
-});
 
 document.getElementById("btnSaveEditTransax")?.addEventListener("click", async () => {
     const amountRaw = document.getElementById("edit-amount").value.trim();
@@ -794,53 +807,14 @@ document.getElementById("btnSaveEditTransax")?.addEventListener("click", async (
     }
 });
 
-document.getElementById("btnSaveEditExp")?.addEventListener("click", async () => {
-    const amountRaw = document.getElementById("edit-amount-exp").value.trim();
-    const startDateRaw = document.getElementById("edit-start-date-exp").value;
-    const dueDateRaw = document.getElementById("edit-due-date-exp").value;
-    const installmentNumber = document.getElementById("edit-installment-number-exp").value.trim();
-    const installmentAmountRaw = document.getElementById("edit-installment-amount-exp").value.trim();
-    const description = document.getElementById("edit-description-text-exp").value.trim();
+btnDelete?.addEventListener("click", async (e) => {
+    const id = currentTransactionId;
 
-    if (!amountRaw || !startDateRaw || !dueDateRaw || !installmentNumber || !description) {
-        ShowErrorMessage("Completá todos los campos.");
+    if (currentTransactionPlannedExpenseId) {
+        ShowErrorMessage("No podés eliminar una transacción asociada a un gasto planificado.");
         return;
     }
 
-    const amountNumber = parseTransactionAmount(amountRaw);
-    const installmentAmountNumber = installmentAmountRaw ? parseTransactionAmount(installmentAmountRaw) : null;
-
-    try {
-        const res = await fetchWithAuth("http://localhost:8000/planned_expenses/", {
-            method: "PUT",
-            body: JSON.stringify({
-                id: Number(currentEditExpenseId),
-                amount: amountNumber,
-                description: description,
-                start_date: `${startDateRaw}T00:00:00`,
-                due_date: `${dueDateRaw}T00:00:00`,
-                installment_number: Number(installmentNumber),
-                installment_amount: installmentAmountNumber
-            })
-        });
-
-        if (res.ok) {
-            ShowSuccessMessage("Gasto actualizado correctamente.");
-            await loadPlannedExpenses(activeAccount.id);
-            ModalManager.close("modalModifExpens");
-            ModalManager.close("modalEditExpenses");
-        } else {
-            const err = await res.json();
-            ShowErrorMessage(err.detail || "Error al actualizar el gasto.");
-        }
-    } catch (err) {
-        console.error("Error:", err);
-        ShowErrorMessage("No se pudo conectar con el servidor.");
-    }
-});
-
-btnDelete?.addEventListener("click", async (e) => {
-    const id = currentTransactionId;
     if (!confirm(`¿Eliminar la transacción #${id}?`)) return;
 
     try {
@@ -859,8 +833,6 @@ btnDelete?.addEventListener("click", async (e) => {
     } catch {
         ShowErrorMessage("No se pudo establecer conexión con el servidor.");
     }
-    ModalManager.close(MODAL_TX);
-    await loadTransactions(activeAccount.id);
 });
 
 btnDeleteEx?.addEventListener("click", async (e) => {
@@ -876,6 +848,7 @@ btnDeleteEx?.addEventListener("click", async (e) => {
             ShowSuccessMessage("Gasto eliminado correctamente.");
             await loadPlannedExpenses(activeAccount.id);
             ModalManager.close("modalEditExpenses");
+            ModalManager.close("modalExpenses");
         } else {
             const err = await res.json();
             ShowErrorMessage(err.detail || "Error al eliminar el gasto.");
@@ -883,9 +856,6 @@ btnDeleteEx?.addEventListener("click", async (e) => {
     } catch {
         ShowErrorMessage("No se pudo establecer conexión con el servidor.");
     }
-    ModalManager.close("modalEditExpenses");
-    ModalManager.close("modalExpenses");
-    await loadPlannedExpenses(activeAccount.id);
 });
 
 //FORMULARIO DE TRANSACCION - MONTO INPUT
@@ -924,6 +894,10 @@ async function saveNewTransaction() {
     const transactionTypeName = transactionTypeInput.options[transactionTypeInput.selectedIndex]?.text.trim();
     const descriptionRaw = document.getElementById("description-text").value.trim();
     const plannedExpenseId = document.getElementById("planned-expense-drop")?.value || null;
+    const plannedExpenseDrop = document.getElementById("planned-expense-drop");
+    const selectedOption = plannedExpenseDrop?.options[plannedExpenseDrop.selectedIndex];
+    const plannedExpenseInstallmentNumber = selectedOption?.dataset.installmentNumber || null;
+
 
     if (!amountRaw || !dateRaw || !categoryId || !transactionTypeId || !descriptionRaw) {
         ShowErrorMessage("Completá todos los campos antes de guardar la transacción.");
@@ -940,14 +914,15 @@ async function saveNewTransaction() {
         const res = await fetchWithAuth("http://localhost:8000/transactions/", {
             method: "POST",
             body: JSON.stringify({
-                account_id: activeAccount.id,
-                type_id: Number(transactionTypeId),
-                amount: amountNumber,
-                description: descriptionRaw,
-                category_id: Number(categoryId),
-                planned_expense_id: plannedExpenseId ? Number(plannedExpenseId) : null,
-                transaction_date: `${dateRaw}T00:00:00`
-            })
+            account_id: activeAccount.id,
+            type_id: Number(transactionTypeId),
+            amount: amountNumber,
+            description: descriptionRaw,
+            category_id: Number(categoryId),
+            planned_expense_id: plannedExpenseId ? Number(plannedExpenseId) : null,
+            planned_expense_installment_number: plannedExpenseInstallmentNumber ? Number(plannedExpenseInstallmentNumber) : null,
+            transaction_date: `${dateRaw}T00:00:00`
+        })
         });
 
         if (res.ok) {
@@ -1050,7 +1025,8 @@ function renderRecentTransactions() {
                 data-category="${transaction.category}"
                 data-description="${transaction.description}"
                 data-amount="${transaction.amount}"
-                data-date="${transaction.date}">
+                data-date="${transaction.date}"
+                data-planned-expense-id="${transaction.plannedExpenseId ?? ''}">
 
                 <td>${transaction.date}</td>
                 <td>
@@ -1136,32 +1112,32 @@ async function createAccount() {
 let plannedExpenses = [];
 
 async function saveNewExpense() {
-    const amountRaw = document.getElementById("amount-exp").value.trim();
-    const startDateRaw = document.getElementById("start-date-exp").value;
-    const dueDateRaw = document.getElementById("due-date-exp").value;
     const installmentNumber = document.getElementById("installment-number-exp").value.trim();
     const installmentAmountRaw = document.getElementById("installment-amount-exp").value.trim();
+    const paymentDateRaw = document.getElementById("payment-date-exp").value;
     const descriptionRaw = document.getElementById("description-text-exp").value.trim();
 
-    if (!amountRaw || !startDateRaw || !dueDateRaw || !installmentNumber || !installmentAmountRaw || !descriptionRaw) {
+    if (!installmentNumber || !paymentDateRaw || !descriptionRaw || !installmentAmountRaw) {
         ShowErrorMessage("Completá todos los campos antes de guardar el gasto.");
         return;
     }
 
-    const amountNumber = parseTransactionAmount(amountRaw);
-    const installmentAmountNumber = parseTransactionAmount(installmentAmountRaw);
+    const installmentAmountNumber = parseTransactionAmount(installmentAmountRaw); 
+    
+    if (!installmentAmountNumber || installmentAmountNumber <= 0) {
+        ShowErrorMessage("El monto por cuota debe ser mayor a 0.");
+        return;
+    }
 
     try {
         const res = await fetchWithAuth("http://localhost:8000/planned_expenses/", {
             method: "POST",
             body: JSON.stringify({
                 account_id: activeAccount.id,
-                amount: amountNumber,
                 description: descriptionRaw,
-                start_date: `${startDateRaw}T00:00:00`,
-                due_date: `${dueDateRaw}T00:00:00`,
-                installment_number: Number(installmentNumber),
-                installment_amount: installmentAmountNumber
+                installment_amount: installmentAmountNumber,
+                installments: Number(installmentNumber),
+                due_date: `${paymentDateRaw}T00:00:00`
             })
         });
 
@@ -1186,7 +1162,7 @@ function renderExpenses() {
     if (plannedExpenses.length === 0) {
         tableBody.innerHTML = `
             <tr class="empty-transactions-row">
-                <td colspan="6">
+                <td colspan="5">
                     <div class="empty-transactions-message">
                         Aún no se han registrado gastos planeados
                     </div>
@@ -1197,29 +1173,26 @@ function renderExpenses() {
     }
 
     tableBody.innerHTML = plannedExpenses.map(expense => `
-        <tr class="clickable-row"
+        <tr class="clickable-row ${expense.completed ? 'factura-completada' : ''}"
             data-id="${expense.id}"
             data-detail="${expense.detail}"
-            data-date-start="${expense.dateStart}"
-            data-date-expiration="${expense.dateExpiration}"
-            data-installment="${expense.installment}"
-            data-amount="${expense.amount}"
-            data-installment-amount="${expense.installmentAmount}">
+            data-total-installments="${expense.totalInstallments}"
+            data-paid-installments="${expense.paidInstallments}"
+            data-next-installment="${expense.nextInstallment ?? ''}"
+            data-next-due-date="${expense.nextDueDate ?? ''}"
+            data-installment-amount="${expense.installmentAmount}"
+            data-completed="${expense.completed}">
 
             <td>${expense.detail}</td>
-            <td>${expense.dateStart}</td>
-            <td>${expense.dateExpiration}</td>
-            <td>${expense.installment}</td>
+            <td>${expense.paidInstallments} de ${expense.totalInstallments} cuotas</td>
+            <td>${expense.nextDueDate ?? 'Completado'}</td>
             <td>${expense.installmentAmount}</td>
-            <td>${expense.amount}</td>
         </tr>
     `).join("");
 }
 
 function renderFacturasPreview() {
     const list = document.getElementById("installmentCards");
-
-
     if (!list) return;
 
     if (plannedExpenses.length === 0) {
@@ -1227,70 +1200,56 @@ function renderFacturasPreview() {
         return;
     }
 
-    const ordered = [...plannedExpenses]
-    .filter(expense => getCurrentInstallment(expense) !== null)
-    .sort((a, b) => new Date(a.dueDateRaw) - new Date(b.dueDateRaw))
-    .slice(0, 3);
+    const pending = plannedExpenses
+        .filter(expense => !expense.completed && expense.nextDueDateRaw)
+        .sort((a, b) => new Date(a.nextDueDateRaw) - new Date(b.nextDueDateRaw))
+        .slice(0, 3);
 
-    list.innerHTML = ordered.map(expense => {
-        const date = new Date(`${expense.dueDateRaw}T00:00:00`);
+    if (pending.length === 0) {
+        list.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">No hay gastos pendientes</p>`;
+        return;
+    }
+
+    list.innerHTML = pending.map(expense => {
+        const date = new Date(`${expense.nextDueDateRaw}T00:00:00`);
         const month = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
         const day = date.getDate();
-        const currentInstallment = getCurrentInstallment(expense);
-        const completed = expense.installmentPaid >= expense.installment;
-            
+
         return `
-        <article class="factura-card clickable-row ${completed ? 'factura-completada' : ''}"
-            data-id="${expense.id}"
-            data-detail="${expense.detail}"
-            data-date-start="${expense.dateStart}"
-            data-date-expiration="${expense.dateExpiration}"
-            data-installment="${expense.installment}"
-            data-installment-paid="${expense.installmentPaid}"
-            data-amount="${expense.amount}"
-            data-installment-amount="${expense.installmentAmount}">
+            <article class="factura-card clickable-row"
+                data-id="${expense.id}"
+                data-detail="${expense.detail}"
+                data-total-installments="${expense.totalInstallments}"
+                data-paid-installments="${expense.paidInstallments}"
+                data-next-installment="${expense.nextInstallment}"
+                data-next-due-date="${expense.nextDueDateRaw}"
+                data-installment-amount="${expense.installmentAmount}"
+                data-completed="${expense.completed}">
 
-            <div class="factura-fecha factura-fecha-gris">
-                <span>${month}</span>
-                <strong>${day}</strong>
-            </div>
+                <div class="factura-fecha factura-fecha-gris">
+                    <span>${month}</span>
+                    <strong>${day}</strong>
+                </div>
 
-            <div class="factura-info">
-                <h3>${expense.detail}</h3>
-                <p>Cuota ${currentInstallment} de ${expense.installment}</p>
-            </div>
+                <div class="factura-info">
+                    <h3>${expense.detail}</h3>
+                    <p>Cuota ${expense.nextInstallment} de ${expense.totalInstallments}</p>
+                </div>
 
-            <div class="factura-monto">
-                <strong>${expense.installmentAmount}</strong>
-            </div>
-        </article>
-    `;
+                <div class="factura-monto">
+                    <strong>${expense.installmentAmount}</strong>
+                </div>
+            </article>
+        `;
     }).join("");
+
     list.querySelectorAll(".clickable-row").forEach(card => {
-    card.addEventListener("click", () => openExpenseDetail(card.dataset));
-});
-}
-function openExpenseDetail(dataset) {
-    const { id, detail, dateStart, dateExpiration, installment, installmentPaid, amount, installmentAmount } = dataset;
-    currentExpenseId = id;
-    document.getElementById("expense-detail").textContent = detail;
-    document.getElementById("expense-startdate").textContent = dateStart;
-    document.getElementById("expense-startend").textContent = dateExpiration;
-    document.getElementById("expense-installments").textContent = `${installmentPaid ?? 0} de ${installment} cuotas`;
-    document.getElementById("expense-amount").textContent = amount;
-    document.getElementById("expense-intallments-amount").textContent = installmentAmount ?? "-"
-
-    ModalManager.open("modalEditExpenses");
+        card.addEventListener("click", () => {
+            if (card.dataset.completed === "true") return;
+            openExpenseDetail(card.dataset)});
+    });
 }
 
-// Cargar avatar guardado al abrir el perfil
-function openUserProfile(user) {
-    document.getElementById("profile-name").textContent = user.name;
-    document.getElementById("profile-lastname").textContent = user.last_name;
-    document.getElementById("profile-email").textContent = user.email;
-
-    ModalManager.open("modalUserProfile");
-}
 
 async function loadEditTransactionCategories() {
     const select = document.getElementById("edit-category-drop");
@@ -1378,16 +1337,36 @@ function ShowSuccessMessage(message, title = "Éxito") {
 function ShowWarningMessage(message, title = "Advertencia") {
     AlertManager.warning(title, message);
 }
-function getCurrentInstallment(expense) {
-    const start = new Date(`${expense.dueDateStartRaw}T00:00:00`);
-    const now = new Date();
+
+function amountInstallment() {
+    const amountRaw = document.getElementById("amount-exp").value;
+    const installments = document.getElementById("installment-number-exp").value;
+    const installmentAmountInput = document.getElementById("installment-amount-exp");
+
+    if (!amountRaw || !installments || Number(installments) <= 0) {
+        installmentAmountInput.value = "";
+        return;
+    }
+
+    const amount = parseTransactionAmount(amountRaw);
+    const cuota = amount / Number(installments);
     
-    const monthsDiff = (now.getFullYear() - start.getFullYear()) * 12 
-        + (now.getMonth() - start.getMonth());
-    
-    const currentInstallment = monthsDiff + 1;
-    
-    if (currentInstallment > Number(expense.installment)) return null;
-    
-    return currentInstallment;
+    let parteEntera = Math.floor(cuota).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    let parteDecimal = (cuota % 1).toFixed(2).slice(2);
+    installmentAmountInput.value = `${parteEntera},${parteDecimal}`;
+}
+
+function openExpenseDetail(dataset) {
+    const { id, detail, totalInstallments, paidInstallments, nextInstallment, nextDueDate, installmentAmount, completed } = dataset;
+    currentExpenseId = id;
+
+    document.getElementById("expense-detail").textContent = detail;
+    document.getElementById("expense-startdate").textContent = nextDueDate || "Completado";
+    document.getElementById("expense-installments").textContent = `${paidInstallments} de ${totalInstallments} cuotas`;
+    document.getElementById("expense-intallments-amount").textContent = installmentAmount ?? "-";
+
+    const btnDeleteEx = document.getElementById("btnDeleteEx");
+    if (btnDeleteEx) btnDeleteEx.disabled = false;
+
+    ModalManager.open("modalEditExpenses");
 }
