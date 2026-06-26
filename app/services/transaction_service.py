@@ -108,6 +108,18 @@ class TransactionService:
             if installment.status_id == 2:
                 raise HTTPException(status_code=400, detail="Esta cuota ya fue pagada.")
             
+            if transaction.planned_expense_installment_number > 1:
+                previous_installment = await planned_expense_dal.get_by_group_and_installment(
+                    transaction.planned_expense_id,
+                    transaction.planned_expense_installment_number - 1
+                )
+
+            if previous_installment and previous_installment.status_id == 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Debes pagar la cuota {transaction.planned_expense_installment_number - 1} antes."
+                )
+            
             await planned_expense_dal.mark_installment_as_paid(
                 transaction.planned_expense_id,
                 transaction.planned_expense_installment_number
@@ -142,12 +154,20 @@ class TransactionService:
         transaction = await self.transactionDAL.get_transaction_by_id(transaction_id)
 
         if transaction is None:
-            raise HTTPException(
-                status_code=404,
-                detail="La transacción no existe.",
-            )
+            raise HTTPException(status_code=404, detail="La transacción no existe.")
 
         await self._validate_account_access(transaction.account_id, current_user)
+
+        # Si era pago de cuota, revertir el pago
+        if transaction.planned_expense_id and transaction.planned_expense_installment_number and transaction.type_id == 3:
+            planned_expense_dal = PlannedExpenseDAL(self.transactionDAL.db)
+            installment = await planned_expense_dal.get_by_group_and_installment(
+                transaction.planned_expense_id,
+                transaction.planned_expense_installment_number
+            )
+            if installment and installment.status_id == 2:
+                installment.status_id = 1
+                await self.transactionDAL.db.commit()
 
         await self.transactionDAL.deactivate_transaction(transaction)
 
