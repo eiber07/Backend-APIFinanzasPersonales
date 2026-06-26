@@ -30,14 +30,19 @@
             <section class="componente-tarjetas">
 
                 <article class="componente-tarjetas1">
-                    <div class="tarjeta-info">
-                        <p class="tarjeta-titulo">Balance total</p>
-                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
-
-                        <div class="tarjeta-fecha">
-                            <span class="punto-verde"></span>
-                            <span>Junio 2026</span>
+                    <div class="tarjeta-info tarjeta-balance-info">
+                    
+                        <div class="tarjeta-balance-encabezado">
+                            <p class="tarjeta-titulo">Balance total</p>
+                        
+                            <div class="filtro-periodo">
+                                <select id="filter-month" class="select-periodo" aria-label="Filtrar por mes"></select>
+                                <select id="filter-year" class="select-periodo select-periodo-year" aria-label="Filtrar por año"></select>
+                            </div>
                         </div>
+                    
+                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
+                    
                     </div>
                 </article>
 
@@ -73,7 +78,6 @@
 
                     <div class="titulo-seccion">
                         <h2>Transacciones recientes</h2>
-                        <a href="#">Ver todo</a>
                         <img src="../static/img/icono-mas.png" height="25px" id="clickable-img"/>
                     </div>
 
@@ -95,28 +99,48 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <!--<tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
-                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">-->
                             </tbody>
                         </table>
                     </div>
 
                 </section>
 
-                <!-- PRÓXIMAS FACTURAS -->
-                <aside class="componente-cuentas">
-
-                    <div class="titulo-seccion">
-                        <h2>Próximas facturas</h2>
-                        <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
-                    </div>
-                    <div class="installmentCards" id="installmentCards">
-                    </div>
-                    <button type="button" class="boton-gestionar">
-                        Gestionar todos los gastos
-                    </button>
-
-                </aside>
+                <div class="columna-derecha">
+                
+                    <!-- PRÓXIMAS FACTURAS -->
+                    <aside class="componente-cuentas">
+                    
+                        <div class="titulo-seccion">
+                            <h2>Próximas facturas</h2>
+                            <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
+                        </div>
+                    
+                        <div class="installmentCards" id="installmentCards"></div>
+                    
+                        <button type="button" class="boton-gestionar">
+                            Gestionar todos los gastos
+                        </button>
+                    
+                    </aside>
+                
+                    <!-- MIEMBROS: tarjeta independiente -->
+                    <aside id="members-section" class="componente-miembros" hidden>
+                        <div class="miembros-header">
+                            <h2>Miembros</h2>
+                        
+                            <button type="button" id="btnOpenMembers" class="btn-miembros-mas" aria-label="Agregar miembro">
+                                <img src="../static/img/icono-mas.png" height="25px" alt=""/>
+                            </button>
+                        </div>
+                    
+                        <div id="members-list" class="members-list">
+                            <p class="members-empty">
+                                Aún no hay miembros cargados.
+                            </p>
+                        </div>
+                    </aside>
+                
+                </div>
 
             </section>
 
@@ -334,6 +358,38 @@
 
                     <div class="acciones-modal">
                         <button id="btnDeleteEx" class="btn-primary btn-red">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalMembers" class="modal">
+
+                <div class="content-modal content-modal-members">
+                
+                    <span class="close" onclick="ModalManager.close('modalMembers')">
+                        &times;
+                    </span>
+                
+                    <h2 style="color:#1F2937; margin:0;">Agregar miembro</h2>
+                
+                    <div class="form-section form-members">
+                    
+                        <div class="form-group">
+                            <label class="label" for="member-email">
+                                Correo electrónico del usuario registrado
+                            </label>
+                        
+                            <input type="email" id="member-email" class="input" placeholder="ejemplo@gmail.com" autocomplete="email">
+                        
+                            <span class="error" id="error-member-email"></span>
+                        </div>
+                    
+                        <div class="acciones-modal member-modal-actions">
+                            <button type="button" id="btnSaveMember" class="btn-primary">Agregar miembro</button>
+                        
+                            <button type="button" class="btn-secondary" onclick="ModalManager.close('modalMembers')">Cancelar</button>
+                        </div>
+                    
                     </div>
                 </div>
             </div>

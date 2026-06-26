@@ -1,9 +1,30 @@
 /* DATOS DE BACKEND */
 let activeAccount = null;
+let currentUser = null;
 let currentEditTransactionId = null;
+let filteredTransactions = [];
+
+let selectedFilterMonth = new Date().getMonth() + 1;
+let selectedFilterYear = new Date().getFullYear();
+
+const MONTH_NAMES = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre"
+];
 let currentTransactionId = null;
 let currentExpenseId = null;
 let currentTransactionPlannedExpenseId = null;
+
 
 
 // Helper para requests autenticados
@@ -22,8 +43,15 @@ async function fetchWithAuth(url, options = {}) {
 // estado global de cuenta activa
 async function setActiveAccount(account, displayName = account.name) {
     activeAccount = account;
+
     const headerName = document.getElementById("header-account-name");
-    if (headerName) headerName.textContent = displayName;
+
+    if (headerName) {
+        headerName.textContent = displayName;
+    }
+
+    await updateMembersSection();
+
     await loadTransactions(account.id);
     await loadPlannedExpenses(account.id);
     // Mostrar deudas solo en cuentas grupales
@@ -34,6 +62,200 @@ async function setActiveAccount(account, displayName = account.name) {
             await loadGroupDebts(account.id);
         } else {
             seccionDeudas.style.display = "none";
+        }
+    }
+}
+
+function isGroupAccount(account) {
+    return String(account?.account_type || "")
+        .trim()
+        .toLowerCase() === "grupal";
+}
+
+async function updateMembersSection() {
+    const membersSection = document.getElementById("members-section");
+
+    if (!membersSection) return;
+
+    const isGroup = isGroupAccount(activeAccount);
+
+    membersSection.hidden = !isGroup;
+
+    if (!isGroup) {
+        ModalManager.close("modalMembers");
+        return;
+    }
+
+    await loadMembers(activeAccount.id);
+}
+
+async function loadMembers(accountId) {
+    const membersList = document.getElementById("members-list");
+
+    if (!membersList) return;
+
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/accounts/${accountId}/members`
+        );
+
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar los miembros.");
+        }
+
+        const members = await response.json();
+
+        renderMembers(members);
+    } catch (error) {
+        console.error("Error cargando miembros:", error);
+
+        membersList.innerHTML = `
+            <p class="members-empty">
+                No se pudieron cargar los miembros.
+            </p>
+        `;
+    }
+}
+
+function renderMembers(members) {
+    const membersList = document.getElementById("members-list");
+    const addButton = document.getElementById("btnOpenMembers");
+
+    if (!membersList) return;
+
+    membersList.innerHTML = "";
+
+    if (!members || members.length === 0) {
+        membersList.innerHTML = `
+            <p class="members-empty">
+                Aún no hay miembros cargados.
+            </p>
+        `;
+
+        if (addButton) {
+            addButton.hidden = true;
+        }
+
+        return;
+    }
+
+    const currentMember = members.find(
+        (member) => Number(member.user_id) === Number(currentUser?.id)
+    );
+
+    if (addButton) {
+        addButton.hidden = currentMember?.role !== "admin";
+    }
+
+    members.forEach((member) => {
+        const item = document.createElement("article");
+        item.classList.add("member-item");
+
+        const information = document.createElement("div");
+
+        const name = document.createElement("p");
+        name.classList.add("member-name");
+        name.textContent = `${member.name} ${member.last_name}`.trim();
+
+        const status = document.createElement("p");
+        status.classList.add("member-status");
+
+        if (Number(member.user_id) === Number(currentUser?.id)) {
+            status.textContent = "Vos";
+        } else if (member.role === "admin") {
+            status.textContent = "Administrador";
+        } else {
+            status.textContent = "Activo";
+        }
+
+        information.appendChild(name);
+        information.appendChild(status);
+        item.appendChild(information);
+
+        membersList.appendChild(item);
+    });
+}
+
+function showMemberEmailError(message) {
+    const errorElement = document.getElementById("error-member-email");
+
+    if (!errorElement) return;
+
+    errorElement.textContent = message;
+    errorElement.classList.add("active");
+}
+
+function clearMemberEmailError() {
+    const errorElement = document.getElementById("error-member-email");
+
+    if (!errorElement) return;
+
+    errorElement.textContent = "";
+    errorElement.classList.remove("active");
+}
+
+async function saveMember() {
+    const emailInput = document.getElementById("member-email");
+    const saveButton = document.getElementById("btnSaveMember");
+
+    if (!activeAccount || !isGroupAccount(activeAccount)) {
+        ShowErrorMessage("Seleccioná una cuenta grupal.");
+        return;
+    }
+
+    const email = emailInput?.value.trim().toLowerCase();
+
+    if (!email) {
+        showMemberEmailError("Ingresá un correo electrónico.");
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        showMemberEmailError("Ingresá un correo electrónico válido.");
+        return;
+    }
+
+    clearMemberEmailError();
+
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = "Agregando...";
+    }
+
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/accounts/${activeAccount.id}/members`,
+            {
+                method: "POST",
+                body: JSON.stringify({ email }),
+            }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            showMemberEmailError(
+                data.detail || "No se pudo agregar el miembro."
+            );
+            return;
+        }
+
+        emailInput.value = "";
+
+        ModalManager.close("modalMembers");
+
+        await loadMembers(activeAccount.id);
+
+        ShowSuccessMessage("Miembro agregado correctamente.");
+    } catch (error) {
+        console.error("Error agregando miembro:", error);
+        showMemberEmailError("No se pudo conectar con el servidor.");
+    } finally {
+        if (saveButton) {
+            saveButton.disabled = false;
+            saveButton.textContent = "Agregar miembro";
         }
     }
 }
@@ -107,38 +329,193 @@ function formatParameterLabel(value) {
     return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function getAccountDisplayName(account) {
+    const accountType = String(account.account_type || "")
+        .trim()
+        .toLowerCase();
+
+    return accountType === "personal"
+        ? "Cuenta Personal"
+        : account.name;
+}
+
 async function loadUserAccounts() {
     const container = document.getElementById("btnAccounts");
+
     if (!container) return;
-    
+
     container.innerHTML = "";
 
     try {
-        const res = await fetchWithAuth("http://localhost:8000/accounts/user");
-        if (!res.ok) return;
+        const response = await fetchWithAuth("http://localhost:8000/accounts/user");
 
-        const accounts = await res.json();
-        accounts.forEach((account, index) => {
+        if (!response.ok) {
+            throw new Error("No se pudieron cargar las cuentas.");
+        }
+
+        const accounts = await response.json();
+
+        const orderedAccounts = [...accounts].sort((accountA, accountB) => {
+            const accountAIsPersonal =
+                String(accountA.account_type || "").toLowerCase() === "personal";
+
+            const accountBIsPersonal =
+                String(accountB.account_type || "").toLowerCase() === "personal";
+
+            return Number(accountBIsPersonal) - Number(accountAIsPersonal);
+        });
+
+        orderedAccounts.forEach((account) => {
             const item = document.createElement("div");
+            const displayName = getAccountDisplayName(account);
+
             item.classList.add("account-item");
-            const displayName = index === 0 ? "Cuenta Personal" : account.name; 
             item.textContent = displayName;
             item.dataset.displayName = displayName;
-            item.addEventListener("click", () => {
-                document.querySelectorAll(".account-item").forEach(i => i.classList.remove("active"));
+
+            item.addEventListener("click", async () => {
+                document
+                    .querySelectorAll(".account-item")
+                    .forEach((accountItem) =>
+                        accountItem.classList.remove("active")
+                    );
+
                 item.classList.add("active");
-                setActiveAccount(account, displayName);
-            })
+
+                await setActiveAccount(account, displayName);
+            });
+
             container.appendChild(item);
         });
-        if (accounts.length > 0) {
+
+        if (orderedAccounts.length > 0) {
+            const firstAccount = orderedAccounts[0];
             const firstItem = container.querySelector(".account-item");
+
             firstItem?.classList.add("active");
-            setActiveAccount(accounts[0], "Cuenta Personal");
+
+            await setActiveAccount(
+                firstAccount,
+                getAccountDisplayName(firstAccount)
+            );
         }
-    } catch (err) {
-        console.error("Error cargando cuentas:", err);
+    } catch (error) {
+        console.error("Error cargando cuentas:", error);
     }
+}
+
+function initializePeriodFilter() {
+    const monthSelect = document.getElementById("filter-month");
+    const yearSelect = document.getElementById("filter-year");
+
+    if (!monthSelect || !yearSelect) return;
+
+    monthSelect.innerHTML = MONTH_NAMES.map((month, index) => `
+        <option value="${index + 1}">
+            ${month}
+        </option>
+    `).join("");
+
+    monthSelect.value = String(selectedFilterMonth);
+
+    updateYearFilterOptions();
+
+    monthSelect.addEventListener("change", handlePeriodFilterChange);
+    yearSelect.addEventListener("change", handlePeriodFilterChange);
+}
+
+function handlePeriodFilterChange() {
+    const monthSelect = document.getElementById("filter-month");
+    const yearSelect = document.getElementById("filter-year");
+
+    selectedFilterMonth = Number(monthSelect.value);
+    selectedFilterYear = Number(yearSelect.value);
+
+    applyPeriodFilter();
+}
+
+function updateYearFilterOptions() {
+    const yearSelect = document.getElementById("filter-year");
+
+    if (!yearSelect) return;
+
+    const currentYear = new Date().getFullYear();
+
+    /*
+        Rango inicial visible:
+        2021 a 2031 si el año actual es 2026.
+    */
+    const years = new Set();
+
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        years.add(year);
+    }
+
+    /*
+        También agrega años existentes en transacciones,
+        aunque estén fuera del rango anterior.
+    */
+    recentTransactions.forEach((transaction) => {
+        const year = Number(String(transaction.dateRaw).slice(0, 4));
+
+        if (year) {
+            years.add(year);
+        }
+    });
+
+    /*
+        También agrega años existentes en cuotas/facturas.
+    */
+    plannedExpenses.forEach((expense) => {
+        expense.allInstallments.forEach((installment) => {
+            const year = Number(
+                String(installment.dueDateRaw).slice(0, 4)
+            );
+
+            if (year) {
+                years.add(year);
+            }
+        });
+    });
+
+    const orderedYears = [...years].sort((yearA, yearB) => {
+        return yearB - yearA;
+    });
+
+    yearSelect.innerHTML = orderedYears.map((year) => `
+        <option value="${year}">
+            ${year}
+        </option>
+    `).join("");
+
+    yearSelect.value = String(selectedFilterYear);
+}
+
+function dateMatchesSelectedPeriod(dateValue) {
+    if (!dateValue) return false;
+
+    const [year, month] = String(dateValue)
+        .split("-")
+        .map(Number);
+
+    return (
+        year === selectedFilterYear &&
+        month === selectedFilterMonth
+    );
+}
+
+function getSelectedPeriodLabel() {
+    return `${MONTH_NAMES[selectedFilterMonth - 1]} ${selectedFilterYear}`;
+}
+
+function applyPeriodFilter() {
+    filteredTransactions = recentTransactions.filter((transaction) =>
+        dateMatchesSelectedPeriod(transaction.dateRaw)
+    );
+
+    renderRecentTransactions();
+    updateAccountTotals();
+    renderFacturasPreview();
 }
 
 async function loadTransactions(accountId) {
@@ -165,8 +542,8 @@ async function loadTransactions(accountId) {
             date: formatTransactionDate(t.transaction_date.split("T")[0])
         }));
 
-        renderRecentTransactions();
-        updateAccountTotals();
+    updateYearFilterOptions();
+    applyPeriodFilter();
 
     } catch (err) {
         console.error("Error cargando transacciones:", err);
@@ -222,7 +599,8 @@ async function loadPlannedExpenses(accountId) {
         });
 
         renderExpenses();
-        renderFacturasPreview();
+        updateYearFilterOptions();
+        applyPeriodFilter();
 
     } catch (err) {
         console.error("Error cargando gastos planificados:", err);
@@ -234,6 +612,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         ModalManager.open("modalLogout");
     });
 
+    document.getElementById("btnOpenMembers")
+    ?.addEventListener("click", () => {
+        if (!isGroupAccount(activeAccount)) return;
+
+        ModalManager.open("modalMembers");
+    });
+
+    document.getElementById("btnSaveMember")
+    ?.addEventListener("click", saveMember);
+
     document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
         localStorage.removeItem("access_token");
         window.location.href = "login.html";
@@ -241,6 +629,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("clickable-img")
         ?.addEventListener("click", () => ModalManager.open("modalNewTransax"));
+        
+    initializePeriodFilter();
+
     await loadTransactionCategories();
     document.getElementById("btn-save-new-transactions")
         ?.addEventListener("click", saveNewTransaction);
@@ -370,6 +761,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     const user = await loadCurrentUser();
     if (user) {
+        currentUser = user;
         const elName  = document.getElementById("user-name");
         const elEmail = document.getElementById("user-email");
         if (elName)  elName.textContent  = `${user.name} ${user.last_name}`;
@@ -672,7 +1064,16 @@ const ModalManager = (() => {
                 counter3.textContent = "0 / 25 caracteres";
                 counter3.style.color = "inherit";
             }
-        
+        }, modalMembers: {
+            onClose() {
+                const emailInput = document.getElementById("member-email");
+
+                if (emailInput) {
+                    emailInput.value = "";
+                }
+
+                clearMemberEmailError();
+            }
 
         },modalLogout: {
             onClose() {}
@@ -991,7 +1392,7 @@ function updateAccountTotals() {
     let incomeTotal = 0;
     let expenseTotal = 0;
 
-    recentTransactions.forEach((transaction) => {
+    filteredTransactions.forEach((transaction) => {
         const amount = Number(transaction.amountNumber) || 0;
 
         if (amount > 0) {
@@ -1021,12 +1422,12 @@ function renderRecentTransactions() {
 
     if (!tableBody) return;
 
-    if (recentTransactions.length === 0) {
+    if (filteredTransactions.length === 0) {
         tableBody.innerHTML = `
             <tr class="empty-transactions-row">
                 <td colspan="4">
                     <div class="empty-transactions-message">
-                        Aún no se han registrado transacciones
+                        No se registraron transacciones en ${getSelectedPeriodLabel()}
                     </div>
                 </td>
             </tr>
@@ -1034,7 +1435,7 @@ function renderRecentTransactions() {
         return;
     }
 
-    tableBody.innerHTML = recentTransactions.map(transaction => {
+    tableBody.innerHTML = filteredTransactions.map(transaction => {
         const amountClass = transaction.amountNumber > 0 ? "monto-positivo" : "";
 
         return `
@@ -1212,39 +1613,62 @@ function renderExpenses() {
 
 function renderFacturasPreview() {
     const list = document.getElementById("installmentCards");
+
     if (!list) return;
 
-    if (plannedExpenses.length === 0) {
-        list.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">Aún no hay gastos planeados</p>`;
+    const periodInstallments = plannedExpenses
+        .flatMap((expense) =>
+            expense.allInstallments
+                .filter((installment) =>
+                    dateMatchesSelectedPeriod(installment.dueDateRaw)
+                )
+                .map((installment) => ({
+                    expense,
+                    installment
+                }))
+        )
+        .sort((itemA, itemB) =>
+            new Date(itemA.installment.dueDateRaw) -
+            new Date(itemB.installment.dueDateRaw)
+        );
+
+    if (periodInstallments.length === 0) {
+        list.innerHTML = `
+            <p style="color:#6B7280; font-size:0.9rem;">
+                No hay facturas para ${getSelectedPeriodLabel()}
+            </p>
+        `;
+
         return;
     }
 
-    const pending = plannedExpenses
-        .filter(expense => !expense.completed && expense.nextDueDateRaw)
-        .sort((a, b) => new Date(a.nextDueDateRaw) - new Date(b.nextDueDateRaw))
-        .slice(0, 3);
+    list.innerHTML = periodInstallments.map(({ expense, installment }) => {
+        const date = new Date(
+            `${installment.dueDateRaw}T00:00:00`
+        );
 
-    if (pending.length === 0) {
-        list.innerHTML = `<p style="color:#6B7280; font-size:0.9rem;">No hay gastos pendientes</p>`;
-        return;
-    }
+        const month = date
+            .toLocaleDateString("es-ES", { month: "short" })
+            .toUpperCase();
 
-    list.innerHTML = pending.map(expense => {
-        const date = new Date(`${expense.nextDueDateRaw}T00:00:00`);
-        const month = date.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
         const day = date.getDate();
 
+        const paidClass = installment.statusId === 2
+            ? "factura-completada"
+            : "";
+
         return `
-            <article class="factura-card clickable-row"
+            <article
+                class="factura-card clickable-row ${paidClass}"
                 data-id="${expense.id}"
                 data-detail="${expense.detail}"
                 data-total-installments="${expense.totalInstallments}"
                 data-paid-installments="${expense.paidInstallments}"
-                data-next-installment="${expense.nextInstallment}"
-                data-next-due-date="${expense.nextDueDateRaw}"
+                data-next-installment="${installment.installmentNumber}"
+                data-next-due-date="${installment.dueDateRaw}"
                 data-installment-amount="${expense.installmentAmount}"
-                data-completed="${expense.completed}">
-
+                data-completed="${expense.completed}"
+            >
                 <div class="factura-fecha factura-fecha-gris">
                     <span>${month}</span>
                     <strong>${day}</strong>
@@ -1252,7 +1676,10 @@ function renderFacturasPreview() {
 
                 <div class="factura-info">
                     <h3>${expense.detail}</h3>
-                    <p>Cuota ${expense.nextInstallment} de ${expense.totalInstallments}</p>
+                    <p>
+                        Cuota ${installment.installmentNumber}
+                        de ${expense.totalInstallments}
+                    </p>
                 </div>
 
                 <div class="factura-monto">
@@ -1262,13 +1689,14 @@ function renderFacturasPreview() {
         `;
     }).join("");
 
-    list.querySelectorAll(".clickable-row").forEach(card => {
+    list.querySelectorAll(".clickable-row").forEach((card) => {
         card.addEventListener("click", () => {
             if (card.dataset.completed === "true") return;
-            openExpenseDetail(card.dataset)});
+
+            openExpenseDetail(card.dataset);
+        });
     });
 }
-
 
 async function loadEditTransactionCategories() {
     const select = document.getElementById("edit-category-drop");

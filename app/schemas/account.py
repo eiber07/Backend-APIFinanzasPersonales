@@ -1,23 +1,16 @@
-
 from typing import Optional
 
-from pydantic import BaseModel, Field
-
-
+from pydantic import BaseModel, Field, EmailStr
 class AccountCreate(BaseModel):
     name: str
     account_type_id: int
     description: Optional[str] = None
     member_ids: Optional[list[int]] = None
-
-
 class AccountRequest(BaseModel):
     id: int
     name: str
     description: Optional[str] = None
     member_ids: Optional[list[int]] = None
-
-
 class AccountResponse(BaseModel):
     id: int
     name: str
@@ -26,3 +19,11 @@ class AccountResponse(BaseModel):
 
     class Config:
         orm_mode = True
+class AccountMemberCreate(BaseModel):
+    email: EmailStr
+class AccountMemberResponse(BaseModel):
+    user_id: int
+    name: str
+    last_name: str
+    email: EmailStr
+    role: str
