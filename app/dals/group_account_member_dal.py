@@ -1,3 +1,5 @@
+from sqlalchemy import case
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.group_account_member import GroupAccountMember
@@ -22,8 +24,19 @@ class GroupAccountMemberDAL:
 
     async def get_by_account_id(self, account_id: int):
         result = await self.db.execute(
-            select(GroupAccountMember).where(
+            select(GroupAccountMember)
+            .options(
+                selectinload(GroupAccountMember.user)
+            )
+            .where(
                 GroupAccountMember.account_id == account_id
+            )
+            .order_by(
+                case(
+                    (GroupAccountMember.role == "admin", 0),
+                    else_=1,
+                ),
+                GroupAccountMember.user_id,
             )
         )
         return result.scalars().all()
