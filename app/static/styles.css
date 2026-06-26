@@ -662,6 +662,17 @@ display: block;
     height: 58px;
 }
 
+.tabla-transacciones th.columna-miembro, .tabla-transacciones td.columna-miembro {
+    min-width: 130px;
+}
+
+.tabla-transacciones td.columna-miembro {
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 /* Encabezado */
 .tabla-transacciones th:last-child {
     text-align: right;
@@ -1304,4 +1315,35 @@ display: block;
         width: 100%;
         justify-content: flex-end;
     }
+}
+
+.member-balance-info {
+    min-width: 102px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.member-balance {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.member-balance-label {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.member-balance-positive {
+    color: #16A34A;
+}
+
+.member-balance-negative {
+    color: #DC2626;
+}
+
+.member-balance-neutral {
+    color: #374151;
 }

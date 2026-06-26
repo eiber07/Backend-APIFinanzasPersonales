@@ -25,6 +25,8 @@ class TransactionRequest(BaseModel):
 class TransactionResponse(BaseModel):
     id: int
     account_id: int
+    user_id: Optional[int] = None
+    user_name: Optional[str] = None
     type: str
     amount: Decimal
     description: Optional[str] = None

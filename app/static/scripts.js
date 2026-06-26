@@ -95,7 +95,10 @@ async function loadMembers(accountId) {
 
         const members = await response.json();
 
-        renderMembers(members);
+        const balancesByUserId = await loadGroupSettlement(accountId);
+
+        renderMembers(members, balancesByUserId);
+
     } catch (error) {
         console.error("Error cargando miembros:", error);
 
@@ -107,7 +110,78 @@ async function loadMembers(accountId) {
     }
 }
 
-function renderMembers(members) {
+async function loadGroupSettlement(accountId) {
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/transactions/group-settlement/${accountId}?month=${selectedFilterMonth}&year=${selectedFilterYear}`
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+
+            console.warn(
+                "No se pudo calcular el balance grupal:",
+                errorData.detail || "Error desconocido"
+            );
+
+            return null;
+        }
+
+        const settlement = await response.json();
+
+        const balancesByUserId = new Map();
+
+        (settlement.balances || []).forEach((item) => {
+            balancesByUserId.set(
+                Number(item.user_id),
+                Number(item.balance)
+            );
+        });
+
+        return balancesByUserId;
+
+    } catch (error) {
+        console.error("Error cargando liquidación grupal:", error);
+
+        return null;
+    }
+}
+
+function formatMemberBalance(balance) {
+    const numericBalance = Number(balance) || 0;
+    const absoluteBalance = Math.abs(numericBalance);
+
+    const formattedBalance = absoluteBalance.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    if (numericBalance > 0) {
+        return `+$${formattedBalance}`;
+    }
+
+    if (numericBalance < 0) {
+        return `-$${formattedBalance}`;
+    }
+
+    return `$${formattedBalance}`;
+}
+
+function getMemberBalanceLabel(balance) {
+    const numericBalance = Number(balance) || 0;
+
+    if (numericBalance > 0) {
+        return "Saldo a favor";
+    }
+
+    if (numericBalance < 0) {
+        return "Debe";
+    }
+
+    return "Al día";
+}
+
+function renderMembers(members, balancesByUserId = null) {
     const membersList = document.getElementById("members-list");
     const addButton = document.getElementById("btnOpenMembers");
 
@@ -160,7 +234,44 @@ function renderMembers(members) {
 
         information.appendChild(name);
         information.appendChild(status);
+
+        const balanceInfo = document.createElement("div");
+        balanceInfo.classList.add("member-balance-info");
+
+        const balance = balancesByUserId?.get(
+            Number(member.user_id)
+        );
+
+        const balanceAmount = document.createElement("p");
+        balanceAmount.classList.add("member-balance");
+
+        const balanceLabel = document.createElement("p");
+        balanceLabel.classList.add("member-balance-label");
+
+        if (balance === undefined || balance === null) {
+            balanceAmount.textContent = "—";
+            balanceAmount.classList.add("member-balance-neutral");
+
+            balanceLabel.textContent = "Sin calcular";
+        } else {
+            balanceAmount.textContent = formatMemberBalance(balance);
+
+            if (balance > 0) {
+                balanceAmount.classList.add("member-balance-positive");
+            } else if (balance < 0) {
+                balanceAmount.classList.add("member-balance-negative");
+            } else {
+                balanceAmount.classList.add("member-balance-neutral");
+            }
+
+            balanceLabel.textContent = getMemberBalanceLabel(balance);
+        }
+
+        balanceInfo.appendChild(balanceAmount);
+        balanceInfo.appendChild(balanceLabel);
+
         item.appendChild(information);
+        item.appendChild(balanceInfo);
 
         membersList.appendChild(item);
     });
@@ -414,7 +525,7 @@ function initializePeriodFilter() {
     yearSelect.addEventListener("change", handlePeriodFilterChange);
 }
 
-function handlePeriodFilterChange() {
+async function handlePeriodFilterChange() {
     const monthSelect = document.getElementById("filter-month");
     const yearSelect = document.getElementById("filter-year");
 
@@ -422,6 +533,10 @@ function handlePeriodFilterChange() {
     selectedFilterYear = Number(yearSelect.value);
 
     applyPeriodFilter();
+
+    if (activeAccount && isGroupAccount(activeAccount)) {
+        await loadMembers(activeAccount.id);
+    }
 }
 
 function updateYearFilterOptions() {
@@ -525,6 +640,8 @@ async function loadTransactions(accountId) {
             category: t.category,
             categoryId: t.category_id,
             description: t.description,
+            memberId: t.user_id ?? null,
+            memberName: t.user_name || "Sin asignar",
             dateRaw: t.transaction_date.split("T")[0],
             amountNumber: t.type === "ingreso" ? parseFloat(t.amount) : parseFloat(t.amount) * -1,
             amount: `${t.type === "ingreso" ? "+" : "-"}${formatTransactionMoney(parseFloat(t.amount))}`,
@@ -1409,24 +1526,44 @@ function updateAccountTotals() {
 
 function renderRecentTransactions() {
     const tableBody = document.getElementById("transactions-table-body");
+    const memberHeader = document.getElementById(
+        "transaction-member-header"
+    );
 
     if (!tableBody) return;
+
+    const showMemberColumn = isGroupAccount(activeAccount);
+
+    if (memberHeader) {
+        memberHeader.hidden = !showMemberColumn;
+    }
 
     if (filteredTransactions.length === 0) {
         tableBody.innerHTML = `
             <tr class="empty-transactions-row">
-                <td colspan="4">
+                <td colspan="${showMemberColumn ? 5 : 4}">
                     <div class="empty-transactions-message">
                         No se registraron transacciones en ${getSelectedPeriodLabel()}
                     </div>
                 </td>
             </tr>
         `;
+
         return;
     }
 
-    tableBody.innerHTML = filteredTransactions.map(transaction => {
-        const amountClass = transaction.amountNumber > 0 ? "monto-positivo" : "";
+    tableBody.innerHTML = filteredTransactions.map((transaction) => {
+        const amountClass = transaction.amountNumber > 0
+            ? "monto-positivo"
+            : "";
+
+        const memberCell = showMemberColumn
+            ? `
+                <td class="columna-miembro">
+                    ${transaction.memberName}
+                </td>
+            `
+            : "";
 
         return `
             <tr class="clickable-row"
@@ -1439,11 +1576,20 @@ function renderRecentTransactions() {
                 data-planned-expense-id="${transaction.plannedExpenseId ?? ''}">
 
                 <td>${transaction.date}</td>
+
                 <td>
-                    <span class="categoria-etiqueta">${transaction.category}</span>
+                    <span class="categoria-etiqueta">
+                        ${transaction.category}
+                    </span>
                 </td>
+
                 <td>${transaction.description}</td>
-                <td class="${amountClass}">${transaction.amount}</td>
+
+                ${memberCell}
+
+                <td class="${amountClass}">
+                    ${transaction.amount}
+                </td>
             </tr>
         `;
     }).join("");
