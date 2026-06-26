@@ -120,7 +120,7 @@ async def update_account(
     return await account_service.update_account(account, current_user)
 
 @router.put("/deactivate/{account_id}", response_model=dict)
-async def update_account(
+async def deactivate_account(
     account_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
