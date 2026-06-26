@@ -1,6 +1,8 @@
+from sqlalchemy import or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+
 from app.models.account import Account
 from app.models.group_account_member import GroupAccountMember
 
@@ -9,20 +11,13 @@ class AccountDAL:
         self.db = db
 
     async def get_accounts_by_user_id(self, user_id: int):
-        group_account_ids = await self.db.execute(
-            select(GroupAccountMember.account_id).where(GroupAccountMember.user_id == user_id)
-        )
-        group_account_ids = {row[0] for row in group_account_ids.all()}
-
         result = await self.db.execute(
             select(Account)
+            .outerjoin(GroupAccountMember, GroupAccountMember.account_id == Account.id,)
             .options(selectinload(Account.account_type))
-            .where(
-                (Account.id_admin_user == user_id) | (Account.id.in_(group_account_ids)),
-                Account.status_id == 1,
-            )
+            .where(Account.status_id == 1, or_(Account.id_admin_user == user_id, GroupAccountMember.user_id == user_id,))
         )
-        return result.scalars().all()
+        return result.unique().scalars().all()
     
     async def get_account_by_id(self, account_id: int):
         result = await self.db.execute(

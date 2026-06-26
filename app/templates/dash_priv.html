@@ -30,14 +30,19 @@
             <section class="componente-tarjetas">
 
                 <article class="componente-tarjetas1">
-                    <div class="tarjeta-info">
-                        <p class="tarjeta-titulo">Balance total</p>
-                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
-
-                        <div class="tarjeta-fecha">
-                            <span class="punto-verde"></span>
-                            <span>Junio 2026</span>
+                    <div class="tarjeta-info tarjeta-balance-info">
+                    
+                        <div class="tarjeta-balance-encabezado">
+                            <p class="tarjeta-titulo">Balance total</p>
+                        
+                            <div class="filtro-periodo">
+                                <select id="filter-month" class="select-periodo" aria-label="Filtrar por mes"></select>
+                                <select id="filter-year" class="select-periodo select-periodo-year" aria-label="Filtrar por año"></select>
+                            </div>
                         </div>
+                    
+                        <h2 class="tarjeta-monto" id="balance-total">$0.00</h2>
+                    
                     </div>
                 </article>
 
@@ -73,7 +78,6 @@
 
                     <div class="titulo-seccion">
                         <h2>Transacciones recientes</h2>
-                        <a href="#">Ver todo</a>
                         <img src="../static/img/icono-mas.png" height="25px" id="clickable-img"/>
                     </div>
 
@@ -95,28 +99,48 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <!--<tr class="clickable-row"  data-id="{id}" data-amount="{amount}" data-type="{type_id}" 
-                                data-category="{category_id}" data-description="{description}" data-date="{creation_date}">-->
                             </tbody>
                         </table>
                     </div>
 
                 </section>
 
-                <!-- PRÓXIMAS FACTURAS -->
-                <aside class="componente-cuentas">
-
-                    <div class="titulo-seccion">
-                        <h2>Próximas facturas</h2>
-                        <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
-                    </div>
-                    <div class="installmentCards" id="installmentCards">
-                    </div>
-                    <button type="button" class="boton-gestionar">
-                        Gestionar todos los gastos
-                    </button>
-
-                </aside>
+                <div class="columna-derecha">
+                
+                    <!-- PRÓXIMAS FACTURAS -->
+                    <aside class="componente-cuentas">
+                    
+                        <div class="titulo-seccion">
+                            <h2>Próximas facturas</h2>
+                            <img src="../static/img/icono-mas.png" height="25px" id="clickable-img2"/>
+                        </div>
+                    
+                        <div class="installmentCards" id="installmentCards"></div>
+                    
+                        <button type="button" class="boton-gestionar">
+                            Gestionar todos los gastos
+                        </button>
+                    
+                    </aside>
+                
+                    <!-- MIEMBROS: tarjeta independiente -->
+                    <aside id="members-section" class="componente-miembros" hidden>
+                        <div class="miembros-header">
+                            <h2>Miembros</h2>
+                        
+                            <button type="button" id="btnOpenMembers" class="btn-miembros-mas" aria-label="Agregar miembro">
+                                <img src="../static/img/icono-mas.png" height="25px" alt=""/>
+                            </button>
+                        </div>
+                    
+                        <div id="members-list" class="members-list">
+                            <p class="members-empty">
+                                Aún no hay miembros cargados.
+                            </p>
+                        </div>
+                    </aside>
+                
+                </div>
 
             </section>
             <div id="modalTransax" class="modal">
@@ -154,7 +178,7 @@
                         </div>
 
                         <div class="form-group" id="planned-expense-group" style="display:none;">
-                            <label class="label">Gasto planificado (opcional)</label>
+                            <label class="label">Gasto planificado</label>
                             <select class="input" id="planned-expense-drop">
                                 <option value="">Ninguno</option>
                             </select>
@@ -237,49 +261,40 @@
                     </div>
                 </div>
             </div>
-
             <div id="modalNewExpense" class="modal">
                 <div class="content-modal">
                     <span class="close" onclick="ModalManager.close('modalNewExpense')">&times;</span> 
                     <h2 style="color:#1F2937; margin:0;">Nuevo Gasto Planeado</h2>
                     <div class="form-section">
-                        <div class="form-group">
-                            <label class="label">Monto total</label>
-                            <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-amount-exp"></span>
-                        </div>
-
-                        <div class="form-group2">
-                            <div>
-                                <label class="label">Fecha de inicio</label>
-                                <input type="date" class="input" id="start-date-exp">
-                                <span class="error" id="error-start-date-exp"></span>
-                            </div>
-                            <div>
-                                <label class="label">Fecha de vencimiento</label>
-                                <input type="date" class="input" id="due-date-exp">
-                                <span class="error" id="error-due-date-exp"></span>
-                            </div>
-                        </div>
-
-                        <div class="form-group2">
-                            <div>
-                                <label class="label">Cantidad de cuotas</label>
-                                <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1">
-                                <span class="error" id="error-installment-number-exp"></span>
-                            </div>
-                            <div>
-                                <label class="label">Monto por cuota</label>
-                                <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                                <span class="error" id="error-installment-amount-exp"></span>
-                            </div>
-                        </div>
 
                         <div class="form-group">
                             <label class="label">Descripción</label>
                             <textarea class="input" id="description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
                             <div id="char-counter-exp">0 / 25 caracteres</div>
                             <span class="error" id="error-description-exp"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Monto total</label>
+                            <input type="text" class="input" id="amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this); amountInstallment()">
+                            <span class="error" id="error-amount-exp"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Cantidad de cuotas</label>
+                            <input type="number" class="input" id="installment-number-exp" placeholder="Ej: 12" min="1" oninput="amountInstallment()">
+                            <span class="error" id="error-installment-number-exp"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Monto por cuota</label>
+                            <input type="text" class="input" id="installment-amount-exp" placeholder="$ 0.00" readonly style="background:#D1D5DB;">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Fecha de primer pago</label>
+                            <input type="date" class="input" id="payment-date-exp">
+                            <span class="error" id="error-payment-date-exp"></span>
                         </div>
 
                         <div class="acciones-modal">
@@ -300,11 +315,9 @@
                             <thead>
                                 <tr>
                                     <th>Detalle</th>
-                                    <th>Fecha inicio</th>
-                                    <th>Fecha vencimiento</th>
                                     <th>Cuotas</th>
-                                    <th>Monto</th>
-                                    <th>Total</th>
+                                    <th>Próximo vencimiento</th>
+                                    <th>Monto cuota</th>
                                 </tr>
                             </thead>
                             <tbody id="gastos-table-body">
@@ -328,63 +341,45 @@
 
                     <table class="tabla-detalle">
                         <tr><td>Detalle:</td><td id="expense-detail"></td></tr>
-                        <tr><td>Fecha inicio:</td><td id="expense-startdate"></td></tr>
-                        <tr><td>Fecha vencimiento:</td><td id="expense-startend"></td></tr>
+                        <tr><td>Próximo vencimiento:</td><td id="expense-startdate"></td></tr>
                         <tr><td>Cuotas:</td><td id="expense-installments"></td></tr>
-                        <tr><td>Monto cuotas:</td><td id="expense-intallments-amount"></td></tr>
-                        <tr><td>Monto total:</td><td id="expense-amount"></td></tr>
+                        <tr><td>Monto por cuota:</td><td id="expense-intallments-amount"></td></tr>
                     </table>
 
                     <div class="acciones-modal">
-                        <button id="btnEditEx" class="btn-secondary">Editar</button>
                         <button id="btnDeleteEx" class="btn-primary btn-red">Eliminar</button>
                     </div>
                 </div>
             </div>
-            <div id="modalModifExpens" class="modal">
-                <div class="content-modal">
-                    <span class="close" onclick="ModalManager.close('modalModifExpens')">&times;</span> 
-                    <h2 style="color:#1F2937; margin:0;">Editar Gasto Planeado</h2>
-                    <div class="form-section">
+
+            <div id="modalMembers" class="modal">
+
+                <div class="content-modal content-modal-members">
+                
+                    <span class="close" onclick="ModalManager.close('modalMembers')">
+                        &times;
+                    </span>
+                
+                    <h2 style="color:#1F2937; margin:0;">Agregar miembro</h2>
+                
+                    <div class="form-section form-members">
+                    
                         <div class="form-group">
-                            <label class="label">Monto total</label>
-                            <input type="text" class="input" id="edit-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                            <span class="error" id="error-edit-amount-exp"></span>
+                            <label class="label" for="member-email">
+                                Correo electrónico del usuario registrado
+                            </label>
+                        
+                            <input type="email" id="member-email" class="input" placeholder="ejemplo@gmail.com" autocomplete="email">
+                        
+                            <span class="error" id="error-member-email"></span>
                         </div>
-                        <div class="form-group2">
-                            <div>
-                                <label class="label">Fecha de inicio</label>
-                                <input type="date" class="input" id="edit-start-date-exp">
-                                <span class="error" id="error-edit-start-date-exp"></span>
-                            </div>
-                            <div>
-                                <label class="label">Fecha de vencimiento</label>
-                                <input type="date" class="input" id="edit-due-date-exp">
-                                <span class="error" id="error-edit-due-date-exp"></span>
-                            </div>
+                    
+                        <div class="acciones-modal member-modal-actions">
+                            <button type="button" id="btnSaveMember" class="btn-primary">Agregar miembro</button>
+                        
+                            <button type="button" class="btn-secondary" onclick="ModalManager.close('modalMembers')">Cancelar</button>
                         </div>
-                        <div class="form-group2">
-                            <div>
-                                <label class="label">Cantidad de cuotas</label>
-                                <input type="number" class="input" id="edit-installment-number-exp" placeholder="Ej: 12" min="1">
-                                <span class="error" id="error-edit-installment-number-exp"></span>
-                            </div>
-                            <div>
-                                <label class="label">Monto por cuota</label>
-                                <input type="text" class="input" id="edit-installment-amount-exp" placeholder="$ 0.00" oninput="moneyFormat(this)">
-                                <span class="error" id="error-edit-installment-amount-exp"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="label">Descripción</label>
-                            <textarea class="input" id="edit-description-text-exp" rows="3" placeholder="¿Para qué es este gasto?" maxlength="25"></textarea>
-                            <div id="edit-char-counter-exp">0 / 25 caracteres</div>
-                            <span class="error" id="error-edit-description-exp"></span>
-                        </div>
-                        <div class="acciones-modal">
-                            <button id="btnSaveEditExp" class="btn-primary">Guardar cambios</button>
-                            <button class="btn-secondary" onclick="ModalManager.close('modalModifExpens')">Cancelar</button>
-                        </div>
+                    
                     </div>
                 </div>
             </div>
@@ -392,7 +387,7 @@
     </div>
     <script src="/app/static/scripts.js"></script>
 
-  <!-- MODAL: Cerrar Sesión -->
+<!-- MODAL: Cerrar Sesión -->
 <div id="modalLogout" class="modal">
     <div class="content-modal">
         <h2>¿Cerrar sesión?</h2>
