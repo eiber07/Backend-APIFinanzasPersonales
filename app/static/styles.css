@@ -617,7 +617,14 @@ display: block;
     height: 58px;
 }
 
-.tabla-transacciones th:last-child, .tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
+/* Encabezado */
+.tabla-transacciones th:last-child {
+    text-align: right;
+    padding-right: 100px;
+}
+
+/* Datos */
+.tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
     text-align: right;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
