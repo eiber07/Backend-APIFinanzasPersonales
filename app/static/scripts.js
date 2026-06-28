@@ -608,6 +608,19 @@ async function loadPlannedExpenses(accountId) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    document.getElementById("info-modal")?.addEventListener("click", () => {
+    if (!activeAccount) return;
+
+        document.getElementById("account-info-id").textContent   = activeAccount.id;
+        document.getElementById("account-info-name").textContent = activeAccount.name;
+        document.getElementById("account-info-type").textContent =
+            activeAccount.account_type === "personal" ? "Personal" : "Grupal";
+
+        ModalManager.open("modalAccountInfo");
+    });
+    document.getElementById("btnDeleteAccount")?.addEventListener("click", deleteActiveAccount);
+
+
     document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
         ModalManager.open("modalLogout");
     });
@@ -995,7 +1008,32 @@ async function resetPassword() {
         }
     }
 }   
+async function deleteActiveAccount() {
+    if (!activeAccount) return;
 
+    const accountName = activeAccount.name;
+
+    if (!confirm(`¿Eliminar la cuenta "${accountName}"? Esta acción no se puede deshacer.`)) return;
+
+    try {
+        const res = await fetchWithAuth(
+            `http://localhost:8000/accounts/deactivate/${activeAccount.id}`,
+            { method: "PUT" }
+        );
+
+        if (res.ok) {
+            ShowSuccessMessage("Cuenta eliminada correctamente.");
+            ModalManager.close("modalAccountInfo");
+            activeAccount = null;
+            await loadUserAccounts();
+        } else {
+            const err = await res.json();
+            ShowErrorMessage(err.detail || "No se pudo eliminar la cuenta.");
+        }
+    } catch {
+        ShowErrorMessage("No se pudo conectar con el servidor.");
+    }
+}
 /* MODALS */
 const ModalManager = (() => {
     /* lógica de limpieza o reset específica de cada modal, sin tocar el núcleo.  */
@@ -1074,7 +1112,12 @@ const ModalManager = (() => {
 
                 clearMemberEmailError();
             }
-
+        },modalAccountInfo: {
+            onClose() {
+                document.getElementById("account-info-id").textContent   = "";
+                document.getElementById("account-info-name").textContent = "";
+                document.getElementById("account-info-type").textContent = "";
+            }
         },modalLogout: {
             onClose() {}
         },modalExpenses: {
