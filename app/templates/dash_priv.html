@@ -7,17 +7,22 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
-<div class="logout-container">
-    <button id="btnLogoutTop" class="btn-logout">
-        Cerrar Sesión
-    </button>
-</div>
+
 <div id="alertsContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;"></div>
     <div class="grid-contenedor">
         
         <!-- HEADER -->
         <header class="componente-header">
+            <div class="header-title-group">
             <h1 id="header-account-name">Dashboard privado</h1>
+            <img src="../static/img/icono-info.svg" height="25px" id="info-modal"/>
+        </div>
+
+        <div class="logout-container">
+            <button id="btnLogoutTop" class="btn-logout">
+                Cerrar Sesión
+            </button>
+        </div>
         </header>
 
         <!-- SIDEBAR -->
@@ -392,29 +397,46 @@
                     </div>
                 </div>
             </div>
+            <div id="modalAccountInfo" class="modal">
+                <div class="content-modal">
+                    <span class="close" onclick="ModalManager.close('modalAccountInfo')">&times;</span>
+                    <h2 style="color:#1F2937; margin:0;">Información de cuenta</h2>
+
+                    <table class="tabla-detalle">
+                        <tr><td>ID:</td><td id="account-info-id"></td></tr>
+                        <tr><td>Nombre:</td><td id="account-info-name"></td></tr>
+                        <tr><td>Tipo:</td><td id="account-info-type"></td></tr>
+                    </table>
+
+                    <div class="acciones-modal">
+                        <button id="btnDeleteAccount" class="btn-primary btn-red">Eliminar cuenta</button>
+                        <button class="btn-secondary" onclick="ModalManager.close('modalAccountInfo')">Cerrar</button>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
     <script src="/app/static/scripts.js"></script>
 
 <!-- MODAL: Cerrar Sesión -->
-<div id="modalLogout" class="modal">
-    <div class="content-modal">
-        <h2>¿Cerrar sesión?</h2>
+    <div id="modalLogout" class="modal">
+        <div class="content-modal">
+            <h2>¿Cerrar sesión?</h2>
 
-        <p>
-            ¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión nuevamente para acceder.
-        </p>
+            <p>
+                ¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión nuevamente para acceder.
+            </p>
 
-        <div class="acciones-modal">
-            <button id="btnConfirmLogout" class="btn-primary btn-red">
-                Cerrar Sesión
-            </button>
+            <div class="acciones-modal">
+                <button id="btnConfirmLogout" class="btn-primary btn-red">
+                    Cerrar Sesión
+                </button>
 
-            <button class="btn-secondary" onclick="ModalManager.close('modalLogout')">
-                Cancelar
-            </button>
+                <button class="btn-secondary" onclick="ModalManager.close('modalLogout')">
+                    Cancelar
+                </button>
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>

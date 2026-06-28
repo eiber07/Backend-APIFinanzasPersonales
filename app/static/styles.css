@@ -1064,10 +1064,22 @@ display: block;
 }
 
 .logout-container {
-    position: fixed;
     top: 20px;
     right: 20px;
     z-index: 1000;
+    padding: 5px;
+}
+
+.header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#info-modal {
+    filter: invert(27%) sepia(90%) saturate(1500%) hue-rotate(210deg) brightness(90%);
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
 .btn-logout {
