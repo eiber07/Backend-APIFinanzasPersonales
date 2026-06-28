@@ -23,3 +23,4 @@ class Transaction(Base, AuditMixin):
     category = relationship("TransactionCategory", back_populates="transactions")
     status = relationship("Status", back_populates="transactions")
     account = relationship("Account", back_populates="transactions")
+    creator = relationship("User",foreign_keys=[user_id],)

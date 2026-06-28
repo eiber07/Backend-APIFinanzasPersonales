@@ -11,7 +11,8 @@ class TransactionDAL:
         result = await self.db.execute(
             select(Transaction).options(
                 selectinload(Transaction.type),
-                selectinload(Transaction.category)
+                selectinload(Transaction.category),
+                selectinload(Transaction.creator),
             ).where(
                 Transaction.account_id == account_id, Transaction.status_id ==1
             )
@@ -23,7 +24,8 @@ class TransactionDAL:
             select(Transaction)
             .options(
                 selectinload(Transaction.type),
-                selectinload(Transaction.category)
+                selectinload(Transaction.category),
+                selectinload(Transaction.creator),
             )
             .where(Transaction.id == transaction_id)
         )
