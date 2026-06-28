@@ -1,32 +1,131 @@
 # Backend-APIFinanzasPersonales
 
-API REST para la gestión de finanzas personales y grupales. Permite a los usuarios registrar transacciones, planificar gastos en cuotas y administrar cuentas compartidas con cálculo automático de deudas entre miembros.
+Backend-APIFinanzasPersonales es una API REST diseñada para ayudar a las personas y a los grupos a organizar su vida financiera de manera simple y clara. Permite registrar ingresos y egresos, administrar cuentas personales y compartidas, planificar gastos futuros y obtener una visión ordenada de las deudas generadas entre los integrantes de una cuenta grupal.
 
 ---
 
-## Stack tecnológico
+## 1. Introducción
 
-| Capa | Tecnología |
-|------|-----------|
-| Framework | FastAPI |
-| ORM | SQLAlchemy (async) |
-| Base de datos | PostgreSQL |
-| Migraciones | Alembic |
-| Autenticación | JWT (OAuth2) |
-| Servidor | Uvicorn |
-| Frontend | Vanilla JS + HTML + CSS |
+Esta aplicación propone una forma práctica de gestionar finanzas personales y compartidas desde un único sistema. Su objetivo no es solo almacenar movimientos, sino ayudar a entender cómo se distribuye el dinero en un contexto familiar, de pareja o de trabajo compartido.
+
+La solución está orientada a usuarios que necesitan llevar control de sus gastos diarios, pero también a quienes comparten gastos con otras personas y requieren una forma ordenada de repartir responsabilidades económicas.
 
 ---
 
-## Requisitos previos
+## 2. Objetivo
 
-- Python 3.10+
-- PostgreSQL 15+
-- pip
+El objetivo principal del sistema es facilitar la administración de finanzas personales y grupales, permitiendo a los usuarios:
+
+- registrar ingresos y egresos;
+- crear y gestionar cuentas según su necesidad;
+- controlar gastos compartidos;
+- proyectar obligaciones futuras mediante gastos planificados;
+- visualizar deudas y saldos de forma automática entre los integrantes de una cuenta grupal.
 
 ---
 
-## Instalación
+## 3. Problemática que resuelve
+
+Muchas personas enfrentan dificultades para llevar un control claro de sus finanzas. En la vida cotidiana, resulta complejo:
+
+- mantener un seguimiento ordenado de los gastos personales;
+- administrar gastos compartidos con familiares, compañeros o amigos;
+- saber quién pagó qué y quién debe compensar a quién;
+- evitar confusiones cuando existen múltiples movimientos en un mismo período.
+
+Esta aplicación busca cubrir esa necesidad proporcionando un entorno simple para registrar movimientos y entender el impacto financiero de cada participante.
+
+---
+
+## 4. Conceptos principales
+
+### Usuario
+Un usuario representa a una persona registrada en la plataforma. Puede pertenecer a múltiples cuentas y participar en diferentes escenarios financieros.
+
+### Cuenta
+Una cuenta es el espacio donde se registran los movimientos relacionados con una situación concreta de dinero. La aplicación contempla dos tipos principales:
+
+| Tipo de cuenta | Descripción |
+|---|---|
+| Cuenta personal | Permite administrar únicamente las finanzas del propietario. Solo tiene un miembro y no genera deudas entre usuarios. |
+| Cuenta grupal | Permite administrar gastos compartidos entre varios integrantes. Todos los miembros participan de los movimientos registrados y sobre ellas se calculan las deudas. |
+
+### Miembros
+Cada cuenta grupal puede tener uno o más miembros. Los miembros pueden tener roles como administrador o miembro, pero esos roles solo determinan permisos dentro de la cuenta y no alteran el cálculo financiero.
+
+### Transacciones
+Una transacción representa un movimiento financiero registrado en una cuenta. Puede ser de tres tipos principales:
+
+| Tipo | Descripción |
+|---|---|
+| Ingreso | Representa un aporte económico realizado por un miembro. En una cuenta personal incrementa el saldo disponible; en una cuenta grupal representa un aporte al fondo común. |
+| Egreso | Representa un gasto realizado por un miembro. Puede corresponder a una cuenta personal o a una cuenta grupal. |
+| Gasto planificado | Representa una obligación financiera futura, como cuotas, suscripciones o pagos recurrentes. Permite proyectar compromisos antes de que se materialicen como movimientos reales. |
+
+---
+
+## 5. Funcionamiento de las cuentas grupales
+
+Las cuentas grupales funcionan como un espacio compartido para administrar gastos entre varios participantes.
+
+Algunas reglas del comportamiento del sistema son las siguientes:
+
+- todos los movimientos pertenecen a un período determinado, normalmente asociado a un mes y un año;
+- todos los miembros participan de todos los movimientos del grupo;
+- cada movimiento es registrado por un único usuario;
+- los movimientos se distribuyen de forma equitativa entre todos los miembros activos de la cuenta;
+- actualmente no existen porcentajes personalizados ni exclusiones de participantes en la distribución.
+
+Este modelo permite que, al registrar un gasto compartido, el sistema pueda organizar después la forma en que cada participante debe compensar a los demás.
+
+---
+
+## 6. Cálculo de deudas
+
+El sistema permite calcular deudas de forma automática a partir de los movimientos registrados en una cuenta grupal.
+
+El proceso conceptual es el siguiente:
+
+- cada movimiento modifica el balance individual de los miembros;
+- los balances positivos indican dinero que un usuario debería recuperar;
+- los balances negativos indican dinero que un usuario debería pagar;
+- a partir de esos saldos, el sistema calcula automáticamente quién debe dinero a quién.
+
+Este mecanismo ayuda a reducir la carga manual de repartir gastos y a obtener una vista más clara de las obligaciones financieras del grupo.
+
+---
+
+## 7. Reglas de negocio
+
+El sistema opera bajo las siguientes reglas de negocio:
+
+- un usuario puede tener múltiples cuentas;
+- una cuenta puede pertenecer a uno o varios usuarios;
+- una cuenta puede ser personal o grupal;
+- una transacción pertenece únicamente a una cuenta;
+- una transacción es registrada por un único usuario;
+- todos los movimientos grupales se reparten en partes iguales entre los miembros;
+- los ingresos grupales representan aportes realizados al grupo;
+- los egresos grupales representan gastos afrontados por un miembro en beneficio del grupo;
+- tanto ingresos como egresos generan un crédito a favor del usuario que realizó el movimiento;
+- las deudas se calculan por período (mes y año);
+- las cuentas personales no generan deudas entre usuarios;
+- un gasto planificado representa una obligación futura y puede dar origen a una o varias transacciones reales posteriormente.
+
+
+## 9. Flujo de uso típico
+
+Un usuario puede interactuar con la aplicación siguiendo este flujo general:
+
+1. Crear una cuenta de usuario.
+2. Crear una cuenta personal o grupal.
+3. Agregar miembros a una cuenta grupal.
+4. Registrar ingresos y egresos asociados a la cuenta.
+5. Crear gastos planificados para anticipar compromisos futuros.
+6. Consultar balances y deudas generadas en el período.
+---
+
+## 10. Instalación rápida
 
 ```bash
 # 1. Clonar el repositorio
@@ -47,7 +146,6 @@ DATABASE_URL=postgresql+asyncpg://usuario:contraseña@localhost:5432/finanzas_pe
 SECRET_KEY=tu_clave_secreta
 
 # 5. Crear la base de datos en PostgreSQL
-# Conectarse a psql o pgAdmin y ejecutar:
 # CREATE DATABASE finanzas_personales;
 
 # 6. Aplicar migraciones
@@ -57,8 +155,20 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-La API queda disponible en `http://localhost:8000`  
-Documentación interactiva en `http://localhost:8000/docs`
+La API quedará disponible en http://localhost:8000 y la documentación interactiva en http://localhost:8000/docs.
+
+---
+
+## 11. Tecnologías utilizadas
+
+| Capa | Tecnología |
+|---|---|
+| Framework | FastAPI |
+| ORM | SQLAlchemy (async) |
+| Base de datos | PostgreSQL |
+| Migraciones | Alembic |
+| Autenticación | JWT |
+| Servidor | Uvicorn |
 
 ---
 
@@ -82,140 +192,7 @@ Backend-APIFinanzasPersonales/
 ├── requirements.txt
 └── README.md
 ```
-
 ---
-
-## Migraciones
-
-```bash
-# Aplicar todas las migraciones pendientes
-alembic upgrade head
-
-# Crear una nueva migración
-alembic revision --autogenerate -m "descripcion del cambio"
-
-# Ver el estado actual
-alembic current
-
-# Sincronizar sin ejecutar migraciones (base ya actualizada manualmente)
-alembic stamp head
-```
-
-## Endpoints principales
-
-### Autenticación
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/auth/token` | Login — devuelve JWT |
-| POST | `/auth/signup` | Registro de nuevo usuario |
-| POST | `/auth/forget-password` | Solicitar reset de contraseña |
-| POST | `/auth/reset-password` | Confirmar nueva contraseña |
-
-### Usuarios
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/users/me` | Obtener usuario autenticado |
-| GET | `/users/by_id?id={id}` | Obtener usuario por ID |
-
-### Cuentas
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/accounts/user` | Listar cuentas del usuario |
-| POST | `/accounts/` | Crear cuenta personal o grupal |
-| POST | `/accounts/{account_id}/members` | Agregar un miembro a la cuenta grupal |
-
-
-### Transacciones
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/transactions/account/{id}` | Listar transacciones de una cuenta |
-| POST | `/transactions/` | Crear transacción |
-| PUT | `/transactions/` | Editar transacción |
-| PUT | `/transactions/deactivate/{id}` | Eliminar transacción (soft delete) |
-
-### Gastos Planificados
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/planned_expenses/account/{id}` | Listar gastos de una cuenta |
-| GET | `/planned_expenses/{group_id}/{installment}` | Obtener cuota específica |
-| POST | `/planned_expenses/` | Crear gasto planificado (genera N cuotas) |
-| PUT | `/planned_expenses/{group_id}/{installment}/pay` | Marcar cuota como pagada |
-| PUT | `/planned_expenses/deactivate/{group_id}` | Eliminar gasto completo (soft delete) |
-
-### Cuentas Grupales
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/group-settlement/{account_id}` | Calcular balances y deudas del período |
-
-### Parámetros
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/parameters/parameters?parameters={nombre}` | Obtener parámetros del sistema (tipos de transacción, categorías, etc.) |
-
----
-## Modelo de datos Principales — User
-```
-users
-├── id              INTEGER  (PK, identifica al usuarios)
-├── name            String 
-├── last_name       String 
-├── dni             String 
-├── email           String
-├── phone           String 
-└── password        String
-```
----
-## Modelo de datos Principales — Account
-```
-accounts
-├── id                  INTEGER  (PK, identifica a la cuenta)
-├── id_admin_user       INTEGER  (FK → users)
-├── name                String   
-├── status_id           INTEGER  (FK → status)
-├── description         String
-├── account_type_id     INTEGER  (FK → account_types)
-```
----
-## Modelo de datos Principales — Transaction
-```
-transactions
-├── id                      INTEGER  (PK, identifica a la transaccion)
-├── account_id              INTEGER  (FK → users)
-├── planned_expense_id      INTEGER     
-├── planned_expense_installment_number        INTERGER
-├── type_id                 INTEGER  (FK → type)
-├── amount                  DECIMAL
-├── description             String   
-├── category_id             INTEGER  (FK → catgory)
-├── status_id               INTEGER  (FK → status)
-├── transaction_date        DATETIME
-```
----
-## Modelo de datos — Gastos Planificados
-
-Los gastos planificados usan una clave primaria compuesta `(id_planned_expense, installment_number)`. Cada cuota es un registro independiente:
-
-```
-planned_expenses
-├── id_planned_expense    INTEGER  (PK, identifica el grupo)
-├── installment_number    INTEGER  (PK, número de cuota: 1, 2, 3...)
-├── account_id            INTEGER  (FK → accounts)
-├── installment_amount    DECIMAL  (monto fijo por cuota)
-├── description           VARCHAR
-├── due_date              DATETIME (fecha de vencimiento de esa cuota)
-└── status_id             INTEGER  (FK → statuses: 1=activa, 2=pagada)
-```
----
-## Modelo de datos Principales — Miembros de Cuenta grupales
-```
-group_account_members
-├── id          INTEGER  (PK, identifica a la cuenta)
-├── account_id  INTEGER  (FK → accounts)
-├── user_id     INTEGER  (FK → users)     
-├── role        String
-```
----
-
 ## Variables de entorno
 
 | Variable | Descripción |
@@ -235,10 +212,5 @@ group_account_members
 | `APP_HOST` | Host donde corre la API (ej: http://localhost:8000). |
 | `FRONTEND_URL` | URL del frontend para redirecciones (ej: para el link de recuperación de contraseña) |
 
----
-
-## Equipo
-
-Proyecto desarrollado como trabajo práctico integrador.
 
 
