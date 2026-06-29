@@ -6,7 +6,7 @@ from app.dals.group_account_member_dal import GroupAccountMemberDAL
 from app.dals.status_dal import StatusDAL
 from app.database.database import get_db
 from app.models.user import User
-from app.schemas.account import AccountCreate, AccountRequest, AccountResponse
+from app.schemas.account import AccountCreate, AccountRequest, AccountResponse, AccountMemberCreate, AccountMemberResponse
 from app.services.account_service import AccountService
 
 
@@ -43,6 +43,50 @@ async def get_accounts_by_user(
     )
     return await account_service.get_by_id(account_id, current_user)
 
+@router.get(
+    "/{account_id}/members",
+    response_model=list[AccountMemberResponse],
+)
+async def get_account_members(
+    account_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    account_service = AccountService(
+        AccountDAL(db),
+        StatusDAL(db),
+        GroupAccountMemberDAL(db),
+    )
+
+    return await account_service.get_members(
+        account_id,
+        current_user,
+    )
+
+
+@router.post(
+    "/{account_id}/members",
+    response_model=AccountMemberResponse,
+    status_code=201,
+)
+async def add_account_member(
+    account_id: int,
+    member_data: AccountMemberCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    account_service = AccountService(
+        AccountDAL(db),
+        StatusDAL(db),
+        GroupAccountMemberDAL(db),
+    )
+
+    return await account_service.add_member_by_email(
+        account_id,
+        member_data,
+        current_user,
+    )
+
 @router.post("/",response_model=AccountResponse)
 async def create_account(
     account: AccountCreate,
@@ -76,7 +120,7 @@ async def update_account(
     return await account_service.update_account(account, current_user)
 
 @router.put("/deactivate/{account_id}", response_model=dict)
-async def update_account(
+async def deactivate_account(
     account_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)

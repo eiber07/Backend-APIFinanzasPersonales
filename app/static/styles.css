@@ -21,7 +21,7 @@ body {
     display: flex; 
     flex-direction: column; 
     margin: 0 80px; 
-    padding: 20px; 
+    padding: 5px; 
     border-radius: 8px; 
 }
 
@@ -282,37 +282,24 @@ display: block;
 }
 
 .sidebar .profile{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    justify-content: center;
     padding-bottom: 0;
 }
 
-.cont-profile{
-    width: 50px;
-    height: 50px;      
-    border-radius: 50%;
-    overflow: hidden;  
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    object-fit: cover;
-}
-
-.cont-profile img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
 .sidebar .profile-info{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     padding-left: 0;
-    margin: bottom 0;
 }
 
-.sidebar .profile-info p {
-    margin: 0;
+.sidebar .profile-info p{
+    margin: 2px 0;
+    text-align: left;
 }
+
 .sidebar .menu{
     padding-top: 0;
 }
@@ -353,7 +340,7 @@ display: block;
 
 .grid-contenedor {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 250px 1fr;
     grid-template-rows: 68px 1fr;
     grid-template-areas:
         "sidebar header"
@@ -475,6 +462,51 @@ display: block;
     color: #374151;
 }
 
+.tarjeta-balance-info {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.tarjeta-balance-encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.filtro-periodo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.select-periodo {
+    height: 31px;
+    padding: 0 8px;
+    border: 1px solid #D1D5DB;
+    border-radius: 5px;
+    background: #FFFFFF;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.select-periodo:focus {
+    outline: none;
+    border-color: #2563EB;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+#filter-month {
+    width: 90px;
+}
+
+.select-periodo-year {
+    width: 72px;
+}
+
 .punto-verde {
     width: 7px;
     height: 7px;
@@ -575,7 +607,6 @@ display: block;
 
 .titulo-seccion h2 {
     font-size: 20px;
-    font-weight: 800;
     color: #1F2937;
     margin: 0;
 }
@@ -631,7 +662,14 @@ display: block;
     height: 58px;
 }
 
-.tabla-transacciones th:last-child, .tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
+/* Encabezado */
+.tabla-transacciones th:last-child {
+    text-align: right;
+    padding-right: 100px;
+}
+
+/* Datos */
+.tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
     text-align: right;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
@@ -678,6 +716,13 @@ display: block;
 
 .componente-cuentas {
     width: 100%;
+    height: 340px;
+}
+
+.installmentCards {
+    max-height: 225px;
+    overflow-y: auto;
+    padding-right: 2px;
 }
 
 .lista-facturas {
@@ -707,14 +752,13 @@ display: block;
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-weight: 800;
 }
 
 .factura-fecha span {
     font-size: 10px;
 }
 
-.factura-fecha strong {
+.factura-fecha {
     font-size: 16px;
 }
 
@@ -726,7 +770,6 @@ display: block;
 
 .factura-info h3 {
     font-size: 14px;
-    font-weight: 800;
     color: #111827;
     margin: 0 0 4px;
 }
@@ -739,12 +782,8 @@ display: block;
 
 .factura-monto {
     text-align: right;
-}
-
-.factura-monto strong {
     display: block;
     font-size: 16px;
-    font-weight: 800;
     color: #000000;
     margin-bottom: 6px;
 }
@@ -758,7 +797,6 @@ display: block;
     background: #1D4ED8;
     color: #ffffff;
     font-size: 14px;
-    font-weight: 700;
     cursor: pointer;
 }
 
@@ -874,7 +912,7 @@ display: block;
     display: flex;
     gap: 25px;
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 .btn-red {
@@ -1114,13 +1152,156 @@ display: block;
     max-width: 400px;
 }
 
-.acciones-modal {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-}
-
 .acciones-modal button {
     min-width: 140px;
+}
+.factura-completada {
+    opacity: 0.5;
+    filter: grayscale(2);
+}
+.account-item.active {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-weight: 600;
+}
+.account-item:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+/* ============================= */
+/* COLUMNA DERECHA DEL DASHBOARD */
+/* ============================= */
+
+.columna-derecha {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-width: 0;
+    min-height: 455px;
+}
+
+.componente-miembros {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 32px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1px solid #D9E0EF;
+    border-radius: 8px;
+}
+
+.miembros-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.miembros-header h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 18px;
+}
+
+.btn-miembros-mas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.btn-miembros-mas:hover {
+    opacity: 0.75;
+}
+
+.members-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-name {
+    margin: 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.member-status {
+    margin: 3px 0 0;
+    color: #6B7280;
+    font-size: 12px;
+}
+
+.members-empty {
+    margin: 0;
+    padding: 14px 0 2px;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.content-modal-members {
+    max-width: 430px;
+}
+
+.form-members {
+    width: 100%;
+    margin-top: 20px;
+    padding: 0;
+}
+
+.member-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+}
+
+.member-modal-actions .btn-primary,
+.member-modal-actions .btn-secondary {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+@media (max-width: 1100px) {
+    .columna-derecha {
+        display: flex;
+        flex-direction: column;
+        min-height: auto;
+        gap: 24px;
+    }
+
+    .componente-miembros {
+        align-self: stretch;
+    }
+}
+
+@media (max-width: 600px) {
+    .tarjeta-balance-encabezado {
+        flex-wrap: wrap;
+    }
+
+    .filtro-periodo {
+        width: 100%;
+        justify-content: flex-end;
+    }
 }
