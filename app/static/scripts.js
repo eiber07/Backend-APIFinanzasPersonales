@@ -1378,6 +1378,10 @@ document.getElementById("btnSaveEditTransax")?.addEventListener("click", async (
         if (res.ok) {
             ShowSuccessMessage("Transacción actualizada correctamente.");
             await loadTransactions(activeAccount.id);
+            if (isGroupAccount(activeAccount)) {
+                await loadMembers(activeAccount.id);
+                await loadGroupDebts(activeAccount.id);
+            }
             ModalManager.close("modalEditTransax");
             ModalManager.close("modalTransax");
         } else {
@@ -1408,6 +1412,10 @@ btnDelete?.addEventListener("click", async (e) => {
         if (res.ok) {
             ShowSuccessMessage("Transacción eliminada correctamente.");
             await loadTransactions(activeAccount.id);
+            if (isGroupAccount(activeAccount)) {
+                await loadMembers(activeAccount.id);
+                await loadGroupDebts(activeAccount.id);
+            }
             ModalManager.close(MODAL_TX);
         } else {
             const err = await res.json();
@@ -1511,9 +1519,11 @@ async function saveNewTransaction() {
         if (res.ok) {
             ShowSuccessMessage("Transacción guardada correctamente.");
             await loadTransactions(activeAccount.id);
-            await loadGroupDebts(activeAccount.id);
             await loadPlannedExpenses(activeAccount.id);
-            if (plannedExpenseId) await loadPlannedExpenses(activeAccount.id);
+            if (isGroupAccount(activeAccount)) {
+                await loadMembers(activeAccount.id);
+                await loadGroupDebts(activeAccount.id);
+            }
             ModalManager.close("modalNewTransax");
         } else {
             const err = await res.json();

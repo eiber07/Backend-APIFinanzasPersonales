@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from app.models.transaction import Transaction
+from sqlalchemy import update
 
 class TransactionDAL:
     def __init__(self, db: AsyncSession):
@@ -48,4 +49,11 @@ class TransactionDAL:
         transaction.status_id = 2
         await self.db.commit()
         return transaction
+    
+    async def deactivate_by_account(self, account_id: int, status_id: int):
+        await self.db.execute(update(Transaction)
+            .where(Transaction.account_id == account_id)
+            .values(status_id=status_id)
+        )
+        await self.db.commit()
     

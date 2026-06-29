@@ -8,6 +8,8 @@ from app.database.database import get_db
 from app.models.user import User
 from app.schemas.account import AccountCreate, AccountRequest, AccountResponse, AccountMemberCreate, AccountMemberResponse
 from app.services.account_service import AccountService
+from app.dals.transaction_dal import TransactionDAL
+from app.dals.planned_expense_dal import PlannedExpenseDAL
 
 
 router = APIRouter()
@@ -125,12 +127,11 @@ async def deactivate_account(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    account_dal = AccountDAL(db)
-    status_dal = StatusDAL(db)
-    group_member_dal = GroupAccountMemberDAL(db)
     account_service = AccountService(
-        account_dal,
-        status_dal,
-        group_member_dal,
+        AccountDAL(db),
+        StatusDAL(db),
+        GroupAccountMemberDAL(db),
+        TransactionDAL(db),
+        PlannedExpenseDAL(db),
     )
     return await account_service.deactivate_account(account_id, current_user)
