@@ -50,7 +50,7 @@ class UserService:
 
         new_account = Account(
             id_admin_user = created_user.id,
-            name = created_user.name,
+            name = "Cuenta Personal",
             status_id = status_active.id, 
             account_type_id = personal_account_type.id,
         )

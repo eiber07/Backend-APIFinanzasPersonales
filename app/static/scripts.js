@@ -448,9 +448,7 @@ function getAccountDisplayName(account) {
         .trim()
         .toLowerCase();
 
-    return accountType === "personal"
-        ? "Cuenta Personal"
-        : account.name;
+    return account.name;
 }
 
 async function loadUserAccounts() {
