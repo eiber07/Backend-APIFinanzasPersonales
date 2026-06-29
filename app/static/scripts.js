@@ -1596,6 +1596,20 @@ function renderRecentTransactions() {
         memberHeader.hidden = !showMemberColumn;
     }
 
+    const transactionsTable = tableBody.closest(".tabla-transacciones");
+
+    if (transactionsTable) {
+        transactionsTable.classList.toggle(
+            "tabla-personal",
+            !showMemberColumn
+        );
+
+        transactionsTable.classList.toggle(
+            "tabla-grupal",
+            showMemberColumn
+        );
+    }
+
     if (filteredTransactions.length === 0) {
         tableBody.innerHTML = `
             <tr class="empty-transactions-row">
