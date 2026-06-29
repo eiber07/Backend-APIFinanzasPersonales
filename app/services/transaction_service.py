@@ -27,7 +27,7 @@ class TransactionService:
         
         if transaction.creator is not None:
             user_name = (
-                f"{transaction.creator.name}"
+                f"{transaction.creator.name} "
                 f"{transaction.creator.last_name}"
             ).strip()
             
