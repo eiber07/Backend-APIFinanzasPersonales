@@ -20,13 +20,6 @@ def calculate_group_balances_and_debts(transactions: list[Any], member_ids: list
     balances = {member_id: Decimal("0") for member_id in normalized_member_ids}
 
     for transaction in transactions:
-        transaction_type  = (
-            getattr(getattr(transaction, "type", None), "name", "")
-            .strip()
-            .lower()
-        )
-        if transaction_type not in {"egreso", "gasto planificado"}:
-            continue
         amount = Decimal(str(transaction.amount))
         payer_id = getattr(transaction, "user_id", None)
 
