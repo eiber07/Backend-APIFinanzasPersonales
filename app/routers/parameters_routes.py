@@ -12,33 +12,30 @@ from app.services.parameters_service import ParametersService
 
 router = APIRouter()
 
+def get_parameters_service(db: AsyncSession = Depends(get_db)) -> ParametersService:
+    return ParametersService(
+        StatusDAL(db),
+        AccountTypeDAL(db),
+        TransactionTypeDAL(db),
+        TransactionCategoryDAL(db)
+    )
+
 @router.get("/parameters", response_model=dict)
 async def get_parameters(
         parameters: str,
-        db: AsyncSession = Depends(get_db)
+        service: ParametersService = Depends(get_parameters_service)
         ):
-    
-    status_dal = StatusDAL(db)
-    account_type_dal = AccountTypeDAL(db)
-    transaction_type_dal = TransactionTypeDAL(db)
-    transaction_category_dal = TransactionCategoryDAL(db)
-        
-    parameters_service = ParametersService(
-        status_dal=status_dal,
-        account_type_dal=account_type_dal,
-        transaction_type_dal=transaction_type_dal,
-        transaction_category_dal=transaction_category_dal
-    )
 
-    if(parameters == "statuses"):
-        parameters = await parameters_service.get_statuses()
-    elif(parameters == "accountTypes"):
-        parameters = await parameters_service.get_account_types()
-    elif(parameters == "transactionTypes"):
-        parameters = await parameters_service.get_transaction_types()
-    elif(parameters == "transactionCategories"):
-        parameters = await parameters_service.get_transaction_categories()
-    else:
+    parameter_handlers = {
+        "statuses": service.get_statuses,
+        "accountTypes": service.get_account_types,
+        "transactionTypes": service.get_transaction_types,
+        "transactionCategories": service.get_transaction_categories,
+    }
+
+    handler = parameter_handlers.get(parameters)
+    if handler is None:
         return {"error": "Parámetro no válido"}
 
+    parameters = await handler()
     return {"result": parameters}

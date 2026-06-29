@@ -54,6 +54,16 @@ async function setActiveAccount(account, displayName = account.name) {
 
     await loadTransactions(account.id);
     await loadPlannedExpenses(account.id);
+    // Mostrar deudas solo en cuentas grupales
+    const seccionDeudas = document.getElementById("debts-component");
+    if (seccionDeudas) {
+        if (account.account_type === "grupal") {
+            seccionDeudas.style.display = "block";
+            await loadGroupDebts(account.id);
+        } else {
+            seccionDeudas.style.display = "none";
+        }
+    }
 }
 
 function isGroupAccount(account) {
@@ -64,12 +74,15 @@ function isGroupAccount(account) {
 
 async function updateMembersSection() {
     const membersSection = document.getElementById("members-section");
+    const rigthColumn = document.querySelector(".columna-derecha");
 
     if (!membersSection) return;
 
     const isGroup = isGroupAccount(activeAccount);
 
     membersSection.hidden = !isGroup;
+
+    rigthColumn?.classList.toggle("cuenta-grupal",isGroup);
 
     if (!isGroup) {
         ModalManager.close("modalMembers");
@@ -95,7 +108,10 @@ async function loadMembers(accountId) {
 
         const members = await response.json();
 
-        renderMembers(members);
+        const balancesByUserId = await loadGroupSettlement(accountId);
+
+        renderMembers(members, balancesByUserId);
+
     } catch (error) {
         console.error("Error cargando miembros:", error);
 
@@ -107,7 +123,78 @@ async function loadMembers(accountId) {
     }
 }
 
-function renderMembers(members) {
+async function loadGroupSettlement(accountId) {
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/transactions/group-settlement/${accountId}?month=${selectedFilterMonth}&year=${selectedFilterYear}`
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+
+            console.warn(
+                "No se pudo calcular el balance grupal:",
+                errorData.detail || "Error desconocido"
+            );
+
+            return null;
+        }
+
+        const settlement = await response.json();
+
+        const balancesByUserId = new Map();
+
+        (settlement.balances || []).forEach((item) => {
+            balancesByUserId.set(
+                Number(item.user_id),
+                Number(item.balance)
+            );
+        });
+
+        return balancesByUserId;
+
+    } catch (error) {
+        console.error("Error cargando liquidación grupal:", error);
+
+        return null;
+    }
+}
+
+function formatMemberBalance(balance) {
+    const numericBalance = Number(balance) || 0;
+    const absoluteBalance = Math.abs(numericBalance);
+
+    const formattedBalance = absoluteBalance.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    if (numericBalance > 0) {
+        return `+$${formattedBalance}`;
+    }
+
+    if (numericBalance < 0) {
+        return `-$${formattedBalance}`;
+    }
+
+    return `$${formattedBalance}`;
+}
+
+function getMemberBalanceLabel(balance) {
+    const numericBalance = Number(balance) || 0;
+
+    if (numericBalance > 0) {
+        return "Saldo a favor";
+    }
+
+    if (numericBalance < 0) {
+        return "Debe";
+    }
+
+    return "Al día";
+}
+
+function renderMembers(members, balancesByUserId = null) {
     const membersList = document.getElementById("members-list");
     const addButton = document.getElementById("btnOpenMembers");
 
@@ -160,7 +247,44 @@ function renderMembers(members) {
 
         information.appendChild(name);
         information.appendChild(status);
+
+        const balanceInfo = document.createElement("div");
+        balanceInfo.classList.add("member-balance-info");
+
+        const balance = balancesByUserId?.get(
+            Number(member.user_id)
+        );
+
+        const balanceAmount = document.createElement("p");
+        balanceAmount.classList.add("member-balance");
+
+        const balanceLabel = document.createElement("p");
+        balanceLabel.classList.add("member-balance-label");
+
+        if (balance === undefined || balance === null) {
+            balanceAmount.textContent = "—";
+            balanceAmount.classList.add("member-balance-neutral");
+
+            balanceLabel.textContent = "Sin calcular";
+        } else {
+            balanceAmount.textContent = formatMemberBalance(balance);
+
+            if (balance > 0) {
+                balanceAmount.classList.add("member-balance-positive");
+            } else if (balance < 0) {
+                balanceAmount.classList.add("member-balance-negative");
+            } else {
+                balanceAmount.classList.add("member-balance-neutral");
+            }
+
+            balanceLabel.textContent = getMemberBalanceLabel(balance);
+        }
+
+        balanceInfo.appendChild(balanceAmount);
+        balanceInfo.appendChild(balanceLabel);
+
         item.appendChild(information);
+        item.appendChild(balanceInfo);
 
         membersList.appendChild(item);
     });
@@ -414,7 +538,7 @@ function initializePeriodFilter() {
     yearSelect.addEventListener("change", handlePeriodFilterChange);
 }
 
-function handlePeriodFilterChange() {
+async function handlePeriodFilterChange() {
     const monthSelect = document.getElementById("filter-month");
     const yearSelect = document.getElementById("filter-year");
 
@@ -422,6 +546,10 @@ function handlePeriodFilterChange() {
     selectedFilterYear = Number(yearSelect.value);
 
     applyPeriodFilter();
+
+    if (activeAccount && isGroupAccount(activeAccount)) {
+        await loadMembers(activeAccount.id);
+    }
 }
 
 function updateYearFilterOptions() {
@@ -525,6 +653,8 @@ async function loadTransactions(accountId) {
             category: t.category,
             categoryId: t.category_id,
             description: t.description,
+            memberId: t.user_id ?? null,
+            memberName: t.user_name || "Sin asignar",
             dateRaw: t.transaction_date.split("T")[0],
             amountNumber: t.type === "ingreso" ? parseFloat(t.amount) : parseFloat(t.amount) * -1,
             amount: `${t.type === "ingreso" ? "+" : "-"}${formatTransactionMoney(parseFloat(t.amount))}`,
@@ -598,6 +728,19 @@ async function loadPlannedExpenses(accountId) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    document.getElementById("info-modal")?.addEventListener("click", () => {
+    if (!activeAccount) return;
+
+        document.getElementById("account-info-id").textContent   = activeAccount.id;
+        document.getElementById("account-info-name").textContent = activeAccount.name;
+        document.getElementById("account-info-type").textContent =
+            activeAccount.account_type === "personal" ? "Personal" : "Grupal";
+
+        ModalManager.open("modalAccountInfo");
+    });
+    document.getElementById("btnDeleteAccount")?.addEventListener("click", deleteActiveAccount);
+
+
     document.getElementById("btnLogoutTop")?.addEventListener("click", () => {
         ModalManager.open("modalLogout");
     });
@@ -985,7 +1128,32 @@ async function resetPassword() {
         }
     }
 }   
+async function deleteActiveAccount() {
+    if (!activeAccount) return;
 
+    const accountName = activeAccount.name;
+
+    if (!confirm(`¿Eliminar la cuenta "${accountName}"? Esta acción no se puede deshacer.`)) return;
+
+    try {
+        const res = await fetchWithAuth(
+            `http://localhost:8000/accounts/deactivate/${activeAccount.id}`,
+            { method: "PUT" }
+        );
+
+        if (res.ok) {
+            ShowSuccessMessage("Cuenta eliminada correctamente.");
+            ModalManager.close("modalAccountInfo");
+            activeAccount = null;
+            await loadUserAccounts();
+        } else {
+            const err = await res.json();
+            ShowErrorMessage(err.detail || "No se pudo eliminar la cuenta.");
+        }
+    } catch {
+        ShowErrorMessage("No se pudo conectar con el servidor.");
+    }
+}
 /* MODALS */
 const ModalManager = (() => {
     /* lógica de limpieza o reset específica de cada modal, sin tocar el núcleo.  */
@@ -1064,7 +1232,12 @@ const ModalManager = (() => {
 
                 clearMemberEmailError();
             }
-
+        },modalAccountInfo: {
+            onClose() {
+                document.getElementById("account-info-id").textContent   = "";
+                document.getElementById("account-info-name").textContent = "";
+                document.getElementById("account-info-type").textContent = "";
+            }
         },modalLogout: {
             onClose() {}
         },modalExpenses: {
@@ -1338,6 +1511,8 @@ async function saveNewTransaction() {
         if (res.ok) {
             ShowSuccessMessage("Transacción guardada correctamente.");
             await loadTransactions(activeAccount.id);
+            await loadGroupDebts(activeAccount.id);
+            await loadPlannedExpenses(activeAccount.id);
             if (plannedExpenseId) await loadPlannedExpenses(activeAccount.id);
             ModalManager.close("modalNewTransax");
         } else {
@@ -1409,24 +1584,44 @@ function updateAccountTotals() {
 
 function renderRecentTransactions() {
     const tableBody = document.getElementById("transactions-table-body");
+    const memberHeader = document.getElementById(
+        "transaction-member-header"
+    );
 
     if (!tableBody) return;
+
+    const showMemberColumn = isGroupAccount(activeAccount);
+
+    if (memberHeader) {
+        memberHeader.hidden = !showMemberColumn;
+    }
 
     if (filteredTransactions.length === 0) {
         tableBody.innerHTML = `
             <tr class="empty-transactions-row">
-                <td colspan="4">
+                <td colspan="${showMemberColumn ? 5 : 4}">
                     <div class="empty-transactions-message">
                         No se registraron transacciones en ${getSelectedPeriodLabel()}
                     </div>
                 </td>
             </tr>
         `;
+
         return;
     }
 
-    tableBody.innerHTML = filteredTransactions.map(transaction => {
-        const amountClass = transaction.amountNumber > 0 ? "monto-positivo" : "";
+    tableBody.innerHTML = filteredTransactions.map((transaction) => {
+        const amountClass = transaction.amountNumber > 0
+            ? "monto-positivo"
+            : "";
+
+        const memberCell = showMemberColumn
+            ? `
+                <td class="columna-miembro">
+                    ${transaction.memberName}
+                </td>
+            `
+            : "";
 
         return `
             <tr class="clickable-row"
@@ -1439,11 +1634,20 @@ function renderRecentTransactions() {
                 data-planned-expense-id="${transaction.plannedExpenseId ?? ''}">
 
                 <td>${transaction.date}</td>
+
                 <td>
-                    <span class="categoria-etiqueta">${transaction.category}</span>
+                    <span class="categoria-etiqueta">
+                        ${transaction.category}
+                    </span>
                 </td>
+
                 <td>${transaction.description}</td>
-                <td class="${amountClass}">${transaction.amount}</td>
+
+                ${memberCell}
+
+                <td class="${amountClass}">
+                    ${transaction.amount}
+                </td>
             </tr>
         `;
     }).join("");
@@ -1806,4 +2010,91 @@ function openExpenseDetail(dataset) {
     if (btnDeleteEx) btnDeleteEx.disabled = false;
 
     ModalManager.open("modalEditExpenses");
+}
+
+async function loadGroupDebts(accountId) {
+    const section = document.getElementById("debts-component");
+    const container = document.getElementById("debts-container");
+    if (!section || !container) return;
+
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const year = now.getFullYear();
+
+    try {
+        // 1. Obtener deudas
+        const res = await fetchWithAuth(
+            `http://localhost:8000/transactions/group-settlement/${accountId}?month=${month}&year=${year}`
+        );
+
+        if (!res.ok) {
+            container.innerHTML = `<p style="color:#6B7280;">No se pudieron cargar las deudas.</p>`;
+            return;
+        }
+
+        const data = await res.json();
+
+        if (!data.debts || data.debts.length === 0) {
+            container.innerHTML = `<p style="color:#6B7280;">No hay deudas para este período.</p>`;
+            return;
+        }
+
+        // 2. Obtener IDs únicos
+        const userIds = [...new Set([
+            ...data.debts.map(d => d.from_user_id),
+            ...data.debts.map(d => d.to_user_id)
+        ])];
+
+        // 3. Obtener nombres desde /users/by_id
+        const userMap = {};
+
+        await Promise.all(
+            userIds.map(async (id) => {
+                try {
+                    const r = await fetchWithAuth(
+                        `http://localhost:8000/users/by_id?id=${id}`
+                    );
+
+                    if (r.ok) {
+                        const u = await r.json();
+                        userMap[id] = `${u.name} ${u.last_name}`;
+                    } else {
+                        userMap[id] = `Usuario ${id}`;
+                    }
+                } catch {
+                    userMap[id] = `Usuario ${id}`;
+                }
+            })
+        );
+
+        // 4. Renderizar tarjetas
+        container.innerHTML = data.debts.map(debt => {
+            const fromName = userMap[debt.from_user_id];
+            const toName = userMap[debt.to_user_id];
+            const fromInitial = fromName.charAt(0).toUpperCase();
+            const toInitial = toName.charAt(0).toUpperCase();
+            const amount = formatTransactionMoney(parseFloat(debt.amount));
+
+            return `
+                <div class="debts-card">
+                    <div class="user-debts">
+                        <div class="debts-avatar">${fromInitial}</div>
+                        <span class="debts-name">${fromName}</span>
+                    </div>
+                    <div class="arrow-debts">
+                        <span>→</span>
+                        <span class="debts-ammount">${amount}</span>
+                    </div>
+                    <div class="user-debts">
+                        <div class="debts-avatar">${toInitial}</div>
+                        <span class="debts-name">${toName}</span>
+                    </div>
+                </div>
+            `;
+        }).join("");
+
+    } catch (err) {
+        console.error("Error cargando deudas:", err);
+        container.innerHTML = `<p style="color:#6B7280;">Error al conectar con el servidor.</p>`;
+    }
 }
