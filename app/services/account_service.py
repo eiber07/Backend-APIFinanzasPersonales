@@ -9,6 +9,8 @@ from app.models.account import Account
 from app.models.group_account_member import GroupAccountMember
 from app.models.user import User
 from app.schemas.account import AccountCreate, AccountRequest, AccountResponse, AccountMemberCreate, AccountMemberResponse
+from app.dals.transaction_dal import TransactionDAL
+from app.dals.planned_expense_dal import PlannedExpenseDAL
 
 
 class AccountService:
@@ -17,10 +19,14 @@ class AccountService:
         accountDAL: AccountDAL,
         statusDAL: StatusDAL,
         groupAccountMemberDAL: GroupAccountMemberDAL,
+        transactionDAL: TransactionDAL = None,
+        plannedExpenseDAL: PlannedExpenseDAL = None,
     ):
         self.accountDAL = accountDAL
         self.statusDAL = statusDAL
         self.groupAccountMemberDAL = groupAccountMemberDAL
+        self.transactionDAL = transactionDAL
+        self.plannedExpenseDAL = plannedExpenseDAL
 
     async def _build_account_response(self, account: Account) -> AccountResponse:
         members = await self.groupAccountMemberDAL.get_by_account_id(account.id)
@@ -393,6 +399,12 @@ class AccountService:
             )
         
         inactive_status = await self.statusDAL.get_by_name('inactiva')
+
+        if self.transactionDAL:
+            await self.transactionDAL.deactivate_by_account(id, inactive_status.id)
+
+        if self.plannedExpenseDAL:
+            await self.plannedExpenseDAL.deactivate_by_account(id, inactive_status.id)
 
         account_update = Account(
             id=account.id,
