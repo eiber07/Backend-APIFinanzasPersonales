@@ -15,6 +15,8 @@ class TransactionDAL:
                 selectinload(Transaction.creator),
             ).where(
                 Transaction.account_id == account_id, Transaction.status_id ==1
+            ).order_by (
+                Transaction.creation_date.desc(), Transaction.id.desc()
             )
         )
         return result.scalars().all()
