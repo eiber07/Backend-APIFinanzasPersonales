@@ -74,12 +74,15 @@ function isGroupAccount(account) {
 
 async function updateMembersSection() {
     const membersSection = document.getElementById("members-section");
+    const rigthColumn = document.querySelector(".columna-derecha");
 
     if (!membersSection) return;
 
     const isGroup = isGroupAccount(activeAccount);
 
     membersSection.hidden = !isGroup;
+
+    rigthColumn?.classList.toggle("cuenta-grupal",isGroup);
 
     if (!isGroup) {
         ModalManager.close("modalMembers");

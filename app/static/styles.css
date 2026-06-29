@@ -1425,3 +1425,19 @@ display: block;
 .member-balance-neutral {
     color: #374151;
 }
+
+.columna-derecha.cuenta-grupal {
+    display: flex;
+    flex-direction: column;
+    min-height: 455px;
+}
+
+.columna-derecha.cuenta-grupal .componente-miembros {
+    order: 1;
+    margin-top: 0;
+}
+
+.columna-derecha.cuenta-grupal .componente-cuentas {
+    order: 2;
+    margin-top: 32px;
+}
