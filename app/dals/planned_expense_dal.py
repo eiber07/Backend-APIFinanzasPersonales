@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.planned_expense import PlannedExpense
 from sqlalchemy import update
+from sqlalchemy import func
 
 class PlannedExpenseDAL:
     def __init__(self, db: AsyncSession):
@@ -79,3 +80,13 @@ class PlannedExpenseDAL:
         )
         await self.db.commit()
 
+    async def get_total_installments(self, id_planned_expense: int) -> int:
+        result = await self.db.execute(
+        select(func.count())
+        .select_from(PlannedExpense)
+        .where(
+            PlannedExpense.id_planned_expense == id_planned_expense
+        )
+    )
+
+        return result.scalar()

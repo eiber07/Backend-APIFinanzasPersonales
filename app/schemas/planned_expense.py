@@ -26,6 +26,7 @@ class PlannedExpenseResponse(BaseModel):
     description: Optional[str]
     due_date: datetime
     status_id: int
+    total: Decimal
 
     class Config:
         orm_mode = True

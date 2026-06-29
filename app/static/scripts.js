@@ -709,6 +709,7 @@ async function loadPlannedExpenses(accountId) {
                 installmentAmountRaw: group.installmentAmountRaw,
                 totalInstallments: total,
                 paidInstallments: paid,
+                total: formatTransactionMoney(group.installmentAmountRaw * total),
                 nextInstallment: nextPending ? nextPending.installmentNumber : null,
                 nextDueDateRaw: nextPending ? nextPending.dueDateRaw : null,
                 nextDueDate: nextPending ? nextPending.dueDate : null,
@@ -1818,12 +1819,14 @@ function renderExpenses() {
             data-next-installment="${expense.nextInstallment ?? ''}"
             data-next-due-date="${expense.nextDueDate ?? ''}"
             data-installment-amount="${expense.installmentAmount}"
+            data-total="${expense.total}"
             data-completed="${expense.completed}">
 
             <td>${expense.detail}</td>
             <td>${expense.paidInstallments} de ${expense.totalInstallments} cuotas</td>
             <td>${expense.nextDueDate ?? 'Completado'}</td>
             <td>${expense.installmentAmount}</td>
+            <td>${expense.total}</td>
         </tr>
     `).join("");
 }
@@ -1884,6 +1887,7 @@ function renderFacturasPreview() {
                 data-next-installment="${installment.installmentNumber}"
                 data-next-due-date="${installment.dueDateRaw}"
                 data-installment-amount="${expense.installmentAmount}"
+                data-total="${expense.total}"
                 data-completed="${expense.completed}"
             >
                 <div class="factura-fecha factura-fecha-gris">
@@ -2021,13 +2025,14 @@ function amountInstallment() {
 }
 
 function openExpenseDetail(dataset) {
-    const { id, detail, totalInstallments, paidInstallments, nextInstallment, nextDueDate, installmentAmount, completed } = dataset;
+    const { id, detail, totalInstallments, paidInstallments, nextInstallment, nextDueDate, installmentAmount, total, completed } = dataset;
     currentExpenseId = id;
 
     document.getElementById("expense-detail").textContent = detail;
     document.getElementById("expense-startdate").textContent = nextDueDate || "Completado";
     document.getElementById("expense-installments").textContent = `${paidInstallments} de ${totalInstallments} cuotas`;
     document.getElementById("expense-intallments-amount").textContent = installmentAmount ?? "-";
+    document.getElementById("expense-total-amount").textContent = total ?? "-";
 
     const btnDeleteEx = document.getElementById("btnDeleteEx");
     if (btnDeleteEx) btnDeleteEx.disabled = false;
