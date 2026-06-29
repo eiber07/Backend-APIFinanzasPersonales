@@ -227,6 +227,16 @@ function renderMembers(members, balancesByUserId = null) {
     members.forEach((member) => {
         const item = document.createElement("article");
         item.classList.add("member-item");
+        item.dataset.userId = member.user_id;
+        item.dataset.name = `${member.name} ${member.last_name}`.trim();
+        item.dataset.email = member.email;
+        item.dataset.role = member.role;
+
+        item.style.cursor = "pointer";
+
+        item.addEventListener("click", () => {
+        openMemberInfo(item.dataset);
+        });
 
         const information = document.createElement("div");
 
@@ -288,6 +298,23 @@ function renderMembers(members, balancesByUserId = null) {
 
         membersList.appendChild(item);
     });
+}
+
+function openMemberInfo(member) {
+
+    document.getElementById("member-info-name").textContent =
+        member.name;
+
+    document.getElementById("member-info-email").textContent =
+        member.email;
+
+    document.getElementById("member-info-status").textContent =
+        member.role;
+
+    document.getElementById("btnDeleteMember").dataset.userId =
+        member.userId;
+
+    ModalManager.open("modalMemberInfo");
 }
 
 function showMemberEmailError(message) {
@@ -754,6 +781,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("btnSaveMember")
     ?.addEventListener("click", saveMember);
+
+    document.getElementById("btnDeleteMember")
+    ?.addEventListener("click", deleteMember);
 
     document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
         localStorage.removeItem("access_token");
@@ -2123,5 +2153,36 @@ async function loadGroupDebts(accountId) {
     } catch (err) {
         console.error("Error cargando deudas:", err);
         container.innerHTML = `<p style="color:#6B7280;">Error al conectar con el servidor.</p>`;
+    }
+}
+
+async function deleteMember() {
+    const button = document.getElementById("btnDeleteMember");
+    const userId = button.dataset.userId;
+
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/accounts/${activeAccount.id}/members/${userId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            ShowErrorMessage(data.detail || "No se pudo eliminar el miembro.");
+            return;
+        }
+
+        ModalManager.close("modalMemberInfo");
+
+        await loadMembers(activeAccount.id);
+
+        ShowSuccessMessage("Miembro eliminado correctamente.");
+
+    } catch (error) {
+        console.error(error);
+        ShowErrorMessage("No se pudo conectar con el servidor.");
     }
 }

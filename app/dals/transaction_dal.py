@@ -56,4 +56,14 @@ class TransactionDAL:
             .values(status_id=status_id)
         )
         await self.db.commit()
-    
+        
+    async def member_has_active_transactions(self, account_id: int, user_id: int):
+        result = await self.db.execute(
+        select(Transaction).where(
+            Transaction.account_id == account_id,
+            Transaction.user_id == user_id,
+            Transaction.status_id == 1
+        )
+    )
+
+        return result.scalars().first() is not None
