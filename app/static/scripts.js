@@ -549,6 +549,7 @@ async function handlePeriodFilterChange() {
 
     if (activeAccount && isGroupAccount(activeAccount)) {
         await loadMembers(activeAccount.id);
+        await loadGroupDebts(activeAccount.id);
     }
 }
 
@@ -1378,6 +1379,10 @@ document.getElementById("btnSaveEditTransax")?.addEventListener("click", async (
         if (res.ok) {
             ShowSuccessMessage("Transacción actualizada correctamente.");
             await loadTransactions(activeAccount.id);
+            if (isGroupAccount(activeAccount)) {
+                await loadMembers(activeAccount.id);
+                await loadGroupDebts(activeAccount.id);
+            }
             ModalManager.close("modalEditTransax");
             ModalManager.close("modalTransax");
         } else {
@@ -1408,6 +1413,10 @@ btnDelete?.addEventListener("click", async (e) => {
         if (res.ok) {
             ShowSuccessMessage("Transacción eliminada correctamente.");
             await loadTransactions(activeAccount.id);
+            if (isGroupAccount(activeAccount)) {
+                await loadMembers(activeAccount.id);
+                await loadGroupDebts(activeAccount.id);
+            }
             ModalManager.close(MODAL_TX);
         } else {
             const err = await res.json();
@@ -1511,9 +1520,11 @@ async function saveNewTransaction() {
         if (res.ok) {
             ShowSuccessMessage("Transacción guardada correctamente.");
             await loadTransactions(activeAccount.id);
-            await loadGroupDebts(activeAccount.id);
             await loadPlannedExpenses(activeAccount.id);
-            if (plannedExpenseId) await loadPlannedExpenses(activeAccount.id);
+            if (isGroupAccount(activeAccount)) {
+                await loadMembers(activeAccount.id);
+                await loadGroupDebts(activeAccount.id);
+            }
             ModalManager.close("modalNewTransax");
         } else {
             const err = await res.json();
@@ -1594,6 +1605,20 @@ function renderRecentTransactions() {
 
     if (memberHeader) {
         memberHeader.hidden = !showMemberColumn;
+    }
+
+    const transactionsTable = tableBody.closest(".tabla-transacciones");
+
+    if (transactionsTable) {
+        transactionsTable.classList.toggle(
+            "tabla-personal",
+            !showMemberColumn
+        );
+
+        transactionsTable.classList.toggle(
+            "tabla-grupal",
+            showMemberColumn
+        );
     }
 
     if (filteredTransactions.length === 0) {
@@ -2017,9 +2042,8 @@ async function loadGroupDebts(accountId) {
     const container = document.getElementById("debts-container");
     if (!section || !container) return;
 
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const year = now.getFullYear();
+    const month = selectedFilterMonth;
+    const year = selectedFilterYear;
 
     try {
         // 1. Obtener deudas

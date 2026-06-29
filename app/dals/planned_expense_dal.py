@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.planned_expense import PlannedExpense
+from sqlalchemy import update
 
 class PlannedExpenseDAL:
     def __init__(self, db: AsyncSession):
@@ -69,3 +70,12 @@ class PlannedExpenseDAL:
         for expense in expenses:
             expense.status_id = 2
         await self.db.commit()
+
+    async def deactivate_by_account(self, account_id: int, status_id: int):
+        await self.db.execute(
+            update(PlannedExpense)
+            .where(PlannedExpense.account_id == account_id)
+            .values(status_id=status_id)
+        )
+        await self.db.commit()
+
