@@ -1441,3 +1441,21 @@ display: block;
     order: 2;
     margin-top: 32px;
 }
+
+/* Cuenta personal: 4 columnas distribuidas por igual */
+.componente-transacciones .tabla-transacciones.tabla-personal {
+    table-layout: fixed;
+}
+
+.componente-transacciones .tabla-transacciones.tabla-personal th, .componente-transacciones .tabla-transacciones.tabla-personal td {
+    width: 25%;
+}
+
+/* Cuenta grupal: 5 columnas distribuidas por igual */
+.componente-transacciones .tabla-transacciones.tabla-grupal {
+    table-layout: fixed;
+}
+
+.componente-transacciones .tabla-transacciones.tabla-grupal th, .componente-transacciones .tabla-transacciones.tabla-grupal td {
+    width: 20%;
+}
