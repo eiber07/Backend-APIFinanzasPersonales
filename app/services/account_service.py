@@ -252,6 +252,16 @@ class AccountService:
         # Add or update members
         for user_id in total_ids:
             if user_id not in existing_user_ids:
+
+                has_transactions = await self.transactionDAL.member_has_active_transactions(
+                    account_id, member.user_id)
+                
+                if has_transactions:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="No se puede eliminar un miembro con transacciones activas."
+                    )
+                
                 await self.groupAccountMemberDAL.create(
                     GroupAccountMember(
                         user_id=user_id,
@@ -421,3 +431,61 @@ class AccountService:
             status_code=200,
             content={"message": "Cuenta borrada exitosamente", "success": True}
         )
+    
+    async def delete_member(
+    self,
+    account_id: int,
+    user_id: int,
+    current_user: User
+):
+        account = await self.accountDAL.get_account_by_id(account_id)
+        if not account:
+            raise HTTPException(
+            status_code=404,
+            detail="La cuenta no existe."
+        )
+
+        admin = await self.groupAccountMemberDAL.get_by_id(
+        current_user.id,
+        account_id
+    )
+
+        if not admin or admin.role != "admin":
+            raise HTTPException(
+            status_code=403,
+            detail="Solo un administrador puede eliminar miembros."
+        )
+
+        member = await self.groupAccountMemberDAL.get_by_id(
+        user_id,
+        account_id
+    )
+
+        if not member:
+            raise HTTPException(
+            status_code=404,
+            detail="El miembro no existe."
+        )
+
+        if current_user.id == user_id:
+            raise HTTPException(
+        status_code=400,
+        detail="No podés eliminarte de la cuenta."
+    )
+
+        has_transactions = await self.transactionDAL.member_has_active_transactions(
+        account_id,
+        user_id
+    )
+
+        if has_transactions:
+            raise HTTPException(
+            status_code=400,
+            detail="No se puede eliminar un miembro con transacciones activas."
+        )
+
+        await self.groupAccountMemberDAL.delete(member)
+
+        return {
+            "message": "Miembro eliminado correctamente."
+        }

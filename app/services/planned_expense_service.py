@@ -21,6 +21,11 @@ class PlannedExpenseService:
         self.accountDAL = accountDAL
 
     async def _build_planned_expense_response(self, planned_expense: PlannedExpense) -> PlannedExpenseResponse:
+        
+        total_installments = await self.plannedExpenseDAL.get_total_installments(
+        planned_expense.id_planned_expense
+        )
+
         return PlannedExpenseResponse(
             id_planned_expense=planned_expense.id_planned_expense,
             installment_number=planned_expense.installment_number,
@@ -29,6 +34,7 @@ class PlannedExpenseService:
             description=planned_expense.description,
             due_date=planned_expense.due_date,
             status_id=planned_expense.status_id,
+            total=planned_expense.installment_amount * total_installments,
         )
     
     async def _validate_account_access(self, account_id: int, current_user: User):

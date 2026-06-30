@@ -332,11 +332,12 @@
                                     <th>Cuotas</th>
                                     <th>Próximo vencimiento</th>
                                     <th>Monto cuota</th>
+                                    <th>Total</th>
                                 </tr>
                             </thead>
                             <tbody id="gastos-table-body">
                                 <tr class="empty-transactions-row">
-                                    <td colspan="6">
+                                    <td colspan="5">
                                         <div class="empty-transactions-message">
                                             Aún no se han registrado gastos planeados
                                         </div>
@@ -358,6 +359,7 @@
                         <tr><td>Próximo vencimiento:</td><td id="expense-startdate"></td></tr>
                         <tr><td>Cuotas:</td><td id="expense-installments"></td></tr>
                         <tr><td>Monto por cuota:</td><td id="expense-intallments-amount"></td></tr>
+                        <tr><td>Total:</td><td id="expense-total-amount"></td></tr>
                     </table>
 
                     <div class="acciones-modal">
@@ -416,6 +418,30 @@
             </div>
         </main>
     </div>
+    <div id="modalMemberInfo" class="modal">
+    <div class="content-modal">
+        <span class="close" onclick="ModalManager.close('modalMemberInfo')">&times;</span>
+
+        <h2 style="color:#1F2937; margin:0;">Información del miembro</h2>
+
+        <table class="tabla-detalle">
+            <tr><td>Nombre:</td><td id="member-info-name"></td></tr>
+            <tr><td>Email:</td><td id="member-info-email"></td></tr>
+            <tr><td>Estado:</td><td id="member-info-status"></td></tr>
+        </table>
+
+        <div class="acciones-modal">
+            <button id="btnDeleteMember" class="btn-primary btn-red">
+                Eliminar miembro
+            </button>
+
+            <button class="btn-secondary"
+                    onclick="ModalManager.close('modalMemberInfo')">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
     <script src="/app/static/scripts.js"></script>
 
 <!-- MODAL: Cerrar Sesión -->

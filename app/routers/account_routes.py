@@ -135,3 +135,26 @@ async def deactivate_account(
         PlannedExpenseDAL(db),
     )
     return await account_service.deactivate_account(account_id, current_user)
+
+@router.delete(
+    "/{account_id}/members/{user_id}",
+    response_model=dict
+)
+async def delete_account_member(
+    account_id: int,
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    account_service = AccountService(
+        AccountDAL(db),
+        StatusDAL(db),
+        GroupAccountMemberDAL(db),
+        TransactionDAL(db),
+    )
+
+    return await account_service.delete_member(
+        account_id,
+        user_id,
+        current_user,
+    )

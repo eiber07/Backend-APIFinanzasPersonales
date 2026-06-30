@@ -227,6 +227,16 @@ function renderMembers(members, balancesByUserId = null) {
     members.forEach((member) => {
         const item = document.createElement("article");
         item.classList.add("member-item");
+        item.dataset.userId = member.user_id;
+        item.dataset.name = `${member.name} ${member.last_name}`.trim();
+        item.dataset.email = member.email;
+        item.dataset.role = member.role;
+
+        item.style.cursor = "pointer";
+
+        item.addEventListener("click", () => {
+        openMemberInfo(item.dataset);
+        });
 
         const information = document.createElement("div");
 
@@ -288,6 +298,23 @@ function renderMembers(members, balancesByUserId = null) {
 
         membersList.appendChild(item);
     });
+}
+
+function openMemberInfo(member) {
+
+    document.getElementById("member-info-name").textContent =
+        member.name;
+
+    document.getElementById("member-info-email").textContent =
+        member.email;
+
+    document.getElementById("member-info-status").textContent =
+        member.role;
+
+    document.getElementById("btnDeleteMember").dataset.userId =
+        member.userId;
+
+    ModalManager.open("modalMemberInfo");
 }
 
 function showMemberEmailError(message) {
@@ -709,6 +736,7 @@ async function loadPlannedExpenses(accountId) {
                 installmentAmountRaw: group.installmentAmountRaw,
                 totalInstallments: total,
                 paidInstallments: paid,
+                total: formatTransactionMoney(group.installmentAmountRaw * total),
                 nextInstallment: nextPending ? nextPending.installmentNumber : null,
                 nextDueDateRaw: nextPending ? nextPending.dueDateRaw : null,
                 nextDueDate: nextPending ? nextPending.dueDate : null,
@@ -753,6 +781,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("btnSaveMember")
     ?.addEventListener("click", saveMember);
+
+    document.getElementById("btnDeleteMember")
+    ?.addEventListener("click", deleteMember);
 
     document.getElementById("btnConfirmLogout")?.addEventListener("click", () => {
         localStorage.removeItem("access_token");
@@ -1818,12 +1849,14 @@ function renderExpenses() {
             data-next-installment="${expense.nextInstallment ?? ''}"
             data-next-due-date="${expense.nextDueDate ?? ''}"
             data-installment-amount="${expense.installmentAmount}"
+            data-total="${expense.total}"
             data-completed="${expense.completed}">
 
             <td>${expense.detail}</td>
             <td>${expense.paidInstallments} de ${expense.totalInstallments} cuotas</td>
             <td>${expense.nextDueDate ?? 'Completado'}</td>
             <td>${expense.installmentAmount}</td>
+            <td>${expense.total}</td>
         </tr>
     `).join("");
 }
@@ -1884,6 +1917,7 @@ function renderFacturasPreview() {
                 data-next-installment="${installment.installmentNumber}"
                 data-next-due-date="${installment.dueDateRaw}"
                 data-installment-amount="${expense.installmentAmount}"
+                data-total="${expense.total}"
                 data-completed="${expense.completed}"
             >
                 <div class="factura-fecha factura-fecha-gris">
@@ -2021,13 +2055,14 @@ function amountInstallment() {
 }
 
 function openExpenseDetail(dataset) {
-    const { id, detail, totalInstallments, paidInstallments, nextInstallment, nextDueDate, installmentAmount, completed } = dataset;
+    const { id, detail, totalInstallments, paidInstallments, nextInstallment, nextDueDate, installmentAmount, total, completed } = dataset;
     currentExpenseId = id;
 
     document.getElementById("expense-detail").textContent = detail;
     document.getElementById("expense-startdate").textContent = nextDueDate || "Completado";
     document.getElementById("expense-installments").textContent = `${paidInstallments} de ${totalInstallments} cuotas`;
     document.getElementById("expense-intallments-amount").textContent = installmentAmount ?? "-";
+    document.getElementById("expense-total-amount").textContent = total ?? "-";
 
     const btnDeleteEx = document.getElementById("btnDeleteEx");
     if (btnDeleteEx) btnDeleteEx.disabled = false;
@@ -2118,5 +2153,36 @@ async function loadGroupDebts(accountId) {
     } catch (err) {
         console.error("Error cargando deudas:", err);
         container.innerHTML = `<p style="color:#6B7280;">Error al conectar con el servidor.</p>`;
+    }
+}
+
+async function deleteMember() {
+    const button = document.getElementById("btnDeleteMember");
+    const userId = button.dataset.userId;
+
+    try {
+        const response = await fetchWithAuth(
+            `http://localhost:8000/accounts/${activeAccount.id}/members/${userId}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            ShowErrorMessage(data.detail || "No se pudo eliminar el miembro.");
+            return;
+        }
+
+        ModalManager.close("modalMemberInfo");
+
+        await loadMembers(activeAccount.id);
+
+        ShowSuccessMessage("Miembro eliminado correctamente.");
+
+    } catch (error) {
+        console.error(error);
+        ShowErrorMessage("No se pudo conectar con el servidor.");
     }
 }
