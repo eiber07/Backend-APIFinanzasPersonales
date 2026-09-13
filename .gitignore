@@ -14,6 +14,8 @@ __pycache__/
 env/
 venv/
 .venv/
+backend/.venv/
+frontend/.venv/
 
 # =========================
 # Environment variables
@@ -25,7 +27,7 @@ venv/
 # =========================
 
 # VSCode
-.vscode/
+backend/.vscode/
 
 # PyCharm
 .idea/

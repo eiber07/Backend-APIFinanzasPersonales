@@ -12,9 +12,9 @@ from app.models.user import User
 CENT = Decimal("0.01")
 
 
-def calculate_group_balances_and_debts(transactions: list[Any], member_ids: list[int]) -> tuple[dict[int, Decimal], list[dict[str, Any]]]:
+def calculate_group_balances(transactions: list[Any], member_ids: list[int]) -> dict[int, Decimal]:
     if not member_ids:
-        return {}, []
+        return {}
 
     normalized_member_ids = sorted(set(member_ids))
     balances = {member_id: Decimal("0") for member_id in normalized_member_ids}
@@ -45,9 +45,20 @@ def calculate_group_balances_and_debts(transactions: list[Any], member_ids: list
     for member_id in balances:
         balances[member_id] = balances[member_id].quantize(CENT, rounding=ROUND_HALF_UP)
 
+    return balances
+
+
+def calculate_group_debts(balances: dict[int, Decimal]) -> list[dict[str, Any]]:
     debts = []
-    creditors = sorted(((member_id, balance) for member_id, balance in balances.items() if balance > 0), key=lambda item: item[1], reverse=True)
-    debtors = sorted(((member_id, balance) for member_id, balance in balances.items() if balance < 0), key=lambda item: item[1])
+    creditors = sorted(
+        ((member_id, balance) for member_id, balance in balances.items() if balance > 0),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    debtors = sorted(
+        ((member_id, balance) for member_id, balance in balances.items() if balance < 0),
+        key=lambda item: item[1],
+    )
 
     creditor_index = 0
     debtor_index = 0
@@ -77,6 +88,12 @@ def calculate_group_balances_and_debts(transactions: list[Any], member_ids: list
         if debtors[debtor_index][1] >= 0:
             debtor_index += 1
 
+    return debts
+
+
+def calculate_group_balances_and_debts(transactions: list[Any], member_ids: list[int]) -> tuple[dict[int, Decimal], list[dict[str, Any]]]:
+    balances = calculate_group_balances(transactions, member_ids)
+    debts = calculate_group_debts(balances)
     return balances, debts
 
 
