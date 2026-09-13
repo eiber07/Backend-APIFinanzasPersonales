@@ -1,3 +1,5 @@
+import asyncio
+
 from sqlalchemy import select
 
 from app.database.database import AsyncSessionLocal
@@ -60,3 +62,7 @@ async def seed_all_data():
         await session.commit()
 
     print("Seed completado correctamente.")
+
+
+if __name__ == "__main__":
+    asyncio.run(seed_all_data())

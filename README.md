@@ -157,6 +157,18 @@ uvicorn app.main:app --reload
 
 La API quedará disponible en http://localhost:8000 y la documentación interactiva en http://localhost:8000/docs.
 
+### Inicialización de datos
+
+El servidor no crea tablas ni ejecuta el seed al iniciar. El esquema se administra con Alembic y los datos iniciales se cargan como una tarea separada:
+
+```bash
+alembic upgrade head
+python -m app.database.data_seed
+uvicorn app.main:app
+```
+
+`seed_all_data` es idempotente: si los parámetros ya existen, no los duplica. En Railway, configurar `alembic upgrade head` como comando de despliegue previo y ejecutar `python -m app.database.data_seed` una vez sobre la base nueva. El comando de inicio del servicio debe ser únicamente `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
+
 ---
 
 ## 11. Tecnologías utilizadas
