@@ -1,0 +1,66 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Modal from "@/components/Modal";
+import { apiFetch, setToken } from "@/lib/api";
+
+export default function RegisterPage():
+  
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear nueva cuenta</title>
+  <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="content">
+      <div class="form-section">
+        <div class="titles">
+          <span class="app-title">Finance tracker</span>
+          <span class="form-title">Crear cuenta</span>
+        </div>
+        <form id="registerForm">
+        <div class="form-group2">
+          <div>
+            <label class="label">Nombre</label>
+            <input type="text" class="input" id="name" placeholder="">
+            <span class="error" id="error-name"></span>
+          </div>
+          <div>
+            <label class="label">Apellido</label>
+            <input type="text" class="input" id="lastname" placeholder="">
+            <span class="error" id="error-lastname"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Email</label>
+          <input type="text" class="input" id="email" placeholder="">
+          <span class="error" id="error-email"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="label">Contraseña</label>
+          <input type="password" class="input" id="password" placeholder="">
+          <span class="error" id="error-password"></span>
+        </div>
+        </form>
+        <button class="btn-primary" onclick="validateForm()">
+          <span title="Registrarse">Registrarse</span>
+        </button>
+
+        <div class="divider"></div>
+        <p>Ya tienes una cuenta? Ingresa <a href="login.html" class="signup">aquí.</a></p>
+      </div>
+
+      <img class="side-image" src="../static/img/Personal Home Finance 2 (1).png" alt="Finance illustration">
+    </div>
+  </div>
+  <script src="../static/scripts.js"></script>
+</body>
+</html>
