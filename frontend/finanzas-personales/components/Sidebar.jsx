@@ -1,0 +1,80 @@
+<link rel="stylesheet" href="../static/styles.css">
+<body>
+
+<!-- MENU MOBILE/TABLET -->
+<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
+<!-- Overlay para cerrar en mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="sidebar" id="sidebar">
+  <button class="sidebar-close" id="sidebarClose">&times;</button>
+
+  <div class="profile">
+    <div class="cont-profile" style="padding:0;">
+    </div>
+    <div class="profile-info">
+      <p style="color:#131B2E; font-size: 14px;" id="user-name"></p>
+      <p style="color: #737B8B; font-size: 13px;" id="user-email"></p>
+    </div>
+  </div>
+
+  <div class="menu">
+    <div class="menu-item-dashboard">
+      <img src="../static/img/icono-dashboard.png" height="17px"/>Dashboards
+    </div>
+    <div class="submenu">
+      <div id="btnAccounts"></div>
+      <div class="new-account" id="btnNewAccount">+ Nueva cuenta</div>
+    </div>
+  </div>
+</div>
+
+<div id="modalNewAccount" class="modal">
+  <div class="content-modal">
+    <span class="close" onclick="ModalManager.close('modalNewAccount')">&times;</span>
+    <h2 style="color:#1F2937; margin:0;">Crear Cuenta</h2>
+    <div class="form-section">
+      <div class="form-group">
+        <label class="label">Nombre de la cuenta</label>
+        <input type="text" class="input" id="account-name" placeholder="Japón 2027">
+        <span class="error" id="error-amount"></span>
+      </div>
+      <div class="form-group">
+        <label class="label">Descripción</label>
+        <textarea class="input" id="account-description" name="description" rows="3" cols="40" placeholder="¿Para qué sera la cuenta?" maxlength="25"></textarea>
+        <div id="char-counter3">0 / 25 caracteres</div>
+        <span class="error" id="error-description"></span>
+      </div>
+      <div class="form-group">
+        <label class="label">Tipo de cuenta</label>
+        <select id="account-category-drop" class="input">
+          <option value="personal" selected>Personal</option>
+          <option value="grupal">Grupal</option>
+        </select>
+        <span class="error" id="error-category"></span>
+      </div>
+      <div class="acciones-modal">
+        <button id="btnSave" class="btn-primary" onclick="createAccount()">Crear cuenta</button>
+        <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewAccount')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+  <div id="modalUserProfile" class="modal">
+  <div class="content-modal">
+    <span class="close" onclick="ModalManager.close('modalUserProfile')">&times;</span>
+    <h2 style="color:#1F2937; margin:0">Mi perfil</h2>
+
+    <div class="profile-avatar-section">
+      <div class="cont-profile cont-profile-lg">
+      </div>
+    </div>
+
+    <table class="tabla-detalle">
+      <tr><td>Nombre:</td><td id="profile-name"></td></tr>
+      <tr><td>Apellido:</td><td id="profile-lastname"></td></tr>
+      <tr><td>Email:</td><td id="profile-email"></td></tr>
+    </table>
+  </div>
+</div>
+</body>
