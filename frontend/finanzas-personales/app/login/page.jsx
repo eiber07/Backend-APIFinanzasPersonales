@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Modal from "@/components/Modal";
-import { apiFetch, setToken } from "@/lib/api";
+import { login, forgetPassword } from "@/lib/endpoints/auth";
+import { useAlerts } from "@/components/AlertProvider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { showError } = useAlerts();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,27 +37,17 @@ export default function LoginPage() {
     if (!valid) return;
 
     try {
-      const formData = new URLSearchParams();
-      formData.append("username", email.trim());
-      formData.append("password", password.trim());
-
-      const res = await apiFetch("/auth/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: formData,
-      });
+      const res = await login(email.trim(), password.trim());
 
       if (res.ok) {
-        const data = await res.json();
-        setToken(data.access_token);
         router.push("/dashboard");
       } else {
         const err = await res.json();
-        alert("Error: " + err.detail);
+        showError(err.detail || "No se pudo iniciar sesión.");
       }
     } catch (error) {
       console.error("Error de conexión:", error);
-      alert("No se pudo conectar con el servidor.");
+      showError("No se pudo conectar con el servidor.");
     }
   }
 
@@ -68,12 +60,7 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await apiFetch("/auth/forget-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail }),
-      });
-
+      const res = await forgetPassword(resetEmail);
       const data = await res.json();
 
       if (res.ok) {
@@ -95,8 +82,6 @@ export default function LoginPage() {
 
   return (
     <>
-      <div id="alertsContainer" className="alerts-container" />
-
       <div className="content">
         <div className="form-section">
           <div className="titles">
@@ -160,7 +145,7 @@ export default function LoginPage() {
         />
       </div>
 
-      <Modal open={forgotOpen} onClose={closeForgot}>
+      <Modal id="modalForget" open={forgotOpen} onClose={closeForgot}>
         {!resetSent ? (
           <>
             <h2>¿Olvidaste tu contraseña?</h2>
