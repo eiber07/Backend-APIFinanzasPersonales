@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { apiFetch } from "@/lib/api";
+import { resetPassword } from "@/lib/endpoints/auth";
+import { useAlerts } from "@/components/AlertProvider";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { showError } = useAlerts();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -42,14 +44,10 @@ export default function ResetPasswordPage() {
     const token = searchParams.get("token");
 
     try {
-      const res = await apiFetch("/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          secret_token: token,
-          new_password: newPassword.trim(),
-          confirm_password: confirmPassword.trim(),
-        }),
+      const res = await resetPassword({
+        secretToken: token,
+        newPassword: newPassword.trim(),
+        confirmPassword: confirmPassword.trim(),
       });
 
       const data = await res.json();
@@ -60,10 +58,14 @@ export default function ResetPasswordPage() {
           router.push("/login");
         }, 2500);
       } else {
-        setErrorConfirm(data.detail || "Ocurrió un error.");
+        const message = data.detail || "Ocurrió un error.";
+        setErrorConfirm(message);
+        showError(message);
       }
     } catch (error) {
-      setErrorConfirm("No se pudo conectar con el servidor.");
+      const message = "No se pudo conectar con el servidor.";
+      setErrorConfirm(message);
+      showError(message);
     }
   }
 

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { fetchWithAuth } from "@/lib/api";
 import Modal from "@/components/Modal";
+import { createAccount } from "@/lib/endpoints/accounts";
+import { useAlerts } from "@/components/AlertProvider";
 
 export default function Sidebar({
   user,
@@ -11,6 +12,8 @@ export default function Sidebar({
   onSelectAccount,
   onAccountCreated,
 }) {
+  const { showError } = useAlerts();
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -21,7 +24,6 @@ export default function Sidebar({
   const [errorName, setErrorName] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Personal primero, igual que en el original (loadUserAccounts)
   const orderedAccounts = [...accounts].sort((a, b) => {
     const aPersonal = String(a.account_type || "").toLowerCase() === "personal";
     const bPersonal = String(b.account_type || "").toLowerCase() === "personal";
@@ -46,24 +48,25 @@ export default function Sidebar({
     setSaving(true);
 
     try {
-      const res = await fetchWithAuth("/accounts/", {
-        method: "POST",
-        body: JSON.stringify({
-          name: accountName.trim(),
-          description: accountDescription.trim(),
-          account_type_id: accountTypeId,
-        }),
+      const res = await createAccount({
+        name: accountName.trim(),
+        description: accountDescription.trim(),
+        accountTypeId,
       });
 
       if (res.ok) {
         closeNewAccount();
-        onAccountCreated?.(); // el dashboard vuelve a pedir las cuentas
+        onAccountCreated?.();
       } else {
         const err = await res.json();
-        setErrorName(err.detail || "No se pudo crear la cuenta.");
+        const message = err.detail || "No se pudo crear la cuenta.";
+        setErrorName(message);
+        showError(message);
       }
     } catch (error) {
-      setErrorName("No se pudo conectar con el servidor.");
+      const message = "No se pudo conectar con el servidor.";
+      setErrorName(message);
+      showError(message);
     } finally {
       setSaving(false);
     }

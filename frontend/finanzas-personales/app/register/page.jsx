@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { apiFetch } from "@/lib/api";
+import { signup } from "@/lib/endpoints/auth";
+import { useAlerts } from "@/components/AlertProvider";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { showSuccess, showError } = useAlerts();
 
   const [name, setName] = useState("");
   const [lastname, setLastname] = useState("");
@@ -57,27 +59,23 @@ export default function RegisterPage() {
     if (!valid) return;
 
     try {
-      const res = await apiFetch("/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          last_name: lastname.trim(),
-          email: email.trim(),
-          password: password.trim(),
-        }),
+      const res = await signup({
+        name: name.trim(),
+        last_name: lastname.trim(),
+        email: email.trim(),
+        password: password.trim(),
       });
 
       if (res.ok) {
-        alert("Registro exitoso!");
+        showSuccess("Registro exitoso!");
         router.push("/login");
       } else {
         const errorData = await res.json();
-        alert("Error: " + errorData.detail);
+        showError(errorData.detail || "No se pudo completar el registro.");
       }
     } catch (error) {
       console.error("Error de conexión:", error);
-      alert("No se pudo conectar con el servidor.");
+      showError("No se pudo conectar con el servidor.");
     }
   }
 
