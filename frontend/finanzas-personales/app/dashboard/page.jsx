@@ -8,6 +8,7 @@ import { getUserAccounts, deactivateAccount } from "@/lib/endpoints/accounts";
 import { useAlerts } from "@/components/AlertProvider";
 import Sidebar from "@/components/Sidebar";
 import Modal from "@/components/Modal";
+import PeriodFilter from "@/components/PeriodFilter"
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -162,12 +163,10 @@ export default function DashboardPage() {
           <p>No tenés cuentas todavía. Creá una desde el menú lateral.</p>
         ) : (
           <>
-            {/* ---- ZONA DE PERSONA A ---- */}
-            {/* <PeriodFilter month={selectedFilterMonth} year={selectedFilterYear} onChange={handlePeriodChange} /> */}
+            <PeriodFilter month={selectedFilterMonth} year={selectedFilterYear} onChange={handlePeriodChange} />
             {/* <BalanceCards accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} /> */}
             {/* <TransactionsTable accountId={activeAccount.id} isGroup={isGroupAccount(activeAccount)} month={selectedFilterMonth} year={selectedFilterYear} /> */}
 
-            {/* ---- ZONA DE PERSONA B ---- */}
             {/* <PlannedExpensesPreview accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} /> */}
 
             {isGroupAccount(activeAccount) && (

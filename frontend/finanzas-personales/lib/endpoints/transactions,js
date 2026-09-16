@@ -24,7 +24,7 @@ export async function deactivateTransaction(transactionId) {
   });
 }
 
-// La usan tanto TransactionsTable (Persona A) como MembersPanel/DebtsPanel (Persona B)
+// La usan tanto TransactionsTable como MembersPanel/DebtsPanel
 export async function getGroupSettlement(accountId, month, year) {
   return fetchWithAuth(
     `/transactions/group-settlement/${accountId}?month=${month}&year=${year}`
