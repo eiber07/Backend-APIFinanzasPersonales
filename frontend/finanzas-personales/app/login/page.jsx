@@ -160,7 +160,7 @@ export default function LoginPage() {
         />
       </div>
 
-      <Modal open={forgotOpen} onClose={closeForgot}>
+      <Modal id="modalForget" open={forgotOpen} onClose={closeForgot}>
         {!resetSent ? (
           <>
             <h2>¿Olvidaste tu contraseña?</h2>

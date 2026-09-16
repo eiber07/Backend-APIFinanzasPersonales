@@ -1,80 +1,210 @@
-<link rel="stylesheet" href="../static/styles.css">
-<body>
+"use client";
 
-<!-- MENU MOBILE/TABLET -->
-<button class="sidebar-toggle" id="sidebarToggle">&#9776;</button>
-<!-- Overlay para cerrar en mobile -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
+import { useState } from "react";
+import { fetchWithAuth } from "@/lib/api";
+import Modal from "@/components/Modal";
 
-<div class="sidebar" id="sidebar">
-  <button class="sidebar-close" id="sidebarClose">&times;</button>
+export default function Sidebar({
+  user,
+  accounts = [],
+  activeAccountId,
+  onSelectAccount,
+  onAccountCreated,
+}) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [newAccountOpen, setNewAccountOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
-  <div class="profile">
-    <div class="cont-profile" style="padding:0;">
-    </div>
-    <div class="profile-info">
-      <p style="color:#131B2E; font-size: 14px;" id="user-name"></p>
-      <p style="color: #737B8B; font-size: 13px;" id="user-email"></p>
-    </div>
-  </div>
+  const [accountName, setAccountName] = useState("");
+  const [accountDescription, setAccountDescription] = useState("");
+  const [accountType, setAccountType] = useState("personal");
+  const [errorName, setErrorName] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  <div class="menu">
-    <div class="menu-item-dashboard">
-      <img src="../static/img/icono-dashboard.png" height="17px"/>Dashboards
-    </div>
-    <div class="submenu">
-      <div id="btnAccounts"></div>
-      <div class="new-account" id="btnNewAccount">+ Nueva cuenta</div>
-    </div>
-  </div>
-</div>
+  // Personal primero, igual que en el original (loadUserAccounts)
+  const orderedAccounts = [...accounts].sort((a, b) => {
+    const aPersonal = String(a.account_type || "").toLowerCase() === "personal";
+    const bPersonal = String(b.account_type || "").toLowerCase() === "personal";
+    return Number(bPersonal) - Number(aPersonal);
+  });
 
-<div id="modalNewAccount" class="modal">
-  <div class="content-modal">
-    <span class="close" onclick="ModalManager.close('modalNewAccount')">&times;</span>
-    <h2 style="color:#1F2937; margin:0;">Crear Cuenta</h2>
-    <div class="form-section">
-      <div class="form-group">
-        <label class="label">Nombre de la cuenta</label>
-        <input type="text" class="input" id="account-name" placeholder="Japón 2027">
-        <span class="error" id="error-amount"></span>
+  function closeNewAccount() {
+    setNewAccountOpen(false);
+    setAccountName("");
+    setAccountDescription("");
+    setAccountType("personal");
+    setErrorName("");
+  }
+
+  async function handleCreateAccount() {
+    if (!accountName.trim()) {
+      setErrorName("Ingresá un nombre para la cuenta.");
+      return;
+    }
+
+    const accountTypeId = accountType === "personal" ? 1 : 2;
+    setSaving(true);
+
+    try {
+      const res = await fetchWithAuth("/accounts/", {
+        method: "POST",
+        body: JSON.stringify({
+          name: accountName.trim(),
+          description: accountDescription.trim(),
+          account_type_id: accountTypeId,
+        }),
+      });
+
+      if (res.ok) {
+        closeNewAccount();
+        onAccountCreated?.(); // el dashboard vuelve a pedir las cuentas
+      } else {
+        const err = await res.json();
+        setErrorName(err.detail || "No se pudo crear la cuenta.");
+      }
+    } catch (error) {
+      setErrorName("No se pudo conectar con el servidor.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        className="sidebar-toggle"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Abrir menú"
+      >
+        &#9776;
+      </button>
+
+      <div
+        className={`sidebar-overlay ${mobileOpen ? "active" : ""}`}
+        onClick={() => setMobileOpen(false)}
+      />
+
+      <div className={`sidebar ${mobileOpen ? "open" : ""}`} id="sidebar">
+        <button className="sidebar-close" onClick={() => setMobileOpen(false)}>
+          &times;
+        </button>
+
+        <div
+          className="profile"
+          onClick={() => setProfileOpen(true)}
+          style={{ cursor: "pointer" }}
+        >
+          <div className="cont-profile" style={{ padding: 0 }} />
+          <div className="profile-info">
+            <p style={{ color: "#131B2E", fontSize: 14 }}>
+              {user ? `${user.name} ${user.last_name}` : ""}
+            </p>
+            <p style={{ color: "#737B8B", fontSize: 13 }}>{user?.email}</p>
+          </div>
+        </div>
+
+        <div className="menu">
+          <div className="menu-item-dashboard">
+            <img src="/img/icono-dashboard.png" height="17" alt="" />
+            Dashboards
+          </div>
+
+          <div className="submenu">
+            {orderedAccounts.map((account) => (
+              <div
+                key={account.id}
+                className={`account-item ${
+                  account.id === activeAccountId ? "active" : ""
+                }`}
+                onClick={() => onSelectAccount?.(account)}
+              >
+                {account.name}
+              </div>
+            ))}
+
+            <div className="new-account" onClick={() => setNewAccountOpen(true)}>
+              + Nueva cuenta
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="label">Descripción</label>
-        <textarea class="input" id="account-description" name="description" rows="3" cols="40" placeholder="¿Para qué sera la cuenta?" maxlength="25"></textarea>
-        <div id="char-counter3">0 / 25 caracteres</div>
-        <span class="error" id="error-description"></span>
-      </div>
-      <div class="form-group">
-        <label class="label">Tipo de cuenta</label>
-        <select id="account-category-drop" class="input">
-          <option value="personal" selected>Personal</option>
-          <option value="grupal">Grupal</option>
-        </select>
-        <span class="error" id="error-category"></span>
-      </div>
-      <div class="acciones-modal">
-        <button id="btnSave" class="btn-primary" onclick="createAccount()">Crear cuenta</button>
-        <button id="btnGoback" class="btn-secondary" onclick="ModalManager.close('modalNewAccount')">Cancelar</button>
-      </div>
-    </div>
-  </div>
-</div>
-  <div id="modalUserProfile" class="modal">
-  <div class="content-modal">
-    <span class="close" onclick="ModalManager.close('modalUserProfile')">&times;</span>
-    <h2 style="color:#1F2937; margin:0">Mi perfil</h2>
 
-    <div class="profile-avatar-section">
-      <div class="cont-profile cont-profile-lg">
-      </div>
-    </div>
+      <Modal id="modalNewAccount" open={newAccountOpen} onClose={closeNewAccount}>
+        <h2 style={{ color: "#1F2937", margin: 0 }}>Crear Cuenta</h2>
+        <div className="form-section">
+          <div className="form-group">
+            <label className="label">Nombre de la cuenta</label>
+            <input
+              type="text"
+              className="input"
+              placeholder="Japón 2027"
+              value={accountName}
+              onChange={(e) => setAccountName(e.target.value)}
+            />
+            {errorName && <span className="error active">{errorName}</span>}
+          </div>
 
-    <table class="tabla-detalle">
-      <tr><td>Nombre:</td><td id="profile-name"></td></tr>
-      <tr><td>Apellido:</td><td id="profile-lastname"></td></tr>
-      <tr><td>Email:</td><td id="profile-email"></td></tr>
-    </table>
-  </div>
-</div>
-</body>
+          <div className="form-group">
+            <label className="label">Descripción</label>
+            <textarea
+              className="input"
+              rows={3}
+              maxLength={25}
+              placeholder="¿Para qué sera la cuenta?"
+              value={accountDescription}
+              onChange={(e) => setAccountDescription(e.target.value)}
+            />
+            <div style={{ color: accountDescription.length >= 25 ? "#dc2626" : "inherit" }}>
+              {accountDescription.length} / 25 caracteres
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="label">Tipo de cuenta</label>
+            <select
+              className="input"
+              value={accountType}
+              onChange={(e) => setAccountType(e.target.value)}
+            >
+              <option value="personal">Personal</option>
+              <option value="grupal">Grupal</option>
+            </select>
+          </div>
+
+          <div className="acciones-modal">
+            <button
+              className="btn-primary"
+              onClick={handleCreateAccount}
+              disabled={saving}
+            >
+              {saving ? "Creando..." : "Crear cuenta"}
+            </button>
+            <button className="btn-secondary" onClick={closeNewAccount}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        id="modalUserProfile"
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+      >
+        <h2 style={{ color: "#1F2937", margin: 0 }}>Mi perfil</h2>
+
+        <div className="profile-avatar-section">
+          <div className="cont-profile cont-profile-lg" />
+        </div>
+
+        <table className="tabla-detalle">
+          <tbody>
+            <tr><td>Nombre:</td><td>{user?.name}</td></tr>
+            <tr><td>Apellido:</td><td>{user?.last_name}</td></tr>
+            <tr><td>Email:</td><td>{user?.email}</td></tr>
+          </tbody>
+        </table>
+      </Modal>
+    </>
+  );
+}
