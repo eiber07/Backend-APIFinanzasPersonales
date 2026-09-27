@@ -1,10 +1,11 @@
 "use client";
 
-export default function Modal({ open, onClose, children, className = "" }) {
+export default function Modal({ id, open, onClose, children, className = "" }) {
   if (!open) return null;
 
   return (
     <div
+      id={id}
       className="modal show"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
