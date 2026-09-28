@@ -8,9 +8,14 @@ import { getUserAccounts, deactivateAccount } from "@/lib/endpoints/accounts";
 import { useAlerts } from "@/components/AlertProvider";
 import Sidebar from "@/components/Sidebar";
 import Modal from "@/components/Modal";
-import PeriodFilter from "@/components/PeriodFilter"
 import BalanceCards from "@/components/BalanceCards";
 import TransactionsTable from "@/components/TransactionsTable";
+import DashboardHeader from "@/components/DashboardHeader";
+import PlannedExpensesPreview from "@/components/PlannedExpensesPreview";
+import MembersPanel from "@/components/MembersPanel";
+import DebtsPanel from "@/components/DebtsPanel";
+
+
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -151,7 +156,11 @@ export default function DashboardPage() {
           </button>
         </div>
       </header>
-
+      <DashboardHeader
+        activeAccount={activeAccount}
+        onDeleteAccount={handleDeleteAccount}
+        onLogout={handleLogout}
+      />
       <Sidebar
         user={user}
         accounts={accounts}
@@ -165,35 +174,57 @@ export default function DashboardPage() {
           <p>No tenés cuentas todavía. Creá una desde el menú lateral.</p>
         ) : (
           <>
-            <BalanceCards accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} onPeriodChange={handlePeriodChange} />
-            <div className="componente-main2">
-              <TransactionsTable
-                accountId={activeAccount.id}
-                isGroup={isGroupAccount(activeAccount)}
-                month={selectedFilterMonth}
-                year={selectedFilterYear}
-                onRowClick={(t) => console.log("Transacción clickeada:", t)}
-              />
-            </div>
+            <BalanceCards
+              accountId={activeAccount.id}
+              month={selectedFilterMonth}
+              year={selectedFilterYear}
+              onPeriodChange={handlePeriodChange}
+            />
 
-            {/* <PlannedExpensesPreview accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} /> */}
+            <section className="componente-main2">
+              <section className="componente-transacciones">
+                <TransactionsTable
+                  accountId={activeAccount.id}
+                  isGroup={isGroupAccount(activeAccount)}
+                  month={selectedFilterMonth}
+                  year={selectedFilterYear}
+                  onRowClick={(t) => console.log("Transacción clickeada:", t)}
+                />
 
-            {isGroupAccount(activeAccount) && (
-              <>
-                {/* <MembersPanel accountId={activeAccount.id} currentUser={user} month={selectedFilterMonth} year={selectedFilterYear} /> */}
-                {/* <DebtsPanel accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} /> */}
-              </>
-            )}
+                {isGroupAccount(activeAccount) && (
+                  <DebtsPanel
+                    accountId={activeAccount.id}
+                    month={selectedFilterMonth}
+                    year={selectedFilterYear}
+                  />
+                )}
+              </section>
 
-            <p style={{ color: "#6B7280" }}>
-              Cuenta activa: <strong>{activeAccount.name}</strong> (
-              {isGroupAccount(activeAccount) ? "grupal" : "personal"}) — período{" "}
-              {selectedFilterMonth}/{selectedFilterYear}
-            </p>
+              <div className={`columna-derecha ${isGroupAccount(activeAccount) ? "cuenta-grupal" : ""}`}>
+                <PlannedExpensesPreview
+                  accountId={activeAccount.id}
+                  month={selectedFilterMonth}
+                  year={selectedFilterYear}
+                  onNewExpenseClick={() => console.log("TODO: abrir NewExpenseModal")}
+                  onManageClick={() => console.log("TODO: abrir PlannedExpensesModal")}
+                  onCardClick={(expense) => console.log("TODO: abrir ExpenseDetailModal", expense)}
+                />
+
+                {isGroupAccount(activeAccount) && (
+                  <MembersPanel
+                    accountId={activeAccount.id}
+                    currentUser={user}
+                    month={selectedFilterMonth}
+                    year={selectedFilterYear}
+                    onAddMemberClick={() => console.log("TODO: abrir AddMemberModal")}
+                    onMemberClick={(member) => console.log("TODO: abrir MemberInfoModal", member)}
+                  />
+                )}
+              </div>
+            </section>
           </>
         )}
       </main>
-
       <Modal id="modalLogout" open={logoutOpen} onClose={() => setLogoutOpen(false)}>
         <h2>¿Cerrar sesión?</h2>
         <p>
