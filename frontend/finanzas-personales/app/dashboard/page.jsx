@@ -9,6 +9,8 @@ import { useAlerts } from "@/components/AlertProvider";
 import Sidebar from "@/components/Sidebar";
 import Modal from "@/components/Modal";
 import PeriodFilter from "@/components/PeriodFilter"
+import BalanceCards from "@/components/BalanceCards";
+import TransactionsTable from "@/components/TransactionsTable";
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -163,9 +165,16 @@ export default function DashboardPage() {
           <p>No tenés cuentas todavía. Creá una desde el menú lateral.</p>
         ) : (
           <>
-            <PeriodFilter month={selectedFilterMonth} year={selectedFilterYear} onChange={handlePeriodChange} />
-            {/* <BalanceCards accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} /> */}
-            {/* <TransactionsTable accountId={activeAccount.id} isGroup={isGroupAccount(activeAccount)} month={selectedFilterMonth} year={selectedFilterYear} /> */}
+            <BalanceCards accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} onPeriodChange={handlePeriodChange} />
+            <div className="componente-main2">
+              <TransactionsTable
+                accountId={activeAccount.id}
+                isGroup={isGroupAccount(activeAccount)}
+                month={selectedFilterMonth}
+                year={selectedFilterYear}
+                onRowClick={(t) => console.log("Transacción clickeada:", t)}
+              />
+            </div>
 
             {/* <PlannedExpensesPreview accountId={activeAccount.id} month={selectedFilterMonth} year={selectedFilterYear} /> */}
 
