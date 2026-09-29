@@ -92,17 +92,24 @@ export default function Sidebar({
           &times;
         </button>
 
+
         <div
           className="profile"
           onClick={() => setProfileOpen(true)}
           style={{ cursor: "pointer" }}
         >
-          <div className="cont-profile" style={{ padding: 0 }} />
+          <div className="sidebar-avatar">
+            {user
+              ? `${user.name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase()
+              : ""}
+          </div>
           <div className="profile-info">
-            <p style={{ color: "#131B2E", fontSize: 14 }}>
+            <p style={{ color: "#131B2E", fontSize: 14, fontWeight: 700, margin: 0 }}>
               {user ? `${user.name} ${user.last_name}` : ""}
             </p>
-            <p style={{ color: "#737B8B", fontSize: 13 }}>{user?.email}</p>
+            <p style={{ color: "#737B8B", fontSize: 12, margin: "2px 0 0" }}>
+              {user?.email}
+            </p>
           </div>
         </div>
 
@@ -112,13 +119,13 @@ export default function Sidebar({
             Dashboards
           </div>
 
+          <p className="menu-section-title">Cuentas</p>
+
           <div className="submenu">
             {orderedAccounts.map((account) => (
               <div
                 key={account.id}
-                className={`account-item ${
-                  account.id === activeAccountId ? "active" : ""
-                }`}
+                className={`account-item ${account.id === activeAccountId ? "active" : ""}`}
                 onClick={() => onSelectAccount?.(account)}
               >
                 {account.name}
