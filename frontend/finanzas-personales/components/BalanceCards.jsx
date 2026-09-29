@@ -13,9 +13,7 @@ function formatDashboardMoney(amount) {
   return numericAmount < 0 ? `-$${formatted}` : `$${formatted}`;
 }
 
-export default function BalanceCards({ accountId, month, year, onPeriodChange }) {
-  const { filteredTransactions, loading } = useTransactions(accountId, month, year);
-
+export default function BalanceCards({ filteredTransactions, loading, month, year, onPeriodChange }) {
   let incomeTotal = 0;
   let expenseTotal = 0;
 

@@ -7,8 +7,7 @@ const MONTH_NAMES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
-export default function TransactionsTable({ accountId, isGroup, month, year, onRowClick }) {
-  const { filteredTransactions, loading } = useTransactions(accountId, month, year);
+export default function TransactionsTable({ filteredTransactions, loading, isGroup, month, year, onRowClick, onAddClick }) {
   const periodLabel = `${MONTH_NAMES[month - 1]} ${year}`;
   const colSpan = isGroup ? 5 : 4;
 
@@ -16,6 +15,13 @@ export default function TransactionsTable({ accountId, isGroup, month, year, onR
     <section className="componente-transacciones">
       <div className="titulo-seccion">
         <h2>Transacciones recientes</h2>
+        <img
+          src="/img/icono-mas.png"
+          height="25"
+          alt="Nueva transacción"
+          style={{ cursor: "pointer" }}
+          onClick={() => onAddClick?.()}
+        />
       </div>
 
       <div className="tabla-contenedor">

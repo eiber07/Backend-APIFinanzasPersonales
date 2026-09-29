@@ -1,21 +1,32 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { clearToken, getToken } from "@/lib/api";
 import { getCurrentUser } from "@/lib/endpoints/users";
 import { getUserAccounts, deactivateAccount } from "@/lib/endpoints/accounts";
 import { useAlerts } from "@/components/AlertProvider";
+import { useTransactions } from "@/lib/hooks/useTransactions";
+import { usePlannedExpenses } from "@/lib/hooks/usePlannedExpenses";
+import { useMembers } from "@/lib/hooks/useMembers";
+
 import Sidebar from "@/components/Sidebar";
-import Modal from "@/components/Modal";
+import DashboardHeader from "@/components/DashboardHeader";
 import BalanceCards from "@/components/BalanceCards";
 import TransactionsTable from "@/components/TransactionsTable";
-import DashboardHeader from "@/components/DashboardHeader";
 import PlannedExpensesPreview from "@/components/PlannedExpensesPreview";
 import MembersPanel from "@/components/MembersPanel";
 import DebtsPanel from "@/components/DebtsPanel";
 
+import TransactionDetailModal from "@/components/TransactionDetailModal";
+import NewTransactionModal from "@/components/NewTransactionModal";
+import PlannedExpensesModal from "@/components/PlannedExpensesModal";
+import ExpenseDetailModal from "@/components/ExpenseDetailModal";
+import NewExpenseModal from "@/components/NewExpenseModal";
+import AddMemberModal from "@/components/AddMemberModal";
+import MemberInfoModal from "@/components/MemberInfoModal";
 
+import { useEffect, useCallback } from "react";
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -30,30 +41,58 @@ export default function DashboardPage() {
   const [activeAccount, setActiveAccount] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [selectedFilterMonth, setSelectedFilterMonth] = useState(
-    new Date().getMonth() + 1
-  );
-  const [selectedFilterYear, setSelectedFilterYear] = useState(
-    new Date().getFullYear()
-  );
+  const [selectedFilterMonth, setSelectedFilterMonth] = useState(new Date().getMonth() + 1);
+  const [selectedFilterYear, setSelectedFilterYear] = useState(new Date().getFullYear());
 
-  const [logoutOpen, setLogoutOpen] = useState(false);
+  const isGroup = isGroupAccount(activeAccount);
 
+  // ---- Datos compartidos por varios componentes y modales ----
+  const {
+    filteredTransactions,
+    loading: transactionsLoading,
+    refetch: refetchTransactions,
+  } = useTransactions(activeAccount?.id, selectedFilterMonth, selectedFilterYear);
+
+  const {
+    plannedExpenses,
+    loading: plannedExpensesLoading,
+    refetch: refetchPlannedExpenses,
+  } = usePlannedExpenses(activeAccount?.id);
+
+  const {
+    members,
+    balancesByUserId,
+    loading: membersLoading,
+    refetch: refetchMembers,
+  } = useMembers(isGroup ? activeAccount?.id : null, selectedFilterMonth, selectedFilterYear);
+
+  // ---- Estado de los modales ----
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [transactionDetailOpen, setTransactionDetailOpen] = useState(false);
+  const [newTransactionOpen, setNewTransactionOpen] = useState(false);
+
+  const [plannedExpensesModalOpen, setPlannedExpensesModalOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [expenseDetailOpen, setExpenseDetailOpen] = useState(false);
+  const [newExpenseOpen, setNewExpenseOpen] = useState(false);
+
+  const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [memberInfoOpen, setMemberInfoOpen] = useState(false);
+
+  // ---- Carga inicial: usuario + cuentas ----
   const loadCurrentUser = useCallback(async () => {
     if (!getToken()) {
       router.push("/login");
       return null;
     }
-
     try {
       const res = await getCurrentUser();
-
       if (res.status === 401) {
         clearToken();
         router.push("/login");
         return null;
       }
-
       return await res.json();
     } catch (error) {
       console.error("Error al obtener usuario:", error);
@@ -65,15 +104,12 @@ export default function DashboardPage() {
     try {
       const res = await getUserAccounts();
       if (!res.ok) throw new Error("No se pudieron cargar las cuentas.");
-
       const data = await res.json();
-
       const ordered = [...data].sort((a, b) => {
         const aPersonal = String(a.account_type || "").toLowerCase() === "personal";
         const bPersonal = String(b.account_type || "").toLowerCase() === "personal";
         return Number(bPersonal) - Number(aPersonal);
       });
-
       setAccounts(ordered);
       return ordered;
     } catch (error) {
@@ -87,14 +123,9 @@ export default function DashboardPage() {
     (async () => {
       const currentUser = await loadCurrentUser();
       if (!currentUser) return;
-
       setUser(currentUser);
-
       const loadedAccounts = await loadUserAccounts();
-      if (loadedAccounts.length > 0) {
-        setActiveAccount(loadedAccounts[0]);
-      }
-
+      if (loadedAccounts.length > 0) setActiveAccount(loadedAccounts[0]);
       setLoading(false);
     })();
   }, [loadCurrentUser, loadUserAccounts]);
@@ -105,9 +136,7 @@ export default function DashboardPage() {
 
   async function handleAccountCreated() {
     const refreshed = await loadUserAccounts();
-    if (!activeAccount && refreshed.length > 0) {
-      setActiveAccount(refreshed[0]);
-    }
+    if (!activeAccount && refreshed.length > 0) setActiveAccount(refreshed[0]);
   }
 
   function handlePeriodChange(month, year) {
@@ -122,10 +151,8 @@ export default function DashboardPage() {
 
   async function handleDeleteAccount() {
     if (!activeAccount) return;
-
     try {
       const res = await deactivateAccount(activeAccount.id);
-
       if (res.ok) {
         showSuccess("Cuenta eliminada correctamente.");
         setActiveAccount(null);
@@ -139,28 +166,64 @@ export default function DashboardPage() {
     }
   }
 
+  // ---- Handlers de transacciones ----
+  function handleTransactionRowClick(transaction) {
+    setSelectedTransaction(transaction);
+    setTransactionDetailOpen(true);
+  }
+
+  function handleTransactionChanged() {
+    refetchTransactions();
+    refetchPlannedExpenses(); // por si estaba ligada a una cuota
+    if (isGroup) refetchMembers();
+  }
+
+  function handleTransactionCreated() {
+    refetchTransactions();
+    refetchPlannedExpenses();
+    if (isGroup) refetchMembers();
+  }
+
+  // ---- Handlers de gastos planificados ----
+  function handleExpenseCardClick(expense) {
+    setSelectedExpense(expense);
+    setExpenseDetailOpen(true);
+  }
+
+  function handleExpenseDeleted() {
+    refetchPlannedExpenses();
+  }
+
+  function handleExpenseCreated() {
+    refetchPlannedExpenses();
+  }
+
+  // ---- Handlers de miembros ----
+  function handleMemberClick(member) {
+    setSelectedMember(member);
+    setMemberInfoOpen(true);
+  }
+
+  function handleMemberAdded() {
+    refetchMembers();
+  }
+
+  function handleMemberDeleted() {
+    refetchMembers();
+  }
+
   if (loading) {
     return <div style={{ padding: 40, textAlign: "center" }}>Cargando...</div>;
   }
 
   return (
     <div className="grid-contenedor">
-      <header className="componente-header">
-        <div className="header-title-group">
-          <h1>{activeAccount?.name || "Dashboard"}</h1>
-        </div>
-
-        <div className="logout-container">
-          <button className="btn-logout" onClick={() => setLogoutOpen(true)}>
-            Cerrar Sesión
-          </button>
-        </div>
-      </header>
       <DashboardHeader
         activeAccount={activeAccount}
         onDeleteAccount={handleDeleteAccount}
         onLogout={handleLogout}
       />
+
       <Sidebar
         user={user}
         accounts={accounts}
@@ -175,7 +238,8 @@ export default function DashboardPage() {
         ) : (
           <>
             <BalanceCards
-              accountId={activeAccount.id}
+              filteredTransactions={filteredTransactions}
+              loading={transactionsLoading}
               month={selectedFilterMonth}
               year={selectedFilterYear}
               onPeriodChange={handlePeriodChange}
@@ -184,14 +248,16 @@ export default function DashboardPage() {
             <section className="componente-main2">
               <section className="componente-transacciones">
                 <TransactionsTable
-                  accountId={activeAccount.id}
-                  isGroup={isGroupAccount(activeAccount)}
+                  filteredTransactions={filteredTransactions}
+                  loading={transactionsLoading}
+                  isGroup={isGroup}
                   month={selectedFilterMonth}
                   year={selectedFilterYear}
-                  onRowClick={(t) => console.log("Transacción clickeada:", t)}
+                  onRowClick={handleTransactionRowClick}
+                  onAddClick={() => setNewTransactionOpen(true)}
                 />
 
-                {isGroupAccount(activeAccount) && (
+                {isGroup && (
                   <DebtsPanel
                     accountId={activeAccount.id}
                     month={selectedFilterMonth}
@@ -200,24 +266,25 @@ export default function DashboardPage() {
                 )}
               </section>
 
-              <div className={`columna-derecha ${isGroupAccount(activeAccount) ? "cuenta-grupal" : ""}`}>
+              <div className={`columna-derecha ${isGroup ? "cuenta-grupal" : ""}`}>
                 <PlannedExpensesPreview
-                  accountId={activeAccount.id}
+                  plannedExpenses={plannedExpenses}
+                  loading={plannedExpensesLoading}
                   month={selectedFilterMonth}
                   year={selectedFilterYear}
-                  onNewExpenseClick={() => console.log("TODO: abrir NewExpenseModal")}
-                  onManageClick={() => console.log("TODO: abrir PlannedExpensesModal")}
-                  onCardClick={(expense) => console.log("TODO: abrir ExpenseDetailModal", expense)}
+                  onNewExpenseClick={() => setNewExpenseOpen(true)}
+                  onManageClick={() => setPlannedExpensesModalOpen(true)}
+                  onCardClick={handleExpenseCardClick}
                 />
 
-                {isGroupAccount(activeAccount) && (
+                {isGroup && (
                   <MembersPanel
-                    accountId={activeAccount.id}
+                    members={members}
+                    balancesByUserId={balancesByUserId}
+                    loading={membersLoading}
                     currentUser={user}
-                    month={selectedFilterMonth}
-                    year={selectedFilterYear}
-                    onAddMemberClick={() => console.log("TODO: abrir AddMemberModal")}
-                    onMemberClick={(member) => console.log("TODO: abrir MemberInfoModal", member)}
+                    onAddMemberClick={() => setAddMemberOpen(true)}
+                    onMemberClick={handleMemberClick}
                   />
                 )}
               </div>
@@ -225,21 +292,64 @@ export default function DashboardPage() {
           </>
         )}
       </main>
-      <Modal id="modalLogout" open={logoutOpen} onClose={() => setLogoutOpen(false)}>
-        <h2>¿Cerrar sesión?</h2>
-        <p>
-          ¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión
-          nuevamente para acceder.
-        </p>
-        <div className="acciones-modal">
-          <button className="btn-primary btn-red" onClick={handleLogout}>
-            Cerrar Sesión
-          </button>
-          <button className="btn-secondary" onClick={() => setLogoutOpen(false)}>
-            Cancelar
-          </button>
-        </div>
-      </Modal>
+
+      {/* ---- Modales de transacciones ---- */}
+      <TransactionDetailModal
+        transaction={selectedTransaction}
+        open={transactionDetailOpen}
+        onClose={() => setTransactionDetailOpen(false)}
+        onChanged={handleTransactionChanged}
+      />
+
+      <NewTransactionModal
+        open={newTransactionOpen}
+        onClose={() => setNewTransactionOpen(false)}
+        accountId={activeAccount?.id}
+        plannedExpenses={plannedExpenses}
+        onCreated={handleTransactionCreated}
+      />
+
+      {/* ---- Modales de gastos planificados ---- */}
+      <PlannedExpensesModal
+        open={plannedExpensesModalOpen}
+        onClose={() => setPlannedExpensesModalOpen(false)}
+        plannedExpenses={plannedExpenses}
+        loading={plannedExpensesLoading}
+        onRowClick={(expense) => {
+          setPlannedExpensesModalOpen(false);
+          handleExpenseCardClick(expense);
+        }}
+      />
+
+      <ExpenseDetailModal
+        expense={selectedExpense}
+        open={expenseDetailOpen}
+        onClose={() => setExpenseDetailOpen(false)}
+        onDeleted={handleExpenseDeleted}
+      />
+
+      <NewExpenseModal
+        open={newExpenseOpen}
+        onClose={() => setNewExpenseOpen(false)}
+        accountId={activeAccount?.id}
+        onCreated={handleExpenseCreated}
+      />
+
+      {/* ---- Modales de miembros (solo aplican en cuentas grupales) ---- */}
+      <AddMemberModal
+        open={addMemberOpen}
+        onClose={() => setAddMemberOpen(false)}
+        accountId={activeAccount?.id}
+        onAdded={handleMemberAdded}
+      />
+
+      <MemberInfoModal
+        member={selectedMember}
+        open={memberInfoOpen}
+        onClose={() => setMemberInfoOpen(false)}
+        accountId={activeAccount?.id}
+        onDeleted={handleMemberDeleted}
+      />
     </div>
   );
 }

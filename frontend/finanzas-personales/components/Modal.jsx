@@ -1,6 +1,6 @@
 "use client";
 
-export default function Modal({ id, open, onClose, children, className = "" }) {
+export default function Modal({ id, open, onClose, children, className = "", contentStyle }) {
   if (!open) return null;
 
   return (
@@ -11,7 +11,7 @@ export default function Modal({ id, open, onClose, children, className = "" }) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className={`content-modal ${className}`}>
+      <div className={`content-modal ${className}`} style={contentStyle}>
         <span className="close" onClick={onClose}>
           &times;
         </span>

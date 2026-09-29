@@ -14,15 +14,14 @@ function dateMatchesSelectedPeriod(dateValue, month, year) {
 }
 
 export default function PlannedExpensesPreview({
-  accountId,
+  plannedExpenses,
+  loading,
   month,
   year,
   onNewExpenseClick,
   onManageClick,
   onCardClick,
 }) {
-  const { plannedExpenses, loading } = usePlannedExpenses(accountId);
-
   const periodInstallments = plannedExpenses
     .flatMap((expense) =>
       expense.allInstallments

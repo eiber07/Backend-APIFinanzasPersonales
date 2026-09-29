@@ -1,7 +1,5 @@
 "use client";
 
-import { useMembers } from "@/lib/hooks/useMembers";
-
 function formatMemberBalance(balance) {
   const numericBalance = Number(balance) || 0;
   const absoluteBalance = Math.abs(numericBalance);
@@ -22,14 +20,13 @@ function getMemberBalanceLabel(balance) {
 }
 
 export default function MembersPanel({
-  accountId,
+  members,
+  balancesByUserId,
+  loading,
   currentUser,
-  month,
-  year,
   onAddMemberClick,
   onMemberClick,
 }) {
-  const { members, balancesByUserId, loading } = useMembers(accountId, month, year);
 
   const currentMember = members.find(
     (m) => Number(m.user_id) === Number(currentUser?.id)
