@@ -29,8 +29,17 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
         </div>
 
         <div className="logout-container">
-          <button className="btn-logout" onClick={() => setLogoutOpen(true)}>
-            Cerrar Sesión
+          <button
+            className="btn-logout-icon"
+            onClick={() => setLogoutOpen(true)}
+            title="Cerrar sesión"
+            aria-label="Cerrar sesión"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
           </button>
         </div>
       </header>
@@ -40,8 +49,8 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
 
         <table className="tabla-detalle">
           <tbody>
-            <tr><td>ID:</td><td>{activeAccount?.id}</td></tr>
             <tr><td>Nombre:</td><td>{activeAccount?.name}</td></tr>
+            <tr><td>Descripción:</td><td>{activeAccount?.description || "Sin descripción"}</td></tr>
             <tr>
               <td>Tipo:</td>
               <td>{activeAccount?.account_type === "personal" ? "Personal" : "Grupal"}</td>
