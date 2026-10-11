@@ -40,19 +40,23 @@ export default function BalanceCards({ filteredTransactions, loading, month, yea
       </article>
 
       <article className="tarjeta-resumen tarjeta-resumen-grande">
-        <div className="tarjeta-resumen-icono ingreso">↗</div>
-        <div className="tarjeta-resumen-info">
-          <p>Ingreso total</p>
-          <h3>{loading ? "..." : formatDashboardMoney(incomeTotal)}</h3>
-        </div>
+          <div className="tarjeta-resumen-header">
+            <div className="tarjeta-resumen-icono ingreso">↗</div>
+            <p className="tarjeta-resumen-label">Ingreso total</p>
+          </div>
+          <h2 className="tarjeta-monto">
+            {loading ? "..." : formatDashboardMoney(incomeTotal)}
+          </h2>
       </article>
 
       <article className="tarjeta-resumen tarjeta-resumen-grande">
-        <div className="tarjeta-resumen-icono egreso">↘</div>
-        <div className="tarjeta-resumen-info">
-          <p>Egreso total</p>
-          <h3>{loading ? "..." : formatDashboardMoney(expenseTotal)}</h3>
+        <div className="tarjeta-resumen-header">
+          <div className="tarjeta-resumen-icono egreso">↘</div>
+          <p className="tarjeta-resumen-label">Egreso total</p>
         </div>
+        <h2 className="tarjeta-monto">
+          {loading ? "..." : formatDashboardMoney(expenseTotal)}
+        </h2>
       </article>
     </section>
   );

@@ -226,12 +226,26 @@ width: 100%;
     justify-content:center;
     align-items:center;
     background-color: #fff;
-    padding: 40px;
+    padding: 32px 28px;
     border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
+    width: 92%;
+    max-width: 480px;
     position: relative;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+}
+
+.content-modal .form-section,
+.content-modal .form-group,
+.content-modal .form-group2 {
+    width: 100%;
+    box-sizing: border-box;
+}
+@media (max-width: 480px) {
+  .content-modal {
+    padding: 24px 16px;
+    width: 94%;
+  }
 }
 
 .signup {
@@ -478,6 +492,8 @@ display: block;
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .filtro-periodo {
@@ -534,20 +550,28 @@ display: block;
 .tarjeta-resumen-grande {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     height: 165px;
-    padding: 24px 30px;
+    padding: 24px;
     box-sizing: border-box;
 }
 
+.tarjeta-resumen-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 31px;
+}
+
 .tarjeta-resumen-icono {
-    width: 46px;
-    height: 46px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    font-size: 28px;
+    font-size: 18px;
     flex-shrink: 0;
 }
 
@@ -559,6 +583,15 @@ display: block;
 .tarjeta-resumen-icono.egreso {
     background: #EEF2FF;
     color: #FF4D5E;
+}
+
+.tarjeta-resumen-label {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: #1F2937;
 }
 
 .tarjeta-resumen-info {
@@ -1462,4 +1495,195 @@ display: block;
 
 .componente-transacciones .tabla-transacciones.tabla-grupal th, .componente-transacciones .tabla-transacciones.tabla-grupal td {
     width: 20%;
+}
+/* ============================= */
+/* BOTONES DE MODALES - tamaño consistente, sin wrap a 2 líneas */
+/* ============================= */
+.acciones-modal {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.acciones-modal button {
+  white-space: nowrap;
+  flex: 1 1 150px;
+  min-width: 150px;
+  padding: 14px 12px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.member-modal-actions .btn-primary,
+.member-modal-actions .btn-secondary {
+  white-space: nowrap;
+  font-size: 13px;
+  padding: 14px 8px;
+}
+
+/* ============================= */
+/* FILTRO DE MES - ancho suficiente para mostrar el nombre completo */
+/* ============================= */
+#filter-month {
+  width: auto;
+  min-width: 132px;
+}
+
+.select-periodo-year {
+  width: 80px;
+}
+
+/* ============================= */
+/* BOTÓN DE CERRAR SESIÓN COMO ÍCONO */
+/* ============================= */
+.btn-logout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #FEE2E2;
+  color: #DC2626;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-logout-icon:hover {
+  background: #FECACA;
+}
+
+.btn-logout-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================= */
+/* SIDEBAR - diseño moderno, coherente con el dashboard */
+/* ============================= */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  border-right: 1px solid #E5E7EB;
+  padding-top: 0;
+}
+
+.sidebar .profile {
+  height: 68px;
+  box-sizing: border-box;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;
+  border-bottom: 1px solid #E5E7EB;
+  margin-bottom: 16px;
+  transition: background 0.15s ease;
+}
+
+.sidebar .profile:hover {
+  background: #F9FAFB;
+}
+
+.sidebar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #EEF2FF;
+  color: #1D4ED8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.sidebar .menu {
+  padding: 0 12px;
+  flex: 1;
+}
+
+.menu-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #9CA3AF;
+  padding: 4px 10px 8px;
+  margin: 0;
+}
+
+.menu-item-dashboard {
+  padding: 9px 10px !important;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1F2937;
+}
+
+.submenu {
+  border-bottom: none !important;
+  padding-left: 0 !important;
+  padding-top: 2px !important;
+  padding-bottom: 4px !important;
+  gap: 2px;
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.account-item {
+  position: relative;
+  padding: 9px 10px 9px 14px;
+  border-radius: 6px;
+  color: #374151;
+  transition: background 0.15s ease, color 0.15s ease;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.account-item:hover:not(.active) {
+  background: #F3F4F6 !important;
+  padding: 9px 10px 9px 14px !important;
+}
+
+.account-item.active {
+  background: #EEF2FF !important;
+  color: #1D4ED8 !important;
+  font-weight: 700;
+  padding: 9px 10px 9px 14px !important;
+  border-radius: 6px;
+}
+
+.account-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: #1D4ED8;
+  border-radius: 0 3px 3px 0;
+}
+
+.new-account {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  color: #1D4ED8;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin-top: 8px;
+}
+
+.new-account:hover {
+  background: #EEF2FF;
 }
