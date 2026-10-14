@@ -4,6 +4,7 @@ import { useState } from "react";
 import Modal from "@/components/Modal";
 import { createAccount } from "@/lib/endpoints/accounts";
 import { useAlerts } from "@/components/AlertProvider";
+import UserAvatar from "@/components/UserAvatar";
 
 export default function Sidebar({
   user,
@@ -98,11 +99,7 @@ export default function Sidebar({
           onClick={() => setProfileOpen(true)}
           style={{ cursor: "pointer" }}
         >
-          <div className="sidebar-avatar">
-            {user
-              ? `${user.name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase()
-              : ""}
-          </div>
+          <UserAvatar name={user?.name} lastName={user?.last_name} email={user?.email} />
           <div className="profile-info">
             <p style={{ color: "#131B2E", fontSize: 14, fontWeight: 700, margin: 0 }}>
               {user ? `${user.name} ${user.last_name}` : ""}
@@ -204,7 +201,12 @@ export default function Sidebar({
         <h2 style={{ color: "#1F2937", margin: 0 }}>Mi perfil</h2>
 
         <div className="profile-avatar-section">
-          <div className="cont-profile cont-profile-lg" />
+          <UserAvatar
+            name={user?.name}
+            lastName={user?.last_name}
+            email={user?.email}
+            size={72}
+          />
         </div>
 
         <table className="tabla-detalle">
