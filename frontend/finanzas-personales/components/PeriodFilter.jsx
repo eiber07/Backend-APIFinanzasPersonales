@@ -27,34 +27,37 @@ export default function PeriodFilter({ month, year, onChange, extraYears = [] })
   const orderedYears = [...years].sort((a, b) => b - a);
 
   return (
-    <div className="filtro-periodo">
-      <select
-        id="filter-month"
-        className="select-periodo"
-        aria-label="Filtrar por mes"
-        value={month}
-        onChange={(e) => onChange(Number(e.target.value), year)}
-      >
-        {MONTH_NAMES.map((name, index) => (
-          <option key={index + 1} value={index + 1}>
-            {name}
-          </option>
-        ))}
-      </select>
+    <div className="period-filter-control">
+      <span className="period-filter-label">Período seleccionado</span>
+      <div className="filtro-periodo">
+        <select
+          id="filter-month"
+          className="select-periodo"
+          aria-label="Filtrar por mes"
+          value={month}
+          onChange={(e) => onChange(Number(e.target.value), year)}
+        >
+          {MONTH_NAMES.map((name, index) => (
+            <option key={index + 1} value={index + 1}>
+              {name}
+            </option>
+          ))}
+        </select>
 
-      <select
-        id="filter-year"
-        className="select-periodo select-periodo-year"
-        aria-label="Filtrar por año"
-        value={year}
-        onChange={(e) => onChange(month, Number(e.target.value))}
-      >
-        {orderedYears.map((y) => (
-          <option key={y} value={y}>
-            {y}
-          </option>
-        ))}
-      </select>
+        <select
+          id="filter-year"
+          className="select-periodo select-periodo-year"
+          aria-label="Filtrar por año"
+          value={year}
+          onChange={(e) => onChange(month, Number(e.target.value))}
+        >
+          {orderedYears.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }
