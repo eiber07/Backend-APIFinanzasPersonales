@@ -926,16 +926,13 @@ width: 100%;
 /* SIDEBAR - mobile/tablet */
 .sidebar-toggle {
     display: none;
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 200;
-    background: #5D6772;
-    color: #fff;
+    flex: 0 0 auto;
+    background: transparent;
+    color: rgb(29, 78, 216);
     border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
+    padding: 8px;
     font-size: 20px;
+    line-height: 1;
     cursor: pointer;
 }
 
@@ -965,8 +962,15 @@ width: 100%;
 }
 
 @media (max-width: 1024px) {
+    .componente-header {
+        justify-content: space-between;
+        gap: 12px;
+    }
+
     .sidebar-toggle {
-        display: block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .sidebar-close {

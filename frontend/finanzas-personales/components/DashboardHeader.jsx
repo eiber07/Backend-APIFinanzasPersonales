@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Modal from "@/components/Modal";
 
-export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogout }) {
+export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogout, onMenuClick, menuOpen }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
 
@@ -15,6 +15,16 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
   return (
     <>
       <header className="componente-header">
+        {!menuOpen && (
+          <button
+            className="sidebar-toggle"
+            onClick={onMenuClick}
+            aria-label="Abrir menú"
+            title="Abrir menú"
+          >
+            &#9776;
+          </button>
+        )}
         <div className="header-title-group">
           <h1>{activeAccount?.name || "Dashboard"}</h1>
           {activeAccount && (

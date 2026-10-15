@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [accounts, setAccounts] = useState([]);
   const [activeAccount, setActiveAccount] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [selectedFilterMonth, setSelectedFilterMonth] = useState(new Date().getMonth() + 1);
   const [selectedFilterYear, setSelectedFilterYear] = useState(new Date().getFullYear());
@@ -222,6 +223,8 @@ export default function DashboardPage() {
         activeAccount={activeAccount}
         onDeleteAccount={handleDeleteAccount}
         onLogout={handleLogout}
+        onMenuClick={() => setMobileMenuOpen(true)}
+        menuOpen={mobileMenuOpen}
       />
 
       <Sidebar
@@ -230,6 +233,8 @@ export default function DashboardPage() {
         activeAccountId={activeAccount?.id}
         onSelectAccount={handleSelectAccount}
         onAccountCreated={handleAccountCreated}
+        mobileOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
       />
 
       <main className="componente-main">
