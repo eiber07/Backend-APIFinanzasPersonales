@@ -1,7 +1,5 @@
 "use client";
 
-import { useTransactions } from "@/lib/hooks/useTransactions";
-
 const MONTH_NAMES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
@@ -30,11 +28,11 @@ export default function TransactionsTable({ filteredTransactions, loading, isGro
         >
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>Categoría</th>
-              <th>Descripción</th>
+              <th className="columna-fecha">Fecha</th>
+              <th className="columna-descripcion">Descripción</th>
+              <th className="columna-monto">Monto</th>
+              <th className="columna-categoria">Categoría</th>
               {isGroup && <th className="columna-miembro">Miembro</th>}
-              <th>Monto</th>
             </tr>
           </thead>
           <tbody>
@@ -59,15 +57,15 @@ export default function TransactionsTable({ filteredTransactions, loading, isGro
                   className="clickable-row"
                   onClick={() => onRowClick?.(t)}
                 >
-                  <td>{t.date}</td>
-                  <td>
-                    <span className="categoria-etiqueta">{t.category}</span>
-                  </td>
-                  <td>{t.description}</td>
-                  {isGroup && <td className="columna-miembro">{t.memberName}</td>}
-                  <td className={t.amountNumber > 0 ? "monto-positivo" : ""}>
+                  <td className="columna-fecha">{t.date}</td>
+                  <td className="columna-descripcion">{t.description}</td>
+                  <td className={`columna-monto ${t.amountNumber > 0 ? "monto-positivo" : ""}`}>
                     {t.amount}
                   </td>
+                  <td className="columna-categoria">
+                    <span className="categoria-etiqueta">{t.category}</span>
+                  </td>
+                  {isGroup && <td className="columna-miembro">{t.memberName}</td>}
                 </tr>
               ))
             )}

@@ -548,14 +548,14 @@ width: 100%;
     white-space: nowrap;
 }
 
-/* Encabezado */
-.tabla-transacciones th:last-child {
+/* Columna de monto */
+.tabla-transacciones th.columna-monto {
     text-align: right;
     padding-right: 100px;
 }
 
-/* Datos */
-.tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
+/* Datos de monto */
+.tabla-transacciones tbody tr:not(.empty-transactions-row) td.columna-monto {
     text-align: right;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
@@ -727,11 +727,22 @@ width: 100%;
     }
 
     .tabla-contenedor {
-        overflow-x: auto;
+        overflow-x: hidden;
     }
 
     .tabla-transacciones {
-        min-width: 620px;
+        min-width: 0;
+        table-layout: fixed;
+    }
+
+    .tabla-transacciones .columna-categoria,
+    .tabla-transacciones .columna-miembro {
+        display: none;
+    }
+
+    .tabla-transacciones th.columna-monto,
+    .tabla-transacciones td.columna-monto {
+        padding-right: 6px;
     }
 }
 
@@ -1401,6 +1412,39 @@ width: 100%;
 
 .componente-transacciones .tabla-transacciones.tabla-grupal th, .componente-transacciones .tabla-transacciones.tabla-grupal td {
     width: 20%;
+}
+
+@media (max-width: 768px) {
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(1) {
+        width: 27%;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(2) {
+        width: 43%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(3) {
+        width: 30%;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th,
+    .componente-transacciones .tabla-transacciones.tabla-personal td,
+    .componente-transacciones .tabla-transacciones.tabla-grupal th,
+    .componente-transacciones .tabla-transacciones.tabla-grupal td {
+        padding: 10px 6px;
+    }
 }
 /* ============================= */
 /* BOTONES DE MODALES - tamaño consistente, sin wrap a 2 líneas */
