@@ -11,12 +11,8 @@ function formatTransactionMoney(amount) {
 }
 
 function formatTransactionDate(dateValue) {
-  const date = new Date(`${dateValue}T00:00:00`);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
+  const [year, month, day] = dateValue.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 export function useTransactions(accountId, month, year) {

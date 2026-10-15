@@ -12,10 +12,11 @@ export default function Sidebar({
   activeAccountId,
   onSelectAccount,
   onAccountCreated,
+  mobileOpen,
+  onClose,
 }) {
   const { showError } = useAlerts();
 
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -75,21 +76,13 @@ export default function Sidebar({
 
   return (
     <>
-      <button
-        className="sidebar-toggle"
-        onClick={() => setMobileOpen(true)}
-        aria-label="Abrir menú"
-      >
-        &#9776;
-      </button>
-
       <div
         className={`sidebar-overlay ${mobileOpen ? "active" : ""}`}
-        onClick={() => setMobileOpen(false)}
+        onClick={onClose}
       />
 
       <div className={`sidebar ${mobileOpen ? "open" : ""}`} id="sidebar">
-        <button className="sidebar-close" onClick={() => setMobileOpen(false)}>
+        <button className="sidebar-close" onClick={onClose}>
           &times;
         </button>
 

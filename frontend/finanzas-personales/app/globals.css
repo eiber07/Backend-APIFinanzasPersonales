@@ -347,15 +347,6 @@ width: 100%;
     align-items: stretch;
 }
 
-.componente-tarjetas1 {
-    display: block;
-    padding: 24px;
-    min-height: 165px;
-    background: #ffffff;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-}
-
 .tarjeta-titulo {
     margin: 0;
     font-size: 13px;
@@ -372,25 +363,28 @@ width: 100%;
     color: #000000;
 }
 
-.tarjeta-balance-info {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.tarjeta-balance-encabezado {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
 .filtro-periodo {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.dashboard-period-filter {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.period-filter-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.period-filter-label {
+    color: #4B5563;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .select-periodo {
@@ -419,7 +413,7 @@ width: 100%;
     min-height: 69px;
     padding: 16px;
     background: #ffffff;
-    border: 1px solid #E5E7EB;
+    border: 1px solid rgba(29, 78, 216, 0.22);
     border-radius: 8px;
 }
 
@@ -459,6 +453,11 @@ width: 100%;
 .tarjeta-resumen-icono.egreso {
     background: #EEF2FF;
     color: #FF4D5E;
+}
+
+.tarjeta-resumen-icono.balance {
+    background: #EEF2FF;
+    color: #1D4ED8;
 }
 
 .tarjeta-resumen-label {
@@ -549,14 +548,14 @@ width: 100%;
     white-space: nowrap;
 }
 
-/* Encabezado */
-.tabla-transacciones th:last-child {
+/* Columna de monto */
+.tabla-transacciones th.columna-monto {
     text-align: right;
     padding-right: 100px;
 }
 
-/* Datos */
-.tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
+/* Datos de monto */
+.tabla-transacciones tbody tr:not(.empty-transactions-row) td.columna-monto {
     text-align: right;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
@@ -714,19 +713,50 @@ width: 100%;
     }
 
     .componente-tarjetas {
-        grid-template-columns: 1fr;
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .componente-tarjetas > article {
+        flex: 0 0 252px;
+        scroll-snap-align: start;
     }
 
     .tabla-contenedor {
-        overflow-x: auto;
+        overflow-x: hidden;
     }
 
     .tabla-transacciones {
-        min-width: 620px;
+        min-width: 0;
+        table-layout: fixed;
+    }
+
+    .tabla-transacciones .columna-categoria,
+    .tabla-transacciones .columna-miembro {
+        display: none;
+    }
+
+    .tabla-transacciones th.columna-monto,
+    .tabla-transacciones td.columna-monto {
+        padding-right: 6px;
     }
 }
 
 @media (max-width: 480px) {
+    .dashboard-period-filter {
+        justify-content: flex-start;
+    }
+
+    .period-filter-control {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
     .componente-header {
         padding: 0 16px;
     }
@@ -926,16 +956,13 @@ width: 100%;
 /* SIDEBAR - mobile/tablet */
 .sidebar-toggle {
     display: none;
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 200;
-    background: #5D6772;
-    color: #fff;
+    flex: 0 0 auto;
+    background: transparent;
+    color: rgb(29, 78, 216);
     border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
+    padding: 8px;
     font-size: 20px;
+    line-height: 1;
     cursor: pointer;
 }
 
@@ -965,8 +992,15 @@ width: 100%;
 }
 
 @media (max-width: 1024px) {
+    .componente-header {
+        justify-content: space-between;
+        gap: 12px;
+    }
+
     .sidebar-toggle {
-        display: block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .sidebar-close {
@@ -1378,6 +1412,39 @@ width: 100%;
 
 .componente-transacciones .tabla-transacciones.tabla-grupal th, .componente-transacciones .tabla-transacciones.tabla-grupal td {
     width: 20%;
+}
+
+@media (max-width: 768px) {
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(1) {
+        width: 27%;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(2) {
+        width: 43%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(3) {
+        width: 30%;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th,
+    .componente-transacciones .tabla-transacciones.tabla-personal td,
+    .componente-transacciones .tabla-transacciones.tabla-grupal th,
+    .componente-transacciones .tabla-transacciones.tabla-grupal td {
+        padding: 10px 6px;
+    }
 }
 /* ============================= */
 /* BOTONES DE MODALES - tamaño consistente, sin wrap a 2 líneas */
