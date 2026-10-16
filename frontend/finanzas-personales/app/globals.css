@@ -1,4 +1,3 @@
-
 body { 
     font-family: system-ui; 
     margin: 0; 
@@ -42,7 +41,7 @@ body {
 .form-title { 
     color: #1F2937; 
     font-size: 42px; 
-    font-weight: bold; 
+    font-weight: 700; 
 }
 
 .form-group { 
@@ -67,7 +66,7 @@ body {
 .label { 
     color: #1F2937; 
     font-size: 14px; 
-    font-weight: bold; 
+    font-weight: 600; 
 }
 
 .input { 
@@ -75,15 +74,15 @@ body {
     padding: 13px 16px; 
     border: none; 
     border-radius: 4px; 
-    font-size: 16px; 
-    font-weight: bold; 
+    font-size: 15px; 
+    font-weight: 500; 
     color: #697077; 
 }
 
 .error { 
     color: #FF383C; 
     font-size: 12px; 
-    font-weight: bold; 
+    font-weight: 600; 
     display: none; 
 }
 .error.active { 
@@ -132,12 +131,6 @@ body {
     margin: 47px 0; 
 }
 
-.signup { 
-    color: #1F2937; 
-    font-size: 14px; 
-    font-weight: bold; 
-    text-decoration: none;
-}
 
 .side-image { 
     width: 70%; 
@@ -245,7 +238,8 @@ width: 100%;
 
 .signup {
     text-decoration: underline;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 15px; 
     color: #1D4ED8;
     display: inline;
 }
@@ -255,6 +249,7 @@ width: 100%;
 }
 .content-modal h2{
     text-align:center;
+    font-weight:600;
 }
 
 #modalForget .btn-primary{
@@ -274,7 +269,7 @@ width: 100%;
     top: 10px;
     right: 15px;
     font-size: 24px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
     }
 
@@ -312,7 +307,6 @@ width: 100%;
     padding: 0 24px;
     background: #ffffff;
     border-bottom: 1.5px solid #2563EB;
-    font-weight: normal;
 }
 
 .componente-header h1 {
@@ -320,6 +314,13 @@ width: 100%;
     font-weight: 700;
     color: #111827;
     margin: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom:10px;
+  margin-top:10px;
 }
 
 /* ============================= */
@@ -347,18 +348,9 @@ width: 100%;
     align-items: stretch;
 }
 
-.tarjeta-titulo {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-    color: #1F2937;
-}
-
 .tarjeta-monto {
     margin: 6px 0 0;
-    font-size: 38px;
+    font-size: 34px;
     line-height: 1;
     color: #000000;
 }
@@ -395,7 +387,7 @@ width: 100%;
     background: #FFFFFF;
     color: #374151;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
 }
 
@@ -463,7 +455,7 @@ width: 100%;
 .tarjeta-resumen-label {
     margin: 0;
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.3px;
     text-transform: uppercase;
     color: #1F2937;
@@ -478,7 +470,6 @@ width: 100%;
     grid-template-columns: 1fr 320px;
     gap: 24px;
     padding: 0;
-    font-weight: normal;
 }
 
 .titulo-seccion {
@@ -523,7 +514,7 @@ width: 100%;
     text-align: left;
     color: #374151;
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 600;
     position: sticky;
     top: 0;
     z-index: 2;
@@ -552,6 +543,7 @@ width: 100%;
 .tabla-transacciones th.columna-monto {
     text-align: right;
     padding-right: 100px;
+    color: #374151;
 }
 
 /* Datos de monto */
@@ -560,7 +552,7 @@ width: 100%;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .empty-transactions-row td {
@@ -570,18 +562,6 @@ width: 100%;
     text-align: center;
 }
 
-.empty-transactions-message {
-    height: 288px;
-    width: 100%;
-    background: #E5E7EB;
-    color: #5D6772;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 700;
-}
 
 .categoria-etiqueta {
     display: inline-block;
@@ -645,6 +625,7 @@ width: 100%;
 .factura-fecha-gris {
     background: #5D6772;
     color: #fff;
+    font-weight: 500;
 
 }
 
@@ -652,12 +633,14 @@ width: 100%;
     font-size: 14px;
     color: #111827;
     margin: 0 0 4px;
+    font-weight: 600;
 }
 
 .factura-info p {
     font-size: 12px;
     color: #4B5563;
     margin: 0;
+    
 }
 
 .factura-monto {
@@ -666,6 +649,7 @@ width: 100%;
     font-size: 16px;
     color: #000000;
     margin-bottom: 6px;
+    font-weight: 500;
 }
 
 .boton-gestionar {
@@ -797,7 +781,7 @@ width: 100%;
 }
 
 .tabla-detalle td:first-child {
-    font-weight: bold;
+    font-weight: 600;
     color: #5D6772;
     width: 35%;
     text-align: left;
@@ -881,7 +865,7 @@ width: 100%;
   gap: 10px;
   padding: 9px 10px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: #1F2937;
 }
 
@@ -889,7 +873,7 @@ width: 100%;
   margin: 0;
   padding: 4px 10px 8px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.6px;
   text-transform: uppercase;
   color: #9CA3AF;
@@ -920,7 +904,7 @@ width: 100%;
 .account-item.active {
   background: #EEF2FF;
   color: #1D4ED8;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .account-item.active::before {
@@ -943,7 +927,7 @@ width: 100%;
   padding: 9px 10px 9px 14px;
   border-radius: 6px;
   color: #1D4ED8;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 13px;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -1055,10 +1039,12 @@ width: 100%;
 }
 
 .logout-container {
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    padding: 5px;
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
 }
 
 .header-title-group {
@@ -1113,7 +1099,7 @@ width: 100%;
 }
 .alert-icon {
     flex-shrink: 0;
-    font-weight: bold;
+    font-weight: 600;
     margin-top: 2px;
 }
 .alert-content {
@@ -1224,7 +1210,7 @@ width: 100%;
     margin: 0;
     color: #111827;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .member-status {
@@ -1331,7 +1317,7 @@ width: 100%;
 
 .debts-ammount {
     font-size: 13px;
-    font-weight: 800;
+    font-weight: 700;
     color: #dc2626;
     white-space: nowrap;
 }
@@ -1358,7 +1344,7 @@ width: 100%;
 .member-balance {
     margin: 0;
     font-size: 14px;
-    font-weight: 800;
+    font-weight: 600;
     white-space: nowrap;
 }
 
@@ -1482,29 +1468,320 @@ width: 100%;
   width: 80px;
 }
 
-/* ============================= */
-/* BOTÓN DE CERRAR SESIÓN COMO ÍCONO */
-/* ============================= */
 .btn-logout-icon {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: none;
-  background: #FEE2E2;
-  color: #DC2626;
+  border: 1px solid #FECACA; /* Bordes suaves en tono rojo */
+  background-color: #FEF2F2; /* Fondo rojo suave pastel */
+  color: #DC2626; /* Color rojo reconocido para logout */
   cursor: pointer;
-  transition: background 0.2s ease;
-  flex-shrink: 0;
+  transition: all 0.2s ease-in-out;
 }
 
 .btn-logout-icon:hover {
-  background: #FECACA;
+  background-color: #FEE2E2;
+  border-color: #FCA5A5;
+  color: #B91C1C;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(220, 38, 38, 0.12);
+}
+
+.btn-logout-icon:active {
+  transform: translateY(0);
 }
 
 .btn-logout-icon svg {
   width: 18px;
   height: 18px;
+  stroke-width: 2.2; /* Un trazo un poco más marcado para mejor definición */
+}
+
+/* ============================= */
+/* ESTILOS BOTÓN BOTÓN THEME TOGGLE */
+/* ============================= */
+.btn-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #D1D5DB;
+  background-color: #FFFFFF;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-theme-toggle:hover {
+  background-color: #F3F4F6;
+  color: #111827;
+}
+
+.btn-theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ==========================================================================
+   MODO OSCURO (DARK MODE OVERRIDES)
+   ========================================================================== */
+
+/* Variables para el Tema Oscuro */
+[data-theme="dark"] {
+  --bg-dark-main: #0F172A;
+  --bg-dark-card: #1E293B;
+  --bg-dark-input: #334155;
+  --text-dark-primary: #F8FAFC;
+  --text-dark-secondary: #CBD5E1;
+  --text-dark-muted: #94A3B8;
+  --border-dark: #334155;
+  --brand-primary: #3B82F6;
+  --brand-hover: #2563EB;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+/* 1. Datos del usuario en Sidebar (Nombre y Email) */
+[data-theme="dark"] .sidebar .profile-info p,
+[data-theme="dark"] .sidebar .profile-info span {
+  color: var(--text-dark-primary) !important;
+}
+
+/* 2. Ícono de Dashboards y demás íconos en Sidebar */
+[data-theme="dark"] .menu-item-dashboard,
+[data-theme="dark"] .menu-item-dashboard svg,
+[data-theme="dark"] .menu-item-dashboard i {
+  color: var(--text-dark-primary) !important;
+  fill: currentColor;
+}
+
+/* 3. Ícono de información al lado del título (cuenta personal i) */
+[data-theme="dark"] .header-title-group svg,
+[data-theme="dark"] .header-title-group i,
+[data-theme="dark"] .componente-header svg,
+[data-theme="dark"] .componente-header i {
+  color: var(--text-dark-primary) !important;
+  fill: currentColor;
+}
+[data-theme="dark"] .header-title-group img {
+  filter: invert(1) brightness(2);
+}
+/* 4. Íconos dentro de botones e inputs */
+[data-theme="dark"] svg {
+  stroke: currentColor;
+}
+
+/* Adaptación del Botón Logout en Modo Oscuro */
+[data-theme="dark"] .btn-logout-icon {
+  background-color: rgba(239, 68, 68, 0.15) !important; /* Fondo rojo suave traslúcido */
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;   /* Borde rojo bien definido */
+  color: #F87171 !important;                             /* Rojo brillante y accesible para las líneas del SVG */
+}
+
+[data-theme="dark"] .btn-logout-icon:hover {
+  background-color: rgba(239, 68, 68, 0.3) !important;
+  border-color: #EF4444 !important;
+  color: #FFFFFF !important;
+}
+
+/* Evitar que el SVG dentro del botón se vuelva relleno blanco o pierda líneas */
+[data-theme="dark"] .btn-logout-icon svg {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2px !important;
+  filter: none !important; /* Previene filtros de inversión accidentales */
+}
+
+/* Aplicación de fondos principales */
+[data-theme="dark"] body,
+[data-theme="dark"] .grid-contenedor,
+[data-theme="dark"] .componente-header,
+[data-theme="dark"] .componente-main,
+[data-theme="dark"] .content {
+    background-color: var(--bg-dark-main) !important;
+    color: var(--text-dark-primary) !important;
+}
+
+/* Tarjetas, Contenedores, Sidebar y Modales */
+[data-theme="dark"] .content-modal,
+[data-theme="dark"] .tarjeta-resumen,
+[data-theme="dark"] .factura-card,
+[data-theme="dark"] .debts-card,
+[data-theme="dark"] .tabla-contenedor,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .componente-miembros {
+    background-color: var(--bg-dark-card) !important;
+    border-color: var(--border-dark) !important;
+    color: var(--text-dark-primary);
+}
+[data-theme="dark"] .sidebar img,
+[data-theme="dark"] .menu-item-dashboard img,
+[data-theme="dark"] .header-title-group img {
+    filter: invert(1) brightness(2) !important;
+}
+/* Encabezados y Títulos */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] .app-title,
+[data-theme="dark"] .form-title,
+[data-theme="dark"] .tarjeta-resumen-label,
+[data-theme="dark"] .factura-info h3,
+[data-theme="dark"] .member-name,
+[data-theme="dark"] .componente-header h1,
+[data-theme="dark"] .menu-item-dashboard,
+[data-theme="dark"] .titulo-seccion h2,
+[data-theme="dark"] .miembros-header h2 {
+    color: var(--text-dark-primary) !important;
+}
+
+/* Cifras y Montos destacados */
+[data-theme="dark"] .tarjeta-monto,
+[data-theme="dark"] .factura-monto {
+    color: #FFFFFF !important;
+}
+
+/* Textos secundarios, etiquetas y leyendas */
+[data-theme="dark"] .label,
+[data-theme="dark"] .period-filter-label,
+[data-theme="dark"] .factura-info p,
+[data-theme="dark"] .member-status,
+[data-theme="dark"] .debts-name,
+[data-theme="dark"] .member-balance-label,
+[data-theme="dark"] .content-modal p,
+[data-theme="dark"] .tabla-detalle td,
+[data-theme="dark"] .members-empty {
+    color: var(--text-dark-secondary) !important;
+}
+
+/* Inputs, Selects y Formularios */
+[data-theme="dark"] .input,
+[data-theme="dark"] .select-periodo {
+    background-color: var(--bg-dark-input) !important;
+    color: var(--text-dark-primary) !important;
+    border: 1px solid var(--border-dark) !important;
+}
+
+[data-theme="dark"] .input::placeholder {
+    color: var(--text-dark-muted) !important;
+}
+
+/* Tablas */
+[data-theme="dark"] .tabla-transacciones thead,
+[data-theme="dark"] .tabla-transacciones th {
+    background-color: var(--bg-dark-input) !important;
+    color: var(--text-dark-primary) !important;
+}
+
+[data-theme="dark"] .tabla-transacciones td {
+    border-top-color: var(--border-dark) !important;
+    color: var(--text-dark-primary) !important;
+}
+
+[data-theme="dark"] .tabla-transacciones td.columna-miembro {
+    color: var(--text-dark-secondary) !important;
+}
+
+[data-theme="dark"] .categoria-etiqueta {
+    background-color: var(--bg-dark-input) !important;
+    color: var(--text-dark-secondary) !important;
+}
+
+/* Sidebar y Elementos de Navegación */
+[data-theme="dark"] .sidebar {
+    border-right-color: var(--border-dark) !important;
+}
+
+[data-theme="dark"] .sidebar .profile {
+    border-bottom-color: var(--border-dark) !important;
+}
+
+[data-theme="dark"] .sidebar .profile:hover,
+[data-theme="dark"] .account-item:hover:not(.active) {
+    background-color: var(--bg-dark-input) !important;
+}
+
+[data-theme="dark"] .account-item {
+    color: var(--text-dark-secondary);
+}
+
+[data-theme="dark"] .account-item.active {
+    background-color: rgba(59, 130, 246, 0.18) !important;
+    color: var(--brand-primary) !important;
+}
+
+/* Iconos de Resumen */
+[data-theme="dark"] .tarjeta-resumen-icono.ingreso,
+[data-theme="dark"] .tarjeta-resumen-icono.egreso,
+[data-theme="dark"] .tarjeta-resumen-icono.balance {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Botones principales y de gestión */
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .boton-gestionar {
+    background-color: var(--brand-primary) !important;
+    border-color: var(--brand-primary) !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .btn-primary:hover,
+[data-theme="dark"] .boton-gestionar:hover {
+    background-color: var(--brand-hover) !important;
+}
+
+/* Botones rojos de acción destructiva (Eliminar / Cancelar / Reversar) */
+[data-theme="dark"] .btn-red,
+[data-theme="dark"] .btn-primary.btn-red {
+    background-color: #DC2626 !important; /* Rojo visible y distintivo */
+    border-color: #DC2626 !important;
+    color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .btn-red:hover,
+[data-theme="dark"] .btn-primary.btn-red:hover {
+    background-color: #B91C1C !important; /* Rojo oscuro en hover */
+}
+
+[data-theme="dark"] .btn-secondary {
+    background-color: transparent !important;
+    border-color: var(--brand-primary) !important;
+    color: var(--brand-primary) !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background-color: rgba(59, 130, 246, 0.12) !important;
+}
+
+/* Adaptación del Botón Toggle en Modo Oscuro */
+[data-theme="dark"] .btn-theme-toggle {
+  background-color: var(--bg-dark-card);
+  border-color: var(--border-dark);
+  color: var(--text-dark-primary);
+}
+
+[data-theme="dark"] .btn-theme-toggle:hover {
+  background-color: var(--bg-dark-input);
+}
+
+/* Divisores, separadores y bordes menores */
+[data-theme="dark"] .divider,
+[data-theme="dark"] .miembros-header,
+[data-theme="dark"] .member-item,
+[data-theme="dark"] .tabla-detalle td {
+    border-color: var(--border-dark) !important;
+}
+
+/* Ajustes de avatar de deudas */
+[data-theme="dark"] .debts-avatar {
+    background-color: var(--bg-dark-input) !important;
+    color: var(--text-dark-secondary) !important;
+}
+[data-theme="dark"] .tabla-transacciones td.monto-positivo {
+    color: #22C55E !important;
 }
