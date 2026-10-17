@@ -1,8 +1,3 @@
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
 
 body { 
     font-family: system-ui; 
@@ -137,7 +132,7 @@ body {
     margin: 47px 0; 
 }
 
-.signup, .signin { 
+.signup { 
     color: #1F2937; 
     font-size: 14px; 
     font-weight: bold; 
@@ -283,72 +278,6 @@ width: 100%;
     cursor: pointer;
     }
 
-/*Contenido Dashbooard*/
-/*sidebar*/
-#sidebar-placeholder {
-    grid-area: sidebar;
-    overflow-y: auto;   
-}
-.sidebar {
-height: 100%;
-padding-top: 20px;
-background-color: #E2E4E6;
-grid-area: sidebar;
-}
-
-.sidebar div {
-padding: 15px;
-display: block;
-}
-
-.sidebar .profile{
-    display: flex;
-    justify-content: center;
-    padding-bottom: 0;
-}
-
-.sidebar .profile-info{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    padding-left: 0;
-}
-
-.sidebar .profile-info p{
-    margin: 2px 0;
-    text-align: left;
-}
-
-.sidebar .menu{
-    padding-top: 0;
-}
-
-.menu .menu-item-dashboard {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom:0;
-    font-size: 14px;
-}
-
-.menu .submenu {
-    display: flex;
-    flex-direction: column; 
-    padding-left: 30px;
-    padding-top: 5px;  
-    padding-bottom: 15px;
-    border-bottom: 1px solid #5D6772;
-    font-size: 13px;
-    color:#5D6772;
-}
-
-.submenu div {
-    color: #374151;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
 /* ============================= */
 /* DASHBOARD PRIVADO */
 /* ============================= */
@@ -393,35 +322,6 @@ display: block;
     margin: 0;
 }
 
-.header-acciones {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.boton-icono,
-.boton-ayuda {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: #111827;
-    font-weight: 700;
-}
-
-.boton-icono {
-    font-size: 18px;
-}
-
-.boton-ayuda {
-    width: 30px;
-    height: 30px;
-    border: 3px solid #ec4899;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-}
-
 /* ============================= */
 /* MAIN DASHBOARD */
 /* ============================= */
@@ -447,15 +347,6 @@ display: block;
     align-items: stretch;
 }
 
-.componente-tarjetas1 {
-    display: block;
-    padding: 24px;
-    min-height: 165px;
-    background: #ffffff;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-}
-
 .tarjeta-titulo {
     margin: 0;
     font-size: 13px;
@@ -472,34 +363,28 @@ display: block;
     color: #000000;
 }
 
-.tarjeta-fecha {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    margin-top: auto;
-    font-size: 14px;
-    color: #374151;
-}
-
-.tarjeta-balance-info {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.tarjeta-balance-encabezado {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
 .filtro-periodo {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.dashboard-period-filter {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+
+.period-filter-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.period-filter-label {
+    color: #4B5563;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .select-periodo {
@@ -520,21 +405,6 @@ display: block;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
-#filter-month {
-    width: 90px;
-}
-
-.select-periodo-year {
-    width: 72px;
-}
-
-.punto-verde {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #22C55E;
-}
-
 /* Tarjetas ingreso / egreso */
 .tarjeta-resumen {
     display: flex;
@@ -543,7 +413,7 @@ display: block;
     min-height: 69px;
     padding: 16px;
     background: #ffffff;
-    border: 1px solid #E5E7EB;
+    border: 1px solid rgba(29, 78, 216, 0.22);
     border-radius: 8px;
 }
 
@@ -585,6 +455,11 @@ display: block;
     color: #FF4D5E;
 }
 
+.tarjeta-resumen-icono.balance {
+    background: #EEF2FF;
+    color: #1D4ED8;
+}
+
 .tarjeta-resumen-label {
     margin: 0;
     font-size: 13px;
@@ -592,35 +467,6 @@ display: block;
     letter-spacing: 0.3px;
     text-transform: uppercase;
     color: #1F2937;
-}
-
-.tarjeta-resumen-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.tarjeta-resumen-info p {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
-    color: #1F2937;
-}
-
-.tarjeta-resumen-info h3 {
-    margin: 0;
-    font-size: 38px;
-    line-height: 1;
-    color: #000000;
-}
-
-.tarjeta-resumen-monto {
-    display: flex;
-    align-items: center;
-    gap: 14px;
 }
 
 /* ============================= */
@@ -646,14 +492,6 @@ display: block;
     font-size: 20px;
     color: #1F2937;
     margin: 0;
-}
-
-.titulo-seccion a {
-    color: #2563EB;
-    font-size: 12px;
-    text-decoration: none;
-    margin-left: auto;
-    margin-right: 16px;
 }
 
 /* ============================= */
@@ -710,14 +548,14 @@ display: block;
     white-space: nowrap;
 }
 
-/* Encabezado */
-.tabla-transacciones th:last-child {
+/* Columna de monto */
+.tabla-transacciones th.columna-monto {
     text-align: right;
     padding-right: 100px;
 }
 
-/* Datos */
-.tabla-transacciones tbody tr:not(.empty-transactions-row) td:last-child {
+/* Datos de monto */
+.tabla-transacciones tbody tr:not(.empty-transactions-row) td.columna-monto {
     text-align: right;
     padding-right: 100px;
     font-variant-numeric: tabular-nums;
@@ -771,12 +609,6 @@ display: block;
     max-height: 225px;
     overflow-y: auto;
     padding-right: 2px;
-}
-
-.lista-facturas {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
 }
 
 .factura-card {
@@ -880,29 +712,51 @@ display: block;
             "main";
     }
 
-    .componente-sidebar {
-        min-height: auto;
-        padding: 20px;
-    }
-
-    .usuario-sidebar {
-        margin-bottom: 20px;
-    }
-
     .componente-tarjetas {
-        grid-template-columns: 1fr;
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .componente-tarjetas > article {
+        flex: 0 0 252px;
+        scroll-snap-align: start;
     }
 
     .tabla-contenedor {
-        overflow-x: auto;
+        overflow-x: hidden;
     }
 
     .tabla-transacciones {
-        min-width: 620px;
+        min-width: 0;
+        table-layout: fixed;
+    }
+
+    .tabla-transacciones .columna-categoria,
+    .tabla-transacciones .columna-miembro {
+        display: none;
+    }
+
+    .tabla-transacciones th.columna-monto,
+    .tabla-transacciones td.columna-monto {
+        padding-right: 6px;
     }
 }
 
 @media (max-width: 480px) {
+    .dashboard-period-filter {
+        justify-content: flex-start;
+    }
+
+    .period-filter-control {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
     .componente-header {
         padding: 0 16px;
     }
@@ -977,31 +831,138 @@ display: block;
     cursor: pointer;
 }
 
-#clickable-img{
-    cursor: pointer;
+/* ============================= */
+/* SIDEBAR */
+/* ============================= */
+.sidebar {
+  grid-area: sidebar;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  border-right: 1px solid #E5E7EB;
 }
 
-#clickable-img2{
-    cursor: pointer;
+.sidebar .profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 68px;
+  padding: 0 20px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #E5E7EB;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-#btnProdfile{
-    cursor: pointer;
+.sidebar .profile:hover {
+  background: #F9FAFB;
+}
+
+.sidebar .profile-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sidebar .profile-info p {
+  margin: 2px 0;
+  text-align: left;
+}
+
+.sidebar .menu {
+  flex: 1;
+  padding: 0 12px;
+}
+
+.menu-item-dashboard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.menu-section-title {
+  margin: 0;
+  padding: 4px 10px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #9CA3AF;
+}
+
+.submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 4px;
+  font-size: 13px;
+}
+
+.account-item {
+  position: relative;
+  padding: 9px 10px 9px 14px;
+  border-radius: 6px;
+  color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.account-item:hover:not(.active) {
+  background: #F3F4F6;
+}
+
+.account-item.active {
+  background: #EEF2FF;
+  color: #1D4ED8;
+  font-weight: 700;
+}
+
+.account-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: #1D4ED8;
+  border-radius: 0 3px 3px 0;
+}
+
+.new-account {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 9px 10px 9px 14px;
+  border-radius: 6px;
+  color: #1D4ED8;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.new-account:hover {
+  background: #EEF2FF;
 }
 
 /* SIDEBAR - mobile/tablet */
 .sidebar-toggle {
     display: none;
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 200;
-    background: #5D6772;
-    color: #fff;
+    flex: 0 0 auto;
+    background: transparent;
+    color: rgb(29, 78, 216);
     border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
+    padding: 8px;
     font-size: 20px;
+    line-height: 1;
     cursor: pointer;
 }
 
@@ -1031,8 +992,15 @@ display: block;
 }
 
 @media (max-width: 1024px) {
+    .componente-header {
+        justify-content: space-between;
+        gap: 12px;
+    }
+
     .sidebar-toggle {
-        display: block;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .sidebar-close {
@@ -1054,11 +1022,6 @@ display: block;
         left: 0;
     }
 
-    #sidebar-placeholder {
-        grid-area: sidebar;
-        width: 0;
-    }
-
     .grid-contenedor {
         grid-template-columns: 1fr;
         grid-template-areas:
@@ -1067,10 +1030,6 @@ display: block;
     }
 }
 
-.cont-profile-lg {
-    width: 90px;
-    height: 90px;
-}
 
 #modalUserProfile .content-modal {
     align-items: flex-start;
@@ -1086,11 +1045,6 @@ display: block;
     width: 100%;
 }
 
-.cont-profile-lg {
-    width: 72px;
-    height: 72px;
-    flex-shrink: 0;
-}
 
 #modalUserProfile h2 {
     width: 100%;
@@ -1113,24 +1067,6 @@ display: block;
     gap: 10px;
 }
 
-#info-modal {
-    filter: invert(27%) sepia(90%) saturate(1500%) hue-rotate(210deg) brightness(90%);
-    cursor: pointer;
-    flex-shrink: 0;
-}
-
-.btn-logout {
-    background: #dc2626;
-    color: white;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.btn-logout:hover {
-    opacity: 0.9;
-}
 
 /* ALERTAS */
 .alert {
@@ -1212,24 +1148,9 @@ display: block;
     max-width: 400px;
 }
 
-.acciones-modal button {
-    min-width: 140px;
-}
 .factura-completada {
     opacity: 0.5;
     filter: grayscale(2);
-}
-.account-item.active {
-    color: #fff;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-weight: 600;
-}
-.account-item:hover:not(.active) {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
-    padding: 4px 8px;
 }
 
 /* ============================= */
@@ -1356,10 +1277,6 @@ display: block;
 }
 
 @media (max-width: 600px) {
-    .tarjeta-balance-encabezado {
-        flex-wrap: wrap;
-    }
-
     .filtro-periodo {
         width: 100%;
         justify-content: flex-end;
@@ -1496,6 +1413,39 @@ display: block;
 .componente-transacciones .tabla-transacciones.tabla-grupal th, .componente-transacciones .tabla-transacciones.tabla-grupal td {
     width: 20%;
 }
+
+@media (max-width: 768px) {
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(1),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(1) {
+        width: 27%;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(2),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(2) {
+        width: 43%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-personal td:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-grupal th:nth-child(3),
+    .componente-transacciones .tabla-transacciones.tabla-grupal td:nth-child(3) {
+        width: 30%;
+    }
+
+    .componente-transacciones .tabla-transacciones.tabla-personal th,
+    .componente-transacciones .tabla-transacciones.tabla-personal td,
+    .componente-transacciones .tabla-transacciones.tabla-grupal th,
+    .componente-transacciones .tabla-transacciones.tabla-grupal td {
+        padding: 10px 6px;
+    }
+}
 /* ============================= */
 /* BOTONES DE MODALES - tamaño consistente, sin wrap a 2 líneas */
 /* ============================= */
@@ -1557,133 +1507,4 @@ display: block;
 .btn-logout-icon svg {
   width: 18px;
   height: 18px;
-}
-
-/* ============================= */
-/* SIDEBAR - diseño moderno, coherente con el dashboard */
-/* ============================= */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  background: #FFFFFF;
-  border-right: 1px solid #E5E7EB;
-  padding-top: 0;
-}
-
-.sidebar .profile {
-  height: 68px;
-  box-sizing: border-box;
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: flex-start;
-  border-bottom: 1px solid #E5E7EB;
-  margin-bottom: 16px;
-  transition: background 0.15s ease;
-}
-
-.sidebar .profile:hover {
-  background: #F9FAFB;
-}
-
-.sidebar-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #EEF2FF;
-  color: #1D4ED8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.sidebar .menu {
-  padding: 0 12px;
-  flex: 1;
-}
-
-.menu-section-title {
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: #9CA3AF;
-  padding: 4px 10px 8px;
-  margin: 0;
-}
-
-.menu-item-dashboard {
-  padding: 9px 10px !important;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 13px;
-  color: #1F2937;
-}
-
-.submenu {
-  border-bottom: none !important;
-  padding-left: 0 !important;
-  padding-top: 2px !important;
-  padding-bottom: 4px !important;
-  gap: 2px;
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-}
-
-.account-item {
-  position: relative;
-  padding: 9px 10px 9px 14px;
-  border-radius: 6px;
-  color: #374151;
-  transition: background 0.15s ease, color 0.15s ease;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.account-item:hover:not(.active) {
-  background: #F3F4F6 !important;
-  padding: 9px 10px 9px 14px !important;
-}
-
-.account-item.active {
-  background: #EEF2FF !important;
-  color: #1D4ED8 !important;
-  font-weight: 700;
-  padding: 9px 10px 9px 14px !important;
-  border-radius: 6px;
-}
-
-.account-item.active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 60%;
-  background: #1D4ED8;
-  border-radius: 0 3px 3px 0;
-}
-
-.new-account {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 10px;
-  border-radius: 6px;
-  color: #1D4ED8;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.15s ease;
-  margin-top: 8px;
-}
-
-.new-account:hover {
-  background: #EEF2FF;
 }
