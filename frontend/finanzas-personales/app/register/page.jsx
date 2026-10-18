@@ -80,82 +80,82 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container">
-      <div className="content">
-        <div className="form-section">
-          <div className="titles">
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        <div className="titles">
+          <div className="app-title-group">
+            <div className="logo-placeholder" title="Placeholder Logotipo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="4" />
+                <path d="M12 8v8M8 12h8" />
+              </svg>
+            </div>
             <span className="app-title">Finance tracker</span>
-            <span className="form-title">Crear cuenta</span>
           </div>
+          <span className="form-title">Crear cuenta</span>
+        </div>
 
-          <div className="form-group2">
-            <div>
-              <label className="label">Nombre</label>
-              <input
-                type="text"
-                className="input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              {errorName && <span className="error active">{errorName}</span>}
-            </div>
-            <div>
-              <label className="label">Apellido</label>
-              <input
-                type="text"
-                className="input"
-                value={lastname}
-                onChange={(e) => setLastname(e.target.value)}
-              />
-              {errorLastname && (
-                <span className="error active">{errorLastname}</span>
-              )}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="label">Email</label>
+        <div className="form-group2">
+          <div>
+            <label className="label">Nombre</label>
             <input
               type="text"
               className="input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
-            {errorEmail && <span className="error active">{errorEmail}</span>}
+            {errorName && <span className="error active">{errorName}</span>}
           </div>
-
-          <div className="form-group">
-            <label className="label">Contraseña</label>
+          <div>
+            <label className="label">Apellido</label>
             <input
-              type="password"
+              type="text"
               className="input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
             />
-            {errorPassword && (
-              <span className="error active">{errorPassword}</span>
+            {errorLastname && (
+              <span className="error active">{errorLastname}</span>
             )}
           </div>
-
-          <button className="btn-primary" onClick={handleRegister}>
-            <span>Registrarse</span>
-          </button>
-
-          <div className="divider" />
-
-          <p>
-            Ya tienes una cuenta? Ingresa{" "}
-            <Link href="/login" className="signup">
-              aquí.
-            </Link>
-          </p>
         </div>
 
-        <img
-          className="side-image"
-          src="/img/Personal Home Finance 2 (1).png"
-          alt="Finance illustration"
-        />
+        <div className="form-group">
+          <label className="label">Email</label>
+          <input
+            type="text"
+            className="input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          {errorEmail && <span className="error active">{errorEmail}</span>}
+        </div>
+
+        <div className="form-group">
+          <label className="label">Contraseña</label>
+          <input
+            type="password"
+            className="input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {errorPassword && (
+            <span className="error active">{errorPassword}</span>
+          )}
+        </div>
+
+        <button className="btn-primary" onClick={handleRegister}>
+          <span>Registrarse</span>
+        </button>
+
+        <div className="divider" />
+
+        <p className="auth-footer-text">
+          ¿Ya tienes una cuenta? Ingresa{" "}
+          <Link href="/login" className="signup">
+            aquí.
+          </Link>
+        </p>
       </div>
     </div>
   );
