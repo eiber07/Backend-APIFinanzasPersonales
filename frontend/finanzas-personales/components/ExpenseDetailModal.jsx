@@ -12,17 +12,17 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted }
   if (!expense) return null;
 
   async function handleDelete() {
-    if (!confirm(`¿Eliminar el gasto "${expense.detail}"?`)) return;
+    if (!confirm(`¿Eliminar pago "${expense.detail}"?`)) return;
     setDeleting(true);
     try {
       const res = await deactivatePlannedExpense(expense.id);
       if (res.ok) {
-        showSuccess("Gasto eliminado correctamente.");
+        showSuccess("Pago eliminado correctamente.");
         onDeleted?.();
         onClose();
       } else {
         const err = await res.json();
-        showError(err.detail || "Error al eliminar el gasto.");
+        showError(err.detail || "Error al eliminar pago.");
       }
     } catch {
       showError("No se pudo establecer conexión con el servidor.");
@@ -33,7 +33,7 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted }
 
   return (
     <Modal id="modalEditExpenses" open={open} onClose={onClose}>
-      <h2 style={{ color: "#1F2937", margin: 0 }}>Detalle de Gasto Planeado</h2>
+      <h2 style={{ color: "#1F2937", margin: 0 }}>Detalle del pago</h2>
 
       <table className="tabla-detalle">
         <tbody>

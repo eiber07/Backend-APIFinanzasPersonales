@@ -10,7 +10,7 @@ export default function PlannedExpensesModal({ open, onClose, plannedExpenses = 
       onClose={onClose}
       contentStyle={{ maxWidth: 800, width: "90%" }}
     >
-      <h2 style={{ color: "#1F2937", margin: 0 }}>Gastos Planeados</h2>
+      <h2 style={{ color: "#1F2937", margin: 0 }}>Todos los pagos</h2>
 
       <div className="tabla-contenedor" style={{ marginTop: "1rem" }}>
         <table className="tabla-transacciones">
@@ -34,7 +34,7 @@ export default function PlannedExpensesModal({ open, onClose, plannedExpenses = 
               <tr className="empty-transactions-row">
                 <td colSpan={5}>
                   <div className="empty-transactions-message">
-                    Aún no se han registrado gastos planeados
+                    Aún no registraste pagos
                   </div>
                 </td>
               </tr>

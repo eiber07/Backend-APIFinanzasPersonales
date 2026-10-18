@@ -21,7 +21,7 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
   const [saving, setSaving] = useState(false);
 
   const selectedType = types.find((t) => String(t.id) === String(typeId));
-  const isPlannedExpenseType = selectedType?.value?.toLowerCase() === "gasto planificado";
+  const isPlannedExpenseType = selectedType?.value?.toLowerCase() === "pago asociado";
   const availablePlannedExpenses = plannedExpenses.filter((e) => !e.completed);
   const selectedPlannedExpense = availablePlannedExpenses.find(
     (e) => String(e.id) === String(plannedExpenseId)

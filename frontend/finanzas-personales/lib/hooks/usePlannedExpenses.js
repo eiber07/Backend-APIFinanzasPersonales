@@ -78,7 +78,7 @@ export function usePlannedExpenses(accountId) {
 
       setPlannedExpenses(mapped);
     } catch (error) {
-      console.error("Error cargando gastos planificados:", error);
+      console.error("Error cargando el pago", error);
     } finally {
       setLoading(false);
     }
