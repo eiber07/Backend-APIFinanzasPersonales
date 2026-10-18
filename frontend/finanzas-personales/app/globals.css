@@ -25,8 +25,70 @@ body {
     border-radius: 8px; 
 }
 
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #F8FAFC;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 40px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.auth-card .btn-primary {
+  width: 100%;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.auth-card .divider {
+  margin: 15px 0;
+}
+
+.app-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-placeholder {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: #1D4ED8;
+  color: #FFFFFF;
+}
+
+.logo-placeholder svg {
+  width: 18px;
+  height: 18px;
+}
+
+.auth-footer-text {
+  color: #1F2937;
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+}
+
 .titles { 
-    margin-bottom: 48px; 
+    margin-bottom: 10px; 
     display: flex; 
     flex-direction: column; 
     gap: 8px; 
@@ -35,13 +97,13 @@ body {
 .app-title { 
     color: #1F2937; 
     font-size: 20px; 
-    font-weight: bold; 
+    font-weight: 500; 
 }
 
 .form-title { 
     color: #1F2937; 
-    font-size: 42px; 
-    font-weight: 700; 
+    font-size: 38px; 
+    font-weight: 650; 
 }
 
 .form-group { 
@@ -187,27 +249,24 @@ width: 100%;
     color: #004499;
 }
 
-/*modal Olvidaste tu contrasena
-/* Overlay */
 .modal {
-    display: none; /* Oculto por defecto */
+    display: none;
     position: fixed;
-    z-index: 1000; /* Asegura que esté por encima de todo */
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo negro con 50% de opacidad */
+    background-color: rgba(0, 0, 0, 0.5);
     align-items: center;
     justify-content: center;
 }
 
-/* Muestra el modal cuando se le añade la clase 'mostrar' */
+
 .modal.show {
     display: flex !important;
 }
 
-/* 2. Caja del modal */
 .content-modal {
     display:flex;
     flex-direction:column;
@@ -273,10 +332,6 @@ width: 100%;
     cursor: pointer;
     }
 
-/* ============================= */
-/* DASHBOARD PRIVADO */
-/* ============================= */
-
 .grid-contenedor,
 .grid-contenedor * {
     box-sizing: border-box;
@@ -293,10 +348,6 @@ width: 100%;
     background: #ffffff;
     color: #111827;
 }
-
-/* ============================= */
-/* HEADER DASHBOARD */
-/* ============================= */
 
 .componente-header {
     grid-area: header;
@@ -323,10 +374,6 @@ width: 100%;
   margin-top:10px;
 }
 
-/* ============================= */
-/* MAIN DASHBOARD */
-/* ============================= */
-
 .componente-main {
     grid-area: main;
     min-width: 0;
@@ -334,10 +381,6 @@ width: 100%;
     padding: 22px 24px 40px;
     background: #ffffff;
 }
-
-/* ============================= */
-/* TARJETAS SUPERIORES */
-/* ============================= */
 
 .componente-tarjetas {
     display: grid;
@@ -397,7 +440,6 @@ width: 100%;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
-/* Tarjetas ingreso / egreso */
 .tarjeta-resumen {
     display: flex;
     align-items: center;
@@ -461,10 +503,6 @@ width: 100%;
     color: #1F2937;
 }
 
-/* ============================= */
-/* CONTENIDO INFERIOR */
-/* ============================= */
-
 .componente-main2 {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -484,10 +522,6 @@ width: 100%;
     color: #1F2937;
     margin: 0;
 }
-
-/* ============================= */
-/* TABLA TRANSACCIONES */
-/* ============================= */
 
 .tabla-contenedor {
     width: 100%;
@@ -539,14 +573,12 @@ width: 100%;
     white-space: nowrap;
 }
 
-/* Columna de monto */
 .tabla-transacciones th.columna-monto {
     text-align: right;
     padding-right: 100px;
     color: #374151;
 }
 
-/* Datos de monto */
 .tabla-transacciones tbody tr:not(.empty-transactions-row) td.columna-monto {
     text-align: right;
     padding-right: 100px;
@@ -575,10 +607,6 @@ width: 100%;
 .tabla-transacciones td.monto-positivo {
     color: #22C55E;
 }
-
-/* ============================= */
-/* PRÓXIMAS FACTURAS */
-/* ============================= */
 
 .componente-cuentas {
     width: 100%;
@@ -667,10 +695,6 @@ width: 100%;
 .boton-gestionar:hover {
     background: #1E40AF;
 }
-
-/* ============================= */
-/* RESPONSIVE DASHBOARD */
-/* ============================= */
 
 @media (max-width: 1100px) {
     .grid-contenedor {
@@ -767,7 +791,6 @@ width: 100%;
     }
 }
 
-/*MODAL: Tabla con datos de transacciones*/
 .tabla-detalle{
     width:100%;
     margin: 15px 0;
@@ -793,7 +816,6 @@ width: 100%;
     color: #5D6772;
 }
 
-/* Contenedor y botones del modal de transacciones */
 .acciones-modal {
     display: flex;
     gap: 25px;
@@ -802,7 +824,7 @@ width: 100%;
 }
 
 .btn-red {
-    background-color: #dc2626; /* Rojo */
+    background-color: #dc2626;
     border: none;
 }
 
@@ -810,14 +832,10 @@ width: 100%;
     background-color: #b91c1c;
 }
 
-/* Estilo para las filas de la tabla principal */
 .clickable-row {
     cursor: pointer;
 }
 
-/* ============================= */
-/* SIDEBAR */
-/* ============================= */
 .sidebar {
   grid-area: sidebar;
   height: 100%;
@@ -937,7 +955,6 @@ width: 100%;
   background: #EEF2FF;
 }
 
-/* SIDEBAR - mobile/tablet */
 .sidebar-toggle {
     display: none;
     flex: 0 0 auto;
@@ -1053,8 +1070,6 @@ width: 100%;
     gap: 10px;
 }
 
-
-/* ALERTAS */
 .alert {
     display: flex;
     gap: 12px;
@@ -1138,10 +1153,6 @@ width: 100%;
     opacity: 0.5;
     filter: grayscale(2);
 }
-
-/* ============================= */
-/* COLUMNA DERECHA DEL DASHBOARD */
-/* ============================= */
 
 .columna-derecha {
     display: grid;
@@ -1382,7 +1393,6 @@ width: 100%;
     margin-top: 32px;
 }
 
-/* Cuenta personal: 4 columnas distribuidas por igual */
 .componente-transacciones .tabla-transacciones.tabla-personal {
     table-layout: fixed;
 }
@@ -1391,7 +1401,6 @@ width: 100%;
     width: 25%;
 }
 
-/* Cuenta grupal: 5 columnas distribuidas por igual */
 .componente-transacciones .tabla-transacciones.tabla-grupal {
     table-layout: fixed;
 }
@@ -1432,9 +1441,7 @@ width: 100%;
         padding: 10px 6px;
     }
 }
-/* ============================= */
-/* BOTONES DE MODALES - tamaño consistente, sin wrap a 2 líneas */
-/* ============================= */
+
 .acciones-modal {
   flex-wrap: wrap;
   gap: 16px;
@@ -1456,9 +1463,6 @@ width: 100%;
   padding: 14px 8px;
 }
 
-/* ============================= */
-/* FILTRO DE MES - ancho suficiente para mostrar el nombre completo */
-/* ============================= */
 #filter-month {
   width: auto;
   min-width: 132px;
@@ -1475,9 +1479,9 @@ width: 100%;
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 1px solid #FECACA; /* Bordes suaves en tono rojo */
-  background-color: #FEF2F2; /* Fondo rojo suave pastel */
-  color: #DC2626; /* Color rojo reconocido para logout */
+  border: 1px solid #FECACA;
+  background-color: #FEF2F2;
+  color: #DC2626;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
@@ -1497,12 +1501,9 @@ width: 100%;
 .btn-logout-icon svg {
   width: 18px;
   height: 18px;
-  stroke-width: 2.2; /* Un trazo un poco más marcado para mejor definición */
+  stroke-width: 2.2;
 }
 
-/* ============================= */
-/* ESTILOS BOTÓN BOTÓN THEME TOGGLE */
-/* ============================= */
 .btn-theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -1527,11 +1528,6 @@ width: 100%;
   height: 20px;
 }
 
-/* ==========================================================================
-   MODO OSCURO (DARK MODE OVERRIDES)
-   ========================================================================== */
-
-/* Variables para el Tema Oscuro */
 [data-theme="dark"] {
   --bg-dark-main: #0F172A;
   --bg-dark-card: #1E293B;
@@ -1546,13 +1542,33 @@ width: 100%;
 [data-theme="dark"] {
   color-scheme: dark;
 }
-/* 1. Datos del usuario en Sidebar (Nombre y Email) */
+
+[data-theme="dark"] .auth-wrapper {
+  background-color: var(--bg-dark-main) !important;
+}
+
+[data-theme="dark"] .auth-card {
+  background: rgba(30, 41, 59, 0.7) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(51, 65, 85, 0.8) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .auth-footer-text {
+  color: var(--text-dark-secondary) !important;
+}
+
+[data-theme="dark"] .logo-placeholder {
+  background: var(--brand-primary) !important;
+  color: #FFFFFF !important;
+}
+
 [data-theme="dark"] .sidebar .profile-info p,
 [data-theme="dark"] .sidebar .profile-info span {
   color: var(--text-dark-primary) !important;
 }
 
-/* 2. Ícono de Dashboards y demás íconos en Sidebar */
 [data-theme="dark"] .menu-item-dashboard,
 [data-theme="dark"] .menu-item-dashboard svg,
 [data-theme="dark"] .menu-item-dashboard i {
@@ -1560,7 +1576,6 @@ width: 100%;
   fill: currentColor;
 }
 
-/* 3. Ícono de información al lado del título (cuenta personal i) */
 [data-theme="dark"] .header-title-group svg,
 [data-theme="dark"] .header-title-group i,
 [data-theme="dark"] .componente-header svg,
@@ -1571,16 +1586,15 @@ width: 100%;
 [data-theme="dark"] .header-title-group img {
   filter: invert(1) brightness(2);
 }
-/* 4. Íconos dentro de botones e inputs */
+
 [data-theme="dark"] svg {
   stroke: currentColor;
 }
 
-/* Adaptación del Botón Logout en Modo Oscuro */
 [data-theme="dark"] .btn-logout-icon {
-  background-color: rgba(239, 68, 68, 0.15) !important; /* Fondo rojo suave traslúcido */
-  border: 1px solid rgba(239, 68, 68, 0.4) !important;   /* Borde rojo bien definido */
-  color: #F87171 !important;                             /* Rojo brillante y accesible para las líneas del SVG */
+  background-color: rgba(239, 68, 68, 0.15) !important; 
+  border: 1px solid rgba(239, 68, 68, 0.4) !important;   
+  color: #F87171 !important;                          
 }
 
 [data-theme="dark"] .btn-logout-icon:hover {
@@ -1589,15 +1603,13 @@ width: 100%;
   color: #FFFFFF !important;
 }
 
-/* Evitar que el SVG dentro del botón se vuelva relleno blanco o pierda líneas */
 [data-theme="dark"] .btn-logout-icon svg {
   fill: none !important;
   stroke: currentColor !important;
   stroke-width: 2px !important;
-  filter: none !important; /* Previene filtros de inversión accidentales */
+  filter: none !important;
 }
 
-/* Aplicación de fondos principales */
 [data-theme="dark"] body,
 [data-theme="dark"] .grid-contenedor,
 [data-theme="dark"] .componente-header,
@@ -1607,7 +1619,6 @@ width: 100%;
     color: var(--text-dark-primary) !important;
 }
 
-/* Tarjetas, Contenedores, Sidebar y Modales */
 [data-theme="dark"] .content-modal,
 [data-theme="dark"] .tarjeta-resumen,
 [data-theme="dark"] .factura-card,
@@ -1624,7 +1635,7 @@ width: 100%;
 [data-theme="dark"] .header-title-group img {
     filter: invert(1) brightness(2) !important;
 }
-/* Encabezados y Títulos */
+
 [data-theme="dark"] h1,
 [data-theme="dark"] h2,
 [data-theme="dark"] h3,
@@ -1640,13 +1651,12 @@ width: 100%;
     color: var(--text-dark-primary) !important;
 }
 
-/* Cifras y Montos destacados */
 [data-theme="dark"] .tarjeta-monto,
 [data-theme="dark"] .factura-monto {
     color: #FFFFFF !important;
 }
 
-/* Textos secundarios, etiquetas y leyendas */
+
 [data-theme="dark"] .label,
 [data-theme="dark"] .period-filter-label,
 [data-theme="dark"] .factura-info p,
@@ -1659,7 +1669,6 @@ width: 100%;
     color: var(--text-dark-secondary) !important;
 }
 
-/* Inputs, Selects y Formularios */
 [data-theme="dark"] .input,
 [data-theme="dark"] .select-periodo {
     background-color: var(--bg-dark-input) !important;
@@ -1671,7 +1680,6 @@ width: 100%;
     color: var(--text-dark-muted) !important;
 }
 
-/* Tablas */
 [data-theme="dark"] .tabla-transacciones thead,
 [data-theme="dark"] .tabla-transacciones th {
     background-color: var(--bg-dark-input) !important;
@@ -1692,7 +1700,6 @@ width: 100%;
     color: var(--text-dark-secondary) !important;
 }
 
-/* Sidebar y Elementos de Navegación */
 [data-theme="dark"] .sidebar {
     border-right-color: var(--border-dark) !important;
 }
@@ -1715,14 +1722,12 @@ width: 100%;
     color: var(--brand-primary) !important;
 }
 
-/* Iconos de Resumen */
 [data-theme="dark"] .tarjeta-resumen-icono.ingreso,
 [data-theme="dark"] .tarjeta-resumen-icono.egreso,
 [data-theme="dark"] .tarjeta-resumen-icono.balance {
     background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Botones principales y de gestión */
 [data-theme="dark"] .btn-primary,
 [data-theme="dark"] .boton-gestionar {
     background-color: var(--brand-primary) !important;
@@ -1735,17 +1740,16 @@ width: 100%;
     background-color: var(--brand-hover) !important;
 }
 
-/* Botones rojos de acción destructiva (Eliminar / Cancelar / Reversar) */
 [data-theme="dark"] .btn-red,
 [data-theme="dark"] .btn-primary.btn-red {
-    background-color: #DC2626 !important; /* Rojo visible y distintivo */
-    border-color: #DC2626 !important;
+    background-color: #DC2626 !important;
+    border-color: none !important;
     color: #FFFFFF !important;
 }
 
 [data-theme="dark"] .btn-red:hover,
 [data-theme="dark"] .btn-primary.btn-red:hover {
-    background-color: #B91C1C !important; /* Rojo oscuro en hover */
+    background-color: #B91C1C !important;
 }
 
 [data-theme="dark"] .btn-secondary {
@@ -1758,7 +1762,6 @@ width: 100%;
     background-color: rgba(59, 130, 246, 0.12) !important;
 }
 
-/* Adaptación del Botón Toggle en Modo Oscuro */
 [data-theme="dark"] .btn-theme-toggle {
   background-color: var(--bg-dark-card);
   border-color: var(--border-dark);
@@ -1769,7 +1772,6 @@ width: 100%;
   background-color: var(--bg-dark-input);
 }
 
-/* Divisores, separadores y bordes menores */
 [data-theme="dark"] .divider,
 [data-theme="dark"] .miembros-header,
 [data-theme="dark"] .member-item,
@@ -1777,7 +1779,6 @@ width: 100%;
     border-color: var(--border-dark) !important;
 }
 
-/* Ajustes de avatar de deudas */
 [data-theme="dark"] .debts-avatar {
     background-color: var(--bg-dark-input) !important;
     color: var(--text-dark-secondary) !important;

@@ -82,10 +82,18 @@ export default function LoginPage() {
 
   return (
     <>
-      <div className="content">
-        <div className="form-section">
+      <div className="auth-wrapper">
+        <div className="auth-card">
           <div className="titles">
-            <span className="app-title">Finance tracker</span>
+            <div className="app-title-group">
+              <div className="logo-placeholder" title="Placeholder Logotipo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="4" />
+                  <path d="M12 8v8M8 12h8" />
+                </svg>
+              </div>
+              <span className="app-title">Finance tracker</span>
+            </div>
             <span className="form-title">Iniciar Sesión</span>
           </div>
 
@@ -130,19 +138,13 @@ export default function LoginPage() {
 
           <div className="divider" />
 
-          <p>
+          <p className="auth-footer-text">
             Si todavía no tienes una cuenta, puedes crear una{" "}
             <Link href="/register" className="signup">
               aquí.
             </Link>
           </p>
         </div>
-
-        <img
-          className="side-image"
-          src="/img/Personal Home Finance 2 (1).png"
-          alt="Finance illustration"
-        />
       </div>
 
       <Modal id="modalForget" open={forgotOpen} onClose={closeForgot}>
