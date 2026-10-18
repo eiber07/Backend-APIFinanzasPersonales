@@ -163,7 +163,7 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <div>{description.length} / 25 caracteres</div>
+          <div style={{fontSize:"14px"}}>{description.length} / 25 caracteres</div>
         </div>
 
         <div className="acciones-modal">

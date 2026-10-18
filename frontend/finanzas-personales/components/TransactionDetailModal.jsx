@@ -167,7 +167,7 @@ export default function TransactionDetailModal({ transaction, open, onClose, onC
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <div>{description.length} / 25 caracteres</div>
+              <div style={{fontSize:"14px"}}>{description.length} / 25 caracteres</div>
             </div>
             <div className="acciones-modal">
               <button className="btn-primary" onClick={handleSave} disabled={saving}>

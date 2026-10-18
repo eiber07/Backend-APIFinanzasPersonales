@@ -193,10 +193,14 @@ export default function DashboardPage() {
 
   function handleExpenseDeleted() {
     refetchPlannedExpenses();
+    refetchTransactions();
+    if (isGroup) refetchMembers();
   }
 
   function handleExpenseCreated() {
     refetchPlannedExpenses();
+    refetchTransactions();
+    if (isGroup) refetchMembers();
   }
 
   // ---- Handlers de miembros ----

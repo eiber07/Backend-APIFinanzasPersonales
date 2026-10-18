@@ -5,6 +5,7 @@ import Modal from "@/components/Modal";
 import { createPlannedExpense } from "@/lib/endpoints/plannedExpenses";
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
+import { useParameters } from "@/lib/hooks/useParameters";
 
 export default function NewExpenseModal({ open, onClose, accountId, onCreated }) {
   const { showSuccess, showError } = useAlerts();
@@ -15,6 +16,8 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
   const [fixedAmountDigits, setFixedAmountDigits] = useState("");
   const [installments, setInstallments] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
+  const { options: categories } = useParameters("transactionCategories");
+  const [categoryId, setCategoryId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const totalAmount = totalAmountDigits
@@ -46,6 +49,7 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
     setFixedAmountDigits("");
     setInstallments("");
     setPaymentDate("");
+    setCategoryId("");
   }
 
   function handleClose() {
@@ -56,7 +60,7 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
   async function handleSave() {
     const amountFilled = kind === "fixed" ? fixedAmountDigits : totalAmountDigits;
 
-    if (!installments || !paymentDate || !description.trim() || !amountFilled) {
+    if (!installments || !paymentDate || !description.trim() || !amountFilled || !categoryId) {
       showError("Completá todos los campos antes de guardar el pago.");
       return;
     }
@@ -69,13 +73,13 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
     setSaving(true);
     try {
       const res = await createPlannedExpense({
-        account_id: accountId,
-        description: description.trim(),
-        installment_amount: installmentAmount,
-        installments: Number(installments),
-        due_date: `${paymentDate}T00:00:00`,
-      });
-
+      account_id: accountId,
+      description: description.trim(),
+      category_id: Number(categoryId),
+      installment_amount: installmentAmount,
+      installments: Number(installments),
+      due_date: `${paymentDate}T00:00:00`,
+    });
       if (res.ok) {
         showSuccess("Pago guardado correctamente.");
         onCreated?.();
@@ -115,7 +119,7 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
         <p className="segmented-hint">
           {kind === "installments"
             ? "Ingresás el total y lo dividimos en cuotas iguales."
-            : "El mismo monto cada mes. Ej: alquiler, expensas, suscripciones."}
+            : "El mismo monto cada mes. Ej: alquiler, suscripciones."}
         </p>
 
         <div className="form-group">
@@ -128,7 +132,20 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <div>{description.length} / 25 caracteres</div>
+          <div style={{fontSize:"14px"}}>{description.length} / 25 caracteres</div>
+        </div>
+        <div className="form-group">
+          <label className="label">Categoría</label>
+          <select
+            className="input"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+          >
+            <option value="">Seleccionar</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.label}</option>
+            ))}
+          </select>
         </div>
 
         {kind === "installments" ? (
