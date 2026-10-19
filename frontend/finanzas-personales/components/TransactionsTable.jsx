@@ -11,15 +11,10 @@ export default function TransactionsTable({ filteredTransactions, loading, isGro
 
   return (
     <section className="componente-transacciones">
-      <div className="titulo-seccion">
-        <h2>Transacciones recientes</h2>
-        <img
-          src="/img/icono-mas.png"
-          height="25"
-          alt="Nueva transacción"
-          style={{ cursor: "pointer" }}
-          onClick={() => onAddClick?.()}
-        />
+      <div className="titulo-seccion titulo-seccion-derecha">
+        <button type="button" className="btn-add" onClick={() => onAddClick?.()}>
+          Agregar nuevo registro
+        </button>
       </div>
 
       <div className="tabla-contenedor">

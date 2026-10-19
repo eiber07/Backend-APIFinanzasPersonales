@@ -33,14 +33,10 @@ export default function PlannedExpensesPreview({
   return (
     <aside className="componente-cuentas">
       <div className="titulo-seccion">
-        <h2>Próximas facturas</h2>
-        <img
-          src="/img/icono-mas.png"
-          height="25"
-          alt="Nuevo gasto planificado"
-          style={{ cursor: "pointer" }}
-          onClick={() => onNewExpenseClick?.()}
-        />
+        <h2>Pagos del mes</h2>
+        <button type="button" className="btn-add" onClick={() => onNewExpenseClick?.()}>
+          Agregar
+        </button>
       </div>
 
       <div className="installmentCards">
@@ -48,7 +44,7 @@ export default function PlannedExpensesPreview({
           <p style={{ color: "#6B7280", fontSize: "0.9rem" }}>Cargando...</p>
         ) : periodInstallments.length === 0 ? (
           <p style={{ color: "#6B7280", fontSize: "0.9rem" }}>
-            No hay facturas para {MONTH_NAMES[month - 1]} {year}
+            Sin vencimientos en {MONTH_NAMES[month - 1]} {year}
           </p>
         ) : (
           periodInstallments.map(({ expense, installment }) => {
@@ -62,11 +58,8 @@ export default function PlannedExpensesPreview({
             return (
               <article
                 key={`${expense.id}-${installment.installmentNumber}`}
-                className={`factura-card clickable-row ${paidClass}`}
-                onClick={() => {
-                  if (installment.statusId === 2) return;
-                  onCardClick?.(expense, installment);
-                }}
+                className="factura-card clickable-row"
+                onClick={() => onCardClick?.(expense, installment)}
               >
                 <div className="factura-fecha factura-fecha-gris">
                   <span>{monthLabel}</span>
@@ -89,8 +82,8 @@ export default function PlannedExpensesPreview({
         )}
       </div>
 
-      <button type="button" className="boton-gestionar" onClick={() => onManageClick?.()}>
-        Gestionar todos los gastos
+      <button type="button" className="btn-secondary boton-gestionar" onClick={() => onManageClick?.()}>
+        Ver todo
       </button>
     </aside>
   );

@@ -7,7 +7,7 @@ import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transa
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
 
-export default function TransactionDetailModal({ transaction, open, onClose, onChanged }) {
+export default function TransactionDetailModal({ transaction, open, onClose, onChanged, onOpenPlan, hasActivePlan = false, }) {
   const { showSuccess, showError } = useAlerts();
   const [mode, setMode] = useState("view");
 
@@ -21,8 +21,9 @@ export default function TransactionDetailModal({ transaction, open, onClose, onC
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const isLinkedToPlannedExpense = Boolean(transaction?.plannedExpenseId);
-
+  const isLinkedToPlannedExpense =
+    Boolean(transaction?.plannedExpenseId) && hasActivePlan;
+    
   useEffect(() => {
     if (open && transaction) {
       setMode("view");
@@ -167,7 +168,7 @@ export default function TransactionDetailModal({ transaction, open, onClose, onC
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <div>{description.length} / 25 caracteres</div>
+              <div style={{fontSize:"14px"}}>{description.length} / 25 caracteres</div>
             </div>
             <div className="acciones-modal">
               <button className="btn-primary" onClick={handleSave} disabled={saving}>
