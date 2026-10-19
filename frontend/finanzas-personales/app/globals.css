@@ -1555,7 +1555,6 @@ width: 100%;
   background: #EFF6FF;
 }
 
-/* Selector Compra en cuotas / Pago fijo */
 .segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;

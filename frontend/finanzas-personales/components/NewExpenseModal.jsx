@@ -11,7 +11,7 @@ import { createTransaction, deactivateTransaction } from "@/lib/endpoints/transa
 export default function NewExpenseModal({ open, onClose, accountId, onCreated }) {
   const { showSuccess, showError } = useAlerts();
 
-  const [kind, setKind] = useState("installments"); // "installments" | "fixed"
+  const [kind, setKind] = useState("installments");
   const [description, setDescription] = useState("");
   const [totalAmountDigits, setTotalAmountDigits] = useState("");
   const [fixedAmountDigits, setFixedAmountDigits] = useState("");
@@ -103,7 +103,6 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
       const cuotas = await res.json();
       groupId = cuotas[0]?.id_planned_expense;
 
-      // En orden y de a una, por si el backend valida la secuencia de cuotas
       const ordered = [...cuotas].sort((a, b) => a.installment_number - b.installment_number);
 
       for (const cuota of ordered) {
@@ -133,7 +132,6 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
       handleClose();
       showSuccess("Pago guardado correctamente.");
     } catch (error) {
-      // Deshacer lo que se alcanzó a crear
       await Promise.allSettled(createdTransactionIds.map((id) => deactivateTransaction(id)));
       if (groupId) await deactivatePlannedExpense(groupId).catch(() => {});
       onCreated?.();

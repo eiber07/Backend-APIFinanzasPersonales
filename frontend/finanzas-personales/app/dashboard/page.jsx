@@ -186,7 +186,6 @@ export default function DashboardPage() {
     if (isGroup) refetchMembers();
   }
 
-  // ---- Handlers de gastos planificados ----
   function handleExpenseCardClick(expense) {
     setSelectedExpense(expense);
     setExpenseDetailOpen(true);

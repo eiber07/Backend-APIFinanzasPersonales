@@ -9,8 +9,8 @@ import { todayLocal, formatTransactionMoney } from "@/lib/format";
 
 export default function ExpenseDetailModal({ expense, open, onClose, onDeleted, transactions = [] }) {
   const { showSuccess, showError } = useAlerts();
-  const [mode, setMode] = useState("view"); // "view" | "delete"
-  const [selected, setSelected] = useState(new Set()); // números de cuota a eliminar
+  const [mode, setMode] = useState("view");
+  const [selected, setSelected] = useState(new Set());
   const [deleting, setDeleting] = useState(false);
 
   if (!expense) return null;
@@ -34,7 +34,7 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted, 
   }
 
   function startDelete() {
-    setSelected(new Set(rows.map((r) => r.installmentNumber))); // por defecto, todas
+    setSelected(new Set(rows.map((r) => r.installmentNumber)));
     setMode("delete");
   }
 
@@ -69,8 +69,6 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted, 
     setDeleting(true);
     let failed = 0;
 
-    // De a una y en orden: primero su transacción, después la cuota.
-    // Si la transacción falla, esa cuota no se quita y el pago sigue consistente.
     for (const row of rows.filter((r) => selected.has(r.installmentNumber))) {
       try {
         if (row.transaction) {
@@ -87,7 +85,7 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted, 
       }
     }
 
-    onDeleted?.(); // refresca pagos y transacciones
+    onDeleted?.();
     setDeleting(false);
     handleClose();
 
