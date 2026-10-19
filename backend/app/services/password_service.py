@@ -28,6 +28,11 @@ class PasswordService:
         forget_password_request: ForgetPasswordRequest,
         background: BackgroundTasks,
     ):
+        if not settings.FRONTEND_URL:
+            raise HTTPException(
+                status_code=503,
+                detail="La recuperación de contraseña no está disponible temporalmente."
+            )
         user = await self.user_service.get_by_email(forget_password_request.email)
         if not user:
             raise HTTPException(status_code=404, detail="Email no registrado")
