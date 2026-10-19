@@ -49,6 +49,7 @@ export default function DashboardPage() {
 
   // ---- Datos compartidos por varios componentes y modales ----
   const {
+    transactions,
     filteredTransactions,
     loading: transactionsLoading,
     refetch: refetchTransactions,
@@ -314,7 +315,6 @@ export default function DashboardPage() {
         open={newTransactionOpen}
         onClose={() => setNewTransactionOpen(false)}
         accountId={activeAccount?.id}
-        plannedExpenses={plannedExpenses}
         onCreated={handleTransactionCreated}
       />
 
@@ -335,6 +335,7 @@ export default function DashboardPage() {
         open={expenseDetailOpen}
         onClose={() => setExpenseDetailOpen(false)}
         onDeleted={handleExpenseDeleted}
+        transactions={transactions}
       />
 
       <NewExpenseModal

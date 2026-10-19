@@ -4,11 +4,12 @@ import { useState } from "react";
 import Modal from "@/components/Modal";
 import { deactivatePlannedExpense } from "@/lib/endpoints/plannedExpenses";
 import { useAlerts } from "@/components/AlertProvider";
+import { deactivateTransaction } from "@/lib/endpoints/transactions";
+import { todayLocal } from "@/lib/format";
 
-export default function ExpenseDetailModal({ expense, open, onClose, onDeleted }) {
+export default function ExpenseDetailModal({ expense, open, onClose, onDeleted, transactions }) {
   const { showSuccess, showError } = useAlerts();
   const [deleting, setDeleting] = useState(false);
-
   if (!expense) return null;
 
   async function handleDelete() {
@@ -17,7 +18,12 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted }
     try {
       const res = await deactivatePlannedExpense(expense.id);
       if (res.ok) {
-        showSuccess("Pago eliminado correctamente.");
+        const today = todayLocal();
+        const future = transactions.filter(
+          (t) => t.plannedExpenseId === String(expense.id) && t.dateRaw > today
+        );
+        await Promise.allSettled(future.map((t) => deactivateTransaction(t.id)));
+        
         onDeleted?.();
         onClose();
       } else {
@@ -38,10 +44,11 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted }
       <table className="tabla-detalle">
         <tbody>
           <tr><td>Detalle:</td><td>{expense.detail}</td></tr>
-          <tr><td>Próximo vencimiento:</td><td>{expense.nextDueDate ?? "Completado"}</td></tr>
-          <tr><td>Cuotas:</td><td>{expense.paidInstallments} de {expense.totalInstallments}</td></tr>
-          <tr><td>Monto por cuota:</td><td>{expense.installmentAmount ?? "-"}</td></tr>
-          <tr><td>Total:</td><td>{expense.total ?? "-"}</td></tr>
+          <tr><td>Cantidad de pagos:</td><td>{expense.totalInstallments}</td></tr>
+          <tr><td>Primer pago:</td><td>{expense.firstDueDate}</td></tr>
+          <tr><td>Último pago:</td><td>{expense.lastDueDate}</td></tr>
+          <tr><td>Monto por pago:</td><td>{expense.installmentAmount}</td></tr>
+          <tr><td>Total:</td><td>{expense.total}</td></tr>
         </tbody>
       </table>
 

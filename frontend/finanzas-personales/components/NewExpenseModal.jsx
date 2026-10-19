@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Modal from "@/components/Modal";
-import { createPlannedExpense } from "@/lib/endpoints/plannedExpenses";
 import { useAlerts } from "@/components/AlertProvider";
-import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
+import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount,PLANNED_TYPE_NAME } from "@/lib/format";
 import { useParameters } from "@/lib/hooks/useParameters";
+import { createPlannedExpense, deactivatePlannedExpense } from "@/lib/endpoints/plannedExpenses";
+import { createTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
 
 export default function NewExpenseModal({ open, onClose, accountId, onCreated }) {
   const { showSuccess, showError } = useAlerts();
@@ -17,6 +18,11 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
   const [installments, setInstallments] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
   const { options: categories } = useParameters("transactionCategories");
+  const { options: types } = useParameters("transactionTypes");
+  const expenseType = types.find((t) => {
+    const v = t.value?.toLowerCase();
+    return v !== "ingreso" && v !== PLANNED_TYPE_NAME;
+  });  
   const [categoryId, setCategoryId] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -70,26 +76,68 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
       return;
     }
 
+    if (!expenseType) {
+      showError("No se encontró el tipo de transacción para registrar las cuotas.");
+      return;
+    }
+
     setSaving(true);
+    const createdTransactionIds = [];
+    let groupId = null;
+
     try {
       const res = await createPlannedExpense({
-      account_id: accountId,
-      description: description.trim(),
-      category_id: Number(categoryId),
-      installment_amount: installmentAmount,
-      installments: Number(installments),
-      due_date: `${paymentDate}T00:00:00`,
-    });
-      if (res.ok) {
-        showSuccess("Pago guardado correctamente.");
-        onCreated?.();
-        handleClose();
-      } else {
-        const err = await res.json();
+        account_id: accountId,
+        description: description.trim(),
+        installment_amount: installmentAmount,
+        installments: Number(installments),
+        due_date: `${paymentDate}T00:00:00`,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
         showError(err.detail || "Error al guardar el pago.");
+        return;
       }
-    } catch {
-      showError("No se pudo conectar con el servidor.");
+
+      const cuotas = await res.json();
+      groupId = cuotas[0]?.id_planned_expense;
+
+      // En orden y de a una, por si el backend valida la secuencia de cuotas
+      const ordered = [...cuotas].sort((a, b) => a.installment_number - b.installment_number);
+
+      for (const cuota of ordered) {
+        const txRes = await createTransaction({
+          account_id: accountId,
+          type_id: expenseType.id,
+          amount: Number(cuota.installment_amount),
+          description: description.trim(),
+          category_id: Number(categoryId),
+          planned_expense_id: cuota.id_planned_expense,
+          planned_expense_installment_number: cuota.installment_number,
+          transaction_date: `${cuota.due_date.split("T")[0]}T00:00:00`,
+        });
+
+        if (!txRes.ok) {
+          const err = await txRes.json().catch(() => ({}));
+          throw Object.assign(new Error("tx"), {
+            userMessage: err.detail || `No se pudo registrar la cuota ${cuota.installment_number}.`,
+          });
+        }
+
+        const tx = await txRes.json();
+        createdTransactionIds.push(tx.id);
+      }
+
+      onCreated?.();
+      handleClose();
+      showSuccess("Pago guardado correctamente.");
+    } catch (error) {
+      // Deshacer lo que se alcanzó a crear
+      await Promise.allSettled(createdTransactionIds.map((id) => deactivateTransaction(id)));
+      if (groupId) await deactivatePlannedExpense(groupId).catch(() => {});
+      onCreated?.();
+      showError(error.userMessage || "No se pudo conectar con el servidor.");
     } finally {
       setSaving(false);
     }

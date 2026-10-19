@@ -58,11 +58,8 @@ export default function PlannedExpensesPreview({
             return (
               <article
                 key={`${expense.id}-${installment.installmentNumber}`}
-                className={`factura-card clickable-row ${paidClass}`}
-                onClick={() => {
-                  if (installment.statusId === 2) return;
-                  onCardClick?.(expense, installment);
-                }}
+                className="factura-card clickable-row"
+                onClick={() => onCardClick?.(expense, installment)}
               >
                 <div className="factura-fecha factura-fecha-gris">
                   <span>{monthLabel}</span>

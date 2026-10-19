@@ -1135,11 +1135,6 @@ width: 100%;
     max-width: 400px;
 }
 
-.factura-completada {
-    opacity: 0.5;
-    filter: grayscale(2);
-}
-
 .columna-derecha {
     display: grid;
     grid-template-rows: auto 1fr auto;

@@ -7,7 +7,7 @@ import { createTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
 
-export default function NewTransactionModal({ open, onClose, accountId, plannedExpenses = [], onCreated }) {
+export default function NewTransactionModal({ open, onClose, accountId = [], onCreated }) {
   const { showSuccess, showError } = useAlerts();
   const { options: categories } = useParameters("transactionCategories");
   const { options: types } = useParameters("transactionTypes");
@@ -17,15 +17,9 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
   const [amountDigits, setAmountDigits] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-  const [plannedExpenseId, setPlannedExpenseId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const selectedType = types.find((t) => String(t.id) === String(typeId));
-  const isPlannedExpenseType = selectedType?.value?.toLowerCase() === "pago asociado";
-  const availablePlannedExpenses = plannedExpenses.filter((e) => !e.completed);
-  const selectedPlannedExpense = availablePlannedExpenses.find(
-    (e) => String(e.id) === String(plannedExpenseId)
-  );
 
   function resetForm() {
     setTypeId("");
@@ -33,8 +27,7 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
     setAmountDigits("");
     setDate("");
     setDescription("");
-    setPlannedExpenseId("");
-  }
+    }
 
   function handleClose() {
     resetForm();
@@ -43,14 +36,7 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
 
   function handleTypeChange(value) {
     setTypeId(value);
-    setPlannedExpenseId("");
     setAmountDigits("");
-  }
-
-  function handlePlannedExpenseChange(value) {
-    setPlannedExpenseId(value);
-    const exp = availablePlannedExpenses.find((e) => String(e.id) === value);
-    setAmountDigits(exp ? String(Math.round(exp.installmentAmountRaw * 100)) : "");
   }
 
   async function handleSave() {
@@ -73,8 +59,6 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
         amount: amountNumber,
         description: description.trim(),
         category_id: Number(categoryId),
-        planned_expense_id: plannedExpenseId ? Number(plannedExpenseId) : null,
-        planned_expense_installment_number: selectedPlannedExpense?.nextInstallment ?? null,
         transaction_date: `${date}T00:00:00`,
       });
 
@@ -107,24 +91,6 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
           </select>
         </div>
 
-        {isPlannedExpenseType && (
-          <div className="form-group">
-            <label className="label">Gasto planificado</label>
-            <select
-              className="input"
-              value={plannedExpenseId}
-              onChange={(e) => handlePlannedExpenseChange(e.target.value)}
-            >
-              <option value="">Ninguno</option>
-              {availablePlannedExpenses.map((exp) => (
-                <option key={exp.id} value={exp.id}>
-                  {exp.detail} — Cuota {exp.nextInstallment} de {exp.totalInstallments}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
         <div className="form-group">
           <label className="label">Monto</label>
           <input
@@ -133,8 +99,6 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
             placeholder="$ 0.00"
             value={digitsToMoneyDisplay(amountDigits)}
             onChange={(e) => setAmountDigits(extractDigits(e.target.value))}
-            readOnly={Boolean(plannedExpenseId)}
-            style={plannedExpenseId ? { background: "#D1D5DB" } : undefined}
           />
         </div>
 
