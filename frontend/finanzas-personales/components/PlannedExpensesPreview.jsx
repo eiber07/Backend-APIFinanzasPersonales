@@ -35,7 +35,7 @@ export default function PlannedExpensesPreview({
       <div className="titulo-seccion">
         <h2>Pagos del mes</h2>
         <button type="button" className="btn-add" onClick={() => onNewExpenseClick?.()}>
-          Agregar pago
+          Agregar
         </button>
       </div>
 
@@ -44,7 +44,7 @@ export default function PlannedExpensesPreview({
           <p style={{ color: "#6B7280", fontSize: "0.9rem" }}>Cargando...</p>
         ) : periodInstallments.length === 0 ? (
           <p style={{ color: "#6B7280", fontSize: "0.9rem" }}>
-            No hay pagos para {MONTH_NAMES[month - 1]} {year}
+            Sin vencimientos en {MONTH_NAMES[month - 1]} {year}
           </p>
         ) : (
           periodInstallments.map(({ expense, installment }) => {
@@ -83,7 +83,7 @@ export default function PlannedExpensesPreview({
       </div>
 
       <button type="button" className="btn-secondary boton-gestionar" onClick={() => onManageClick?.()}>
-        Ver todos los pagos
+        Ver todo
       </button>
     </aside>
   );

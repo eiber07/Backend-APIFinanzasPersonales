@@ -192,6 +192,17 @@ export default function DashboardPage() {
     setExpenseDetailOpen(true);
   }
 
+  function handleOpenPlan(plannedExpenseId) {
+    const expense = plannedExpenses.find((e) => e.id === String(plannedExpenseId));
+    if (!expense) {
+      showError("No se encontró el pago asociado.");
+      return;
+    }
+    setTransactionDetailOpen(false);
+    setSelectedExpense(expense);
+    setExpenseDetailOpen(true);
+  }
+
   function handleExpenseDeleted() {
     refetchPlannedExpenses();
     refetchTransactions();
@@ -309,6 +320,11 @@ export default function DashboardPage() {
         open={transactionDetailOpen}
         onClose={() => setTransactionDetailOpen(false)}
         onChanged={handleTransactionChanged}
+        onOpenPlan={handleOpenPlan}
+        hasActivePlan={
+          Boolean(selectedTransaction?.plannedExpenseId) &&
+          plannedExpenses.some((e) => e.id === selectedTransaction.plannedExpenseId)
+        }
       />
 
       <NewTransactionModal

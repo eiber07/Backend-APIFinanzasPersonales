@@ -1880,3 +1880,81 @@ width: 100%;
 [data-theme="dark"] .tabla-transacciones td.monto-positivo {
     color: #22C55E !important;
 }
+
+.content-modal .delete-summary {
+  width: 100%;
+  margin: 12px 0 12px;
+  font-size: 13px;
+  color: #6B7280;
+  text-align: left;
+}
+
+.delete-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.delete-quick button {
+  padding: 6px 10px;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-quick button:hover {
+  background: #F3F4F6;
+}
+
+.delete-list {
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+}
+
+.delete-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #E5E7EB;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.delete-item:last-child {
+  border-bottom: none;
+}
+
+.delete-item input {
+  width: 16px;
+  height: 16px;
+  accent-color: #DC2626;
+  flex-shrink: 0;
+}
+
+.delete-item span:last-child {
+  margin-left: auto;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .content-modal .delete-summary { color: #9CA3AF; }
+
+[data-theme="dark"] .delete-quick button {
+  background: #1F2937;
+  border-color: #4B5563;
+  color: #D1D5DB;
+}
+
+[data-theme="dark"] .delete-quick button:hover { background: #374151; }
+[data-theme="dark"] .delete-list { border-color: #2B3545; }
+[data-theme="dark"] .delete-item { border-color: #2B3545; color: #D1D5DB; }

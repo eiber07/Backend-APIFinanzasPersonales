@@ -55,10 +55,10 @@ export function usePlannedExpenses(accountId) {
       });
 
     const mapped = Object.values(grouped).map((group) => {
-      const total = group.installments.length;
-      const sorted = [...group.installments].sort((a, b) =>
-        a.dueDateRaw.localeCompare(b.dueDateRaw)
-      );
+      const sorted = [...group.installments]
+        .sort((a, b) => a.installmentNumber - b.installmentNumber)
+        .map((inst, index) => ({ ...inst, displayNumber: index + 1 }));
+      const total = sorted.length;
 
       return {
         id: group.id,
@@ -69,9 +69,10 @@ export function usePlannedExpenses(accountId) {
         total: formatTransactionMoney(group.installmentAmountRaw * total),
         firstDueDate: sorted[0].dueDate,
         lastDueDate: sorted[total - 1].dueDate,
-        allInstallments: group.installments,
+        allInstallments: sorted,
       };
     });
+
       setPlannedExpenses(mapped);
     } catch (error) {
       console.error("Error cargando el pago", error);
