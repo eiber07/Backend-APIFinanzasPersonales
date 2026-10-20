@@ -50,19 +50,25 @@ export function useGroupDebts(accountId, month, year) {
             const r = await getUserById(id);
             if (r.ok) {
               const u = await r.json();
-              userMap[id] = `${u.name} ${u.last_name}`;
+              userMap[id] = {
+                id: u.id,
+                name: u.name,
+                lastName: u.last_name,
+                email: u.email,
+              };
             } else {
-              userMap[id] = `Usuario ${id}`;
+              userMap[id] = { id, name: `Usuario ${id}`, lastName: "", email: "" };
             }
           } catch {
-            userMap[id] = `Usuario ${id}`;
+            userMap[id] = { id, name: `Usuario ${id}`, lastName: "", email: "" };
           }
         })
       );
 
       const mapped = data.debts.map((debt) => ({
-        fromName: userMap[debt.from_user_id],
-        toName: userMap[debt.to_user_id],
+        fromUser: userMap[debt.from_user_id],
+        toUser: userMap[debt.to_user_id],
+        amountValue: Number.parseFloat(debt.amount) || 0,
         amount: formatTransactionMoney(parseFloat(debt.amount)),
       }));
 

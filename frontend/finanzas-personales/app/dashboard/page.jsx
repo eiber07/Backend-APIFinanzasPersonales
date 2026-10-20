@@ -9,6 +9,7 @@ import { useAlerts } from "@/components/AlertProvider";
 import { useTransactions } from "@/lib/hooks/useTransactions";
 import { usePlannedExpenses } from "@/lib/hooks/usePlannedExpenses";
 import { useMembers } from "@/lib/hooks/useMembers";
+import PeriodFilter from "@/components/PeriodFilter";
 
 import Sidebar from "@/components/Sidebar";
 import DashboardHeader from "@/components/DashboardHeader";
@@ -62,7 +63,6 @@ export default function DashboardPage() {
 
   const {
     members,
-    balancesByUserId,
     loading: membersLoading,
     refetch: refetchMembers,
   } = useMembers(isGroup ? activeAccount?.id : null, selectedFilterMonth, selectedFilterYear);
@@ -199,7 +199,7 @@ export default function DashboardPage() {
     refetchPlannedExpenses();
   }
 
-  // ---- Handlers de miembros ----
+  // ---- Handlers de participantes ----
   function handleMemberClick(member) {
     setSelectedMember(member);
     setMemberInfoOpen(true);
@@ -242,13 +242,37 @@ export default function DashboardPage() {
           <p>No tenés cuentas todavía. Creá una desde el menú lateral.</p>
         ) : (
           <>
+            <div className="dashboard-toolbar">
+              {isGroup && (
+                <MembersPanel
+                  members={members}
+                  loading={membersLoading}
+                  currentUser={user}
+                  onAddMemberClick={() => setAddMemberOpen(true)}
+                  onMemberClick={handleMemberClick}
+                />
+              )}
+              <div className="dashboard-period-filter">
+                <PeriodFilter
+                  month={selectedFilterMonth}
+                  year={selectedFilterYear}
+                  onChange={handlePeriodChange}
+                />
+              </div>
+            </div>
+
             <BalanceCards
               filteredTransactions={filteredTransactions}
               loading={transactionsLoading}
-              month={selectedFilterMonth}
-              year={selectedFilterYear}
-              onPeriodChange={handlePeriodChange}
             />
+
+            {isGroup && (
+              <DebtsPanel
+                accountId={activeAccount.id}
+                month={selectedFilterMonth}
+                year={selectedFilterYear}
+              />
+            )}
 
             <section className="componente-main2">
               <section className="componente-transacciones">
@@ -262,13 +286,6 @@ export default function DashboardPage() {
                   onAddClick={() => setNewTransactionOpen(true)}
                 />
 
-                {isGroup && (
-                  <DebtsPanel
-                    accountId={activeAccount.id}
-                    month={selectedFilterMonth}
-                    year={selectedFilterYear}
-                  />
-                )}
               </section>
 
               <div className={`columna-derecha ${isGroup ? "cuenta-grupal" : ""}`}>
@@ -282,16 +299,6 @@ export default function DashboardPage() {
                   onCardClick={handleExpenseCardClick}
                 />
 
-                {isGroup && (
-                  <MembersPanel
-                    members={members}
-                    balancesByUserId={balancesByUserId}
-                    loading={membersLoading}
-                    currentUser={user}
-                    onAddMemberClick={() => setAddMemberOpen(true)}
-                    onMemberClick={handleMemberClick}
-                  />
-                )}
               </div>
             </section>
           </>
@@ -310,6 +317,9 @@ export default function DashboardPage() {
         open={newTransactionOpen}
         onClose={() => setNewTransactionOpen(false)}
         accountId={activeAccount?.id}
+        isGroup={isGroup}
+        members={members}
+        currentUser={user}
         plannedExpenses={plannedExpenses}
         onCreated={handleTransactionCreated}
       />
@@ -340,7 +350,7 @@ export default function DashboardPage() {
         onCreated={handleExpenseCreated}
       />
 
-      {/* ---- Modales de miembros (solo aplican en cuentas grupales) ---- */}
+      {/* ---- Modales de participantes (solo aplican en cuentas grupales) ---- */}
       <AddMemberModal
         open={addMemberOpen}
         onClose={() => setAddMemberOpen(false)}

@@ -32,7 +32,7 @@ export default function TransactionsTable({ filteredTransactions, loading, isGro
               <th className="columna-descripcion">Descripción</th>
               <th className="columna-monto">Monto</th>
               <th className="columna-categoria">Categoría</th>
-              {isGroup && <th className="columna-miembro">Miembro</th>}
+              {isGroup && <th className="columna-participante">Participante</th>}
             </tr>
           </thead>
           <tbody>
@@ -65,7 +65,7 @@ export default function TransactionsTable({ filteredTransactions, loading, isGro
                   <td className="columna-categoria">
                     <span className="categoria-etiqueta">{t.category}</span>
                   </td>
-                  {isGroup && <td className="columna-miembro">{t.memberName}</td>}
+                  {isGroup && <td className="columna-participante">{t.memberName}</td>}
                 </tr>
               ))
             )}

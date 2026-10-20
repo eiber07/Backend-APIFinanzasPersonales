@@ -15,7 +15,7 @@ export function useMembers(accountId, month, year) {
 
     try {
       const res = await getMembers(accountId);
-      if (!res.ok) throw new Error("No se pudieron cargar los miembros.");
+      if (!res.ok) throw new Error("No se pudieron cargar los participantes.");
       const data = await res.json();
       setMembers(data);
 
@@ -35,7 +35,7 @@ export function useMembers(accountId, month, year) {
         setBalancesByUserId(new Map());
       }
     } catch (error) {
-      console.error("Error cargando miembros:", error);
+      console.error("Error cargando participantes:", error);
       setMembers([]);
     } finally {
       setLoading(false);

@@ -9,6 +9,7 @@ from app.models.user import User
 from app.schemas.transaction import TransactionCreate, TransactionRequest, TransactionResponse
 from datetime import datetime
 from app.dals.planned_expense_dal import PlannedExpenseDAL
+from app.dals.group_account_member_dal import GroupAccountMemberDAL
 
 
 class TransactionService:
@@ -88,13 +89,34 @@ class TransactionService:
         return await self._build_transaction_response(transaction)
 
     async def create_transaction(self, transaction: TransactionCreate, current_user: User):
-        await self._validate_account_access(transaction.account_id, current_user)
+        account = await self._validate_account_access(transaction.account_id, current_user)
+        transaction_user_id = (
+            transaction.user_id
+            if transaction.user_id is not None
+            else current_user.id
+        )
+
+        if account.account_type_id == 2:
+            group_dal = GroupAccountMemberDAL(self.transactionDAL.db)
+            members = await group_dal.get_by_account_id(account.id)
+            member_ids = {member.user_id for member in members}
+            member_ids.add(account.id_admin_user)
+            if transaction_user_id not in member_ids:
+                raise HTTPException(
+                    status_code=400,
+                    detail="El autor seleccionado no pertenece a esta cuenta grupal.",
+                )
+        elif transaction_user_id != current_user.id:
+            raise HTTPException(
+                status_code=400,
+                detail="Solo podés registrar transacciones a tu nombre en cuentas personales.",
+            )
 
         active_status = await self.statusDAL.get_by_name('activa')
 
         new_transaction = Transaction(
             account_id=transaction.account_id,
-            user_id=current_user.id,
+            user_id=transaction_user_id,
             type_id=transaction.type_id,
             amount=transaction.amount,
             description=transaction.description,

@@ -7,7 +7,16 @@ import { createTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
 
-export default function NewTransactionModal({ open, onClose, accountId, plannedExpenses = [], onCreated }) {
+export default function NewTransactionModal({
+  open,
+  onClose,
+  accountId,
+  isGroup = false,
+  members = [],
+  currentUser,
+  plannedExpenses = [],
+  onCreated,
+}) {
   const { showSuccess, showError } = useAlerts();
   const { options: categories } = useParameters("transactionCategories");
   const { options: types } = useParameters("transactionTypes");
@@ -17,11 +26,22 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
   const [amountDigits, setAmountDigits] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
+  const [performedByUserId, setPerformedByUserId] = useState("");
   const [plannedExpenseId, setPlannedExpenseId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const selectedType = types.find((t) => String(t.id) === String(typeId));
   const isPlannedExpenseType = selectedType?.value?.toLowerCase() === "gasto planificado";
+  const defaultPerformedByUserId = members.some(
+    (member) => String(member.user_id) === String(currentUser?.id)
+  )
+    ? String(currentUser.id)
+    : String(members[0]?.user_id ?? "");
+  const selectedPerformedByUserId = members.some(
+    (member) => String(member.user_id) === performedByUserId
+  )
+    ? performedByUserId
+    : defaultPerformedByUserId;
   const availablePlannedExpenses = plannedExpenses.filter((e) => !e.completed);
   const selectedPlannedExpense = availablePlannedExpenses.find(
     (e) => String(e.id) === String(plannedExpenseId)
@@ -33,6 +53,7 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
     setAmountDigits("");
     setDate("");
     setDescription("");
+    setPerformedByUserId("");
     setPlannedExpenseId("");
   }
 
@@ -54,8 +75,23 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
   }
 
   async function handleSave() {
-    if (!amountDigits || !date || !categoryId || !typeId || !description.trim()) {
+    if (
+      !amountDigits ||
+      !date ||
+      !categoryId ||
+      !typeId ||
+      !description.trim() ||
+      (isGroup && !selectedPerformedByUserId)
+    ) {
       showError("Completá todos los campos antes de guardar la transacción.");
+      return;
+    }
+
+    if (
+      isGroup &&
+      !members.some((member) => String(member.user_id) === selectedPerformedByUserId)
+    ) {
+      showError("Seleccioná un participante válido de la cuenta grupal.");
       return;
     }
 
@@ -69,6 +105,7 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
     try {
       const res = await createTransaction({
         account_id: accountId,
+        ...(isGroup ? { user_id: Number(selectedPerformedByUserId) } : {}),
         type_id: Number(typeId),
         amount: amountNumber,
         description: description.trim(),
@@ -94,8 +131,8 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
   }
 
   return (
-    <Modal id="modalNewTransax" open={open} onClose={handleClose}>
-      <h2 style={{ color: "#1F2937", margin: 0 }}>Nueva Transacción</h2>
+    <Modal id="modalNewTransax" open={open} onClose={handleClose} className="transaction-modal">
+      <h2 className="transaction-modal-title">Nueva Transacción</h2>
       <div className="form-section">
         <div className="form-group">
           <label className="label">Tipo de transacción</label>
@@ -152,6 +189,26 @@ export default function NewTransactionModal({ open, onClose, accountId, plannedE
             ))}
           </select>
         </div>
+
+        {isGroup && (
+          <div className="form-group">
+            <label className="label" htmlFor="transaction-performed-by">Realizado por</label>
+            <select
+              id="transaction-performed-by"
+              className="input"
+              value={selectedPerformedByUserId}
+              onChange={(e) => setPerformedByUserId(e.target.value)}
+              required
+            >
+              <option value="">Seleccionar participante</option>
+              {members.map((member) => (
+                <option key={member.user_id} value={member.user_id}>
+                  {member.name} {member.last_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="form-group">
           <label className="label">Descripción</label>

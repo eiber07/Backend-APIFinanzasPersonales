@@ -4,6 +4,7 @@ import { useState } from "react";
 import Modal from "@/components/Modal";
 import { addMember } from "@/lib/endpoints/members";
 import { useAlerts } from "@/components/AlertProvider";
+import { toParticipantTerminology } from "@/lib/participants";
 
 export default function AddMemberModal({ open, onClose, accountId, onAdded }) {
   const { showSuccess } = useAlerts();
@@ -39,12 +40,12 @@ export default function AddMemberModal({ open, onClose, accountId, onAdded }) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.detail || "No se pudo agregar el miembro.");
+        setError(toParticipantTerminology(data.detail || "No se pudo agregar al participante."));
         return;
       }
 
       onAdded?.();
-      showSuccess("Miembro agregado correctamente.");
+      showSuccess("Participante agregado correctamente.");
       handleClose();
     } catch {
       setError("No se pudo conectar con el servidor.");
@@ -55,7 +56,7 @@ export default function AddMemberModal({ open, onClose, accountId, onAdded }) {
 
   return (
     <Modal id="modalMembers" open={open} onClose={handleClose} className="content-modal-members">
-      <h2 style={{ color: "#1F2937", margin: 0 }}>Agregar miembro</h2>
+      <h2 style={{ color: "#1F2937", margin: 0 }}>Agregar participante</h2>
 
       <div className="form-section form-members">
         <div className="form-group">
@@ -76,7 +77,7 @@ export default function AddMemberModal({ open, onClose, accountId, onAdded }) {
 
         <div className="acciones-modal member-modal-actions">
           <button type="button" className="btn-primary" onClick={handleSave} disabled={saving}>
-            {saving ? "Agregando..." : "Agregar miembro"}
+            {saving ? "Agregando..." : "Agregar participante"}
           </button>
           <button type="button" className="btn-secondary" onClick={handleClose}>
             Cancelar
