@@ -1,7 +1,8 @@
+from app.auth.password import get_password_hash
 from fastapi import BackgroundTasks, HTTPException, background
 from fastapi.responses import JSONResponse
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
-from app.utils.emails import create_reset_password_token, decode_reset_password_token
+from app.utils.emails import create_reset_password_token, decode_reset_password_token, validate_reset_password_token
 from app.schemas.password import ForgetPasswordRequest, ResetForegetPassword, SuccessMessage
 from app.services.user_service import UserService
 from app.core.config import settings
@@ -37,7 +38,7 @@ class PasswordService:
         if not user:
             raise HTTPException(status_code=404, detail="Email no registrado")
         
-        secret_token = create_reset_password_token(email=user.email)
+        secret_token = create_reset_password_token(email=user.email, password_hash=user.password)
         forget_url_link = f"{settings.FRONTEND_URL}?token={secret_token}"
 
         email_body = {
@@ -71,12 +72,28 @@ class PasswordService:
         
         email = decode_reset_password_token(token=reset_password_request.secret_token)
         
+        if not email:
+            raise HTTPException(
+                status_code=400,
+                detail="El enlace de recuperación es inválido o ha vencido"
+            )
+        
         user = await self.user_service.get_by_email(email)
         if not user:
             raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    
         
-        user.password = reset_password_request.new_password
+        if not validate_reset_password_token(
+            reset_password_request.secret_token,
+            user.password
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="El enlace de recuperación es inválido o ha vencido."
+            )
+        
+        user.password = get_password_hash(
+            reset_password_request.new_password
+            )
         await self.user_service.update(user)
 
         return JSONResponse(

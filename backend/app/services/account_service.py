@@ -53,7 +53,14 @@ class AccountService:
                 status_code=404,
                 detail="La cuenta no existe.",
             )
-
+        active_status = await self.statusDAL.get_by_name("activa")
+        
+        if active_status is None or account.status_id != active_status.id:
+            raise HTTPException(
+                status_code=403,
+                detail="La cuenta se encuentra inactiva"
+            )
+        
         if account.account_type.name.lower() != "grupal":
             raise HTTPException(
                 status_code=400,
