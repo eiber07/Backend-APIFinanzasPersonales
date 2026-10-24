@@ -35,6 +35,7 @@ export function usePlannedExpenses(accountId) {
       const grouped = {};
 
       expenses.forEach((e) => {
+        if (e.status_id !== 1) return;
         const groupId = e.id_planned_expense;
         if (!grouped[groupId]) {
           grouped[groupId] = {
@@ -53,32 +54,28 @@ export function usePlannedExpenses(accountId) {
         });
       });
 
-      const mapped = Object.values(grouped).map((group) => {
-        const total = group.installments.length;
-        const paid = group.installments.filter((i) => i.statusId === 2).length;
-        const nextPending = group.installments
-          .filter((i) => i.statusId === 1)
-          .sort((a, b) => new Date(a.dueDateRaw) - new Date(b.dueDateRaw))[0];
+    const mapped = Object.values(grouped).map((group) => {
+      const sorted = [...group.installments]
+        .sort((a, b) => a.installmentNumber - b.installmentNumber)
+        .map((inst, index) => ({ ...inst, displayNumber: index + 1 }));
+      const total = sorted.length;
 
-        return {
-          id: group.id,
-          detail: group.detail,
-          installmentAmount: group.installmentAmount,
-          installmentAmountRaw: group.installmentAmountRaw,
-          totalInstallments: total,
-          paidInstallments: paid,
-          total: formatTransactionMoney(group.installmentAmountRaw * total),
-          nextInstallment: nextPending ? nextPending.installmentNumber : null,
-          nextDueDateRaw: nextPending ? nextPending.dueDateRaw : null,
-          nextDueDate: nextPending ? nextPending.dueDate : null,
-          allInstallments: group.installments,
-          completed: paid === total,
-        };
-      });
+      return {
+        id: group.id,
+        detail: group.detail,
+        installmentAmount: group.installmentAmount,
+        installmentAmountRaw: group.installmentAmountRaw,
+        totalInstallments: total,
+        total: formatTransactionMoney(group.installmentAmountRaw * total),
+        firstDueDate: sorted[0].dueDate,
+        lastDueDate: sorted[total - 1].dueDate,
+        allInstallments: sorted,
+      };
+    });
 
       setPlannedExpenses(mapped);
     } catch (error) {
-      console.error("Error cargando gastos planificados:", error);
+      console.error("Error cargando el pago", error);
     } finally {
       setLoading(false);
     }

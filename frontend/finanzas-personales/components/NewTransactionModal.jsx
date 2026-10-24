@@ -10,7 +10,7 @@ import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/l
 export default function NewTransactionModal({
   open,
   onClose,
-  accountId,
+   accountId = [],
   isGroup = false,
   members = [],
   currentUser,
@@ -27,7 +27,6 @@ export default function NewTransactionModal({
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [performedByUserId, setPerformedByUserId] = useState("");
-  const [plannedExpenseId, setPlannedExpenseId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const selectedType = types.find((t) => String(t.id) === String(typeId));
@@ -54,8 +53,7 @@ export default function NewTransactionModal({
     setDate("");
     setDescription("");
     setPerformedByUserId("");
-    setPlannedExpenseId("");
-  }
+    }
 
   function handleClose() {
     resetForm();
@@ -64,14 +62,7 @@ export default function NewTransactionModal({
 
   function handleTypeChange(value) {
     setTypeId(value);
-    setPlannedExpenseId("");
     setAmountDigits("");
-  }
-
-  function handlePlannedExpenseChange(value) {
-    setPlannedExpenseId(value);
-    const exp = availablePlannedExpenses.find((e) => String(e.id) === value);
-    setAmountDigits(exp ? String(Math.round(exp.installmentAmountRaw * 100)) : "");
   }
 
   async function handleSave() {
@@ -110,8 +101,6 @@ export default function NewTransactionModal({
         amount: amountNumber,
         description: description.trim(),
         category_id: Number(categoryId),
-        planned_expense_id: plannedExpenseId ? Number(plannedExpenseId) : null,
-        planned_expense_installment_number: selectedPlannedExpense?.nextInstallment ?? null,
         transaction_date: `${date}T00:00:00`,
       });
 
@@ -144,24 +133,6 @@ export default function NewTransactionModal({
           </select>
         </div>
 
-        {isPlannedExpenseType && (
-          <div className="form-group">
-            <label className="label">Gasto planificado</label>
-            <select
-              className="input"
-              value={plannedExpenseId}
-              onChange={(e) => handlePlannedExpenseChange(e.target.value)}
-            >
-              <option value="">Ninguno</option>
-              {availablePlannedExpenses.map((exp) => (
-                <option key={exp.id} value={exp.id}>
-                  {exp.detail} — Cuota {exp.nextInstallment} de {exp.totalInstallments}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
         <div className="form-group">
           <label className="label">Monto</label>
           <input
@@ -170,8 +141,6 @@ export default function NewTransactionModal({
             placeholder="$ 0.00"
             value={digitsToMoneyDisplay(amountDigits)}
             onChange={(e) => setAmountDigits(extractDigits(e.target.value))}
-            readOnly={Boolean(plannedExpenseId)}
-            style={plannedExpenseId ? { background: "#D1D5DB" } : undefined}
           />
         </div>
 
@@ -220,7 +189,7 @@ export default function NewTransactionModal({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <div>{description.length} / 25 caracteres</div>
+          <div style={{fontSize:"14px"}}>{description.length} / 25 caracteres</div>
         </div>
 
         <div className="acciones-modal">

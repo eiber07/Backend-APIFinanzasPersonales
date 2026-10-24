@@ -21,3 +21,10 @@ export function formatTransactionMoney(amount) {
     maximumFractionDigits: 2,
   })}`;
 }
+
+export function todayLocal() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export const PLANNED_TYPE_NAME = "gasto planificado";
