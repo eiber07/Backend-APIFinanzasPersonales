@@ -16,3 +16,9 @@ export async function deactivatePlannedExpense(expenseId) {
     method: "PUT",
   });
 }
+
+export async function removeInstallment(groupId, installmentNumber) {
+  return fetchWithAuth(`/planned_expenses/${groupId}/${installmentNumber}/pay`, {
+    method: "PUT",
+  });
+}

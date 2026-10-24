@@ -47,6 +47,7 @@ export function useTransactions(accountId, month, year) {
         plannedExpenseId: t.planned_expense_id
           ? t.planned_expense_id.toString()
           : null,
+        plannedExpenseInstallmentNumber: t.planned_expense_installment_number ?? null,
         date: formatTransactionDate(t.transaction_date.split("T")[0]),
       }));
 

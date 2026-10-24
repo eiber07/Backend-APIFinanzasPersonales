@@ -49,6 +49,7 @@ export default function DashboardPage() {
 
   // ---- Datos compartidos por varios componentes y modales ----
   const {
+    transactions,
     filteredTransactions,
     loading: transactionsLoading,
     refetch: refetchTransactions,
@@ -185,18 +186,32 @@ export default function DashboardPage() {
     if (isGroup) refetchMembers();
   }
 
-  // ---- Handlers de gastos planificados ----
   function handleExpenseCardClick(expense) {
+    setSelectedExpense(expense);
+    setExpenseDetailOpen(true);
+  }
+
+  function handleOpenPlan(plannedExpenseId) {
+    const expense = plannedExpenses.find((e) => e.id === String(plannedExpenseId));
+    if (!expense) {
+      showError("No se encontró el pago asociado.");
+      return;
+    }
+    setTransactionDetailOpen(false);
     setSelectedExpense(expense);
     setExpenseDetailOpen(true);
   }
 
   function handleExpenseDeleted() {
     refetchPlannedExpenses();
+    refetchTransactions();
+    if (isGroup) refetchMembers();
   }
 
   function handleExpenseCreated() {
     refetchPlannedExpenses();
+    refetchTransactions();
+    if (isGroup) refetchMembers();
   }
 
   // ---- Handlers de miembros ----
@@ -304,13 +319,17 @@ export default function DashboardPage() {
         open={transactionDetailOpen}
         onClose={() => setTransactionDetailOpen(false)}
         onChanged={handleTransactionChanged}
+        onOpenPlan={handleOpenPlan}
+        hasActivePlan={
+          Boolean(selectedTransaction?.plannedExpenseId) &&
+          plannedExpenses.some((e) => e.id === selectedTransaction.plannedExpenseId)
+        }
       />
 
       <NewTransactionModal
         open={newTransactionOpen}
         onClose={() => setNewTransactionOpen(false)}
         accountId={activeAccount?.id}
-        plannedExpenses={plannedExpenses}
         onCreated={handleTransactionCreated}
       />
 
@@ -331,6 +350,7 @@ export default function DashboardPage() {
         open={expenseDetailOpen}
         onClose={() => setExpenseDetailOpen(false)}
         onDeleted={handleExpenseDeleted}
+        transactions={transactions}
       />
 
       <NewExpenseModal

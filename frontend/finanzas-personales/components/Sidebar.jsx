@@ -154,7 +154,7 @@ export default function Sidebar({
               value={accountDescription}
               onChange={(e) => setAccountDescription(e.target.value)}
             />
-            <div style={{ color: accountDescription.length >= 25 ? "#dc2626" : "inherit" }}>
+            <div style={{ color: accountDescription.length >= 25 ? "#dc2626" : "inherit" , fontSize:"14px"}}>
               {accountDescription.length} / 25 caracteres
             </div>
           </div>
