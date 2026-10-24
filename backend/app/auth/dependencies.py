@@ -9,10 +9,10 @@ from ..schemas.token import TokenData
 from app.core.config import settings
 
 oath2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+optional_oath2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token", auto_error=False)
 
-async def get_current_user(
-        db: Session = Depends(get_db),
-        token: str = Depends(oath2_scheme)):
+
+async def _get_user_from_token(db: Session, token: str):
     credentials_exception = HTTPException(
         status_code = status.HTTP_401_UNAUTHORIZED,
         detail = "No se logro validar las credenciales de usuario.",
@@ -32,3 +32,17 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+async def get_current_user(
+        db: Session = Depends(get_db),
+        token: str = Depends(oath2_scheme)):
+    return await _get_user_from_token(db, token)
+
+
+async def get_optional_current_user(
+        db: Session = Depends(get_db),
+        token: str | None = Depends(optional_oath2_scheme)):
+    if token is None:
+        return None
+    return await _get_user_from_token(db, token)

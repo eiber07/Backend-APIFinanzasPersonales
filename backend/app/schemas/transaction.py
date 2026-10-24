@@ -33,6 +33,7 @@ class TransactionResponse(BaseModel):
     description: Optional[str] = None
     category: str
     category_id: int
+    category_parent_category_id: Optional[int] = None
     planned_expense_id: Optional[int] = None
     planned_expense_installment_number: Optional[int] = None
     transaction_date: datetime

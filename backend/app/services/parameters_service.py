@@ -3,7 +3,11 @@ from app.dals.account_type_dal import AccountTypeDAL
 from app.dals.status_dal import StatusDAL
 from app.dals.transaction_category_dal import TransactionCategoryDAL
 from app.dals.transaction_type_dal import TransactionTypeDAL
-from app.schemas.parameters import ParametersResponse
+from app.schemas.parameters import (
+    ParametersResponse,
+    TransactionCategoryParameterResponse,
+)
+from app.models.user import User
 
 
 class ParametersService:
@@ -42,10 +46,24 @@ class ParametersService:
             transaction_types_response.append(ParametersResponse(id=transaction_type.id, value=transaction_type.name))
         return transaction_types_response
 
-    async def get_transaction_categories(self):
-        reponse = await self.transaction_category_dal.get_all()
-        transaction_categories_response = []
-        for transaction_category in reponse:
-            transaction_categories_response.append(ParametersResponse(id=transaction_category.id, value=transaction_category.name))
-        return transaction_categories_response 
+    async def get_transaction_categories(self, current_user: User | None = None):
+        if current_user is None:
+            categories = await self.transaction_category_dal.get_all_global()
+        else:
+            group_ids = await self.transaction_category_dal.get_group_ids_for_user(
+                current_user.id
+            )
+            categories = await self.transaction_category_dal.get_visible_categories(
+                current_user.id,
+                group_ids,
+            )
+        return [
+            TransactionCategoryParameterResponse(
+                id=category.id,
+                value=category.name,
+                parent_category_id=category.parent_category_id,
+                account_id=category.account_id,
+            )
+            for category in categories
+        ]
     

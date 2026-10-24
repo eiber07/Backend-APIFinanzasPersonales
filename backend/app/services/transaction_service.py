@@ -10,6 +10,8 @@ from app.schemas.transaction import TransactionCreate, TransactionRequest, Trans
 from datetime import datetime
 from app.dals.planned_expense_dal import PlannedExpenseDAL
 from app.dals.group_account_member_dal import GroupAccountMemberDAL
+from app.dals.transaction_category_dal import TransactionCategoryDAL
+from app.models.account import Account
 
 
 class TransactionService:
@@ -42,6 +44,11 @@ class TransactionService:
             description=transaction.description,
             category=transaction.category.name if transaction.category else None,
             category_id=transaction.category_id,
+            category_parent_category_id=(
+                transaction.category.parent_category_id
+                if transaction.category
+                else None
+            ),
             planned_expense_id=transaction.planned_expense_id,
             planned_expense_installment_number=transaction.planned_expense_installment_number,
             transaction_date=transaction.transaction_date,
@@ -64,6 +71,48 @@ class TransactionService:
             if current_user.id in member_ids:
                 return account
         raise HTTPException(status_code=403, detail="No tienes permiso para acceder a esta cuenta.")
+
+    async def _validate_category_access(
+        self,
+        category_id: int,
+        account: Account,
+        current_user: User,
+    ):
+        category = await TransactionCategoryDAL(
+            self.transactionDAL.db
+        ).get_by_id(category_id)
+        if category is None:
+            raise HTTPException(status_code=404, detail="La categoría no existe.")
+
+        is_global = (
+            category.owner_id is None
+            and category.group_id is None
+            and category.account_id is None
+        )
+        if is_global:
+            return
+
+        if category.account_id is not None:
+            if account.account_type_id != 1 or category.account_id != account.id:
+                raise HTTPException(
+                    status_code=403,
+                    detail="La categoría no está disponible para esta cuenta.",
+                )
+            return
+
+        if category.group_id is not None:
+            if account.account_type_id != 2 or category.group_id != account.id:
+                raise HTTPException(
+                    status_code=403,
+                    detail="La categoría no está disponible para esta cuenta.",
+                )
+            return
+
+        if account.account_type_id == 2 or category.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="La categoría no está disponible para esta cuenta.",
+            )
 
     async def get_by_account_id(self, account_id: int, current_user: User):
         await self._validate_account_access(account_id, current_user)
@@ -90,6 +139,11 @@ class TransactionService:
 
     async def create_transaction(self, transaction: TransactionCreate, current_user: User):
         account = await self._validate_account_access(transaction.account_id, current_user)
+        await self._validate_category_access(
+            transaction.category_id,
+            account,
+            current_user,
+        )
         transaction_user_id = (
             transaction.user_id
             if transaction.user_id is not None
@@ -170,7 +224,17 @@ class TransactionService:
                 detail="La transacción no existe.",
             )
 
-        await self._validate_account_access(existing.account_id, current_user)
+        account = await self._validate_account_access(
+            existing.account_id,
+            current_user,
+        )
+
+        if transaction.category_id is not None:
+            await self._validate_category_access(
+                transaction.category_id,
+                account,
+                current_user,
+            )
 
         existing.amount = transaction.amount if transaction.amount is not None else existing.amount
         existing.description = transaction.description if transaction.description is not None else existing.description
