@@ -8,7 +8,7 @@ function formatParameterLabel(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function useParameters(type) {
+export function useParameters(type, { accountId, isGroup, refreshKey } = {}) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +23,10 @@ export function useParameters(type) {
           id: p.id,
           value: p.value,
           label: formatParameterLabel(p.value),
+          parentCategoryId: p.parent_category_id ?? null,
+          ownerId: p.owner_id ?? null,
+          groupId: p.group_id ?? null,
+          accountId: p.account_id ?? null,
         }))
       );
     } catch (error) {
@@ -33,8 +37,28 @@ export function useParameters(type) {
   }, [type]);
 
   useEffect(() => {
-    fetchParams();
-  }, [fetchParams]);
+    void Promise.resolve().then(fetchParams);
+  }, [fetchParams, refreshKey]);
 
-  return { options, loading };
+  const scopedOptions =
+    type !== "transactionCategories" || !accountId
+      ? options
+      : options.filter((category) => {
+          const isGlobal =
+            category.ownerId === null &&
+            category.groupId === null &&
+            category.accountId === null;
+          return (
+            isGlobal ||
+            (isGroup
+              ? String(category.groupId) === String(accountId)
+              : String(category.accountId) === String(accountId)) ||
+            (category.ownerId !== null &&
+              category.groupId === null &&
+              category.accountId === null &&
+              !isGroup)
+          );
+        });
+
+  return { options: scopedOptions, loading };
 }

@@ -7,11 +7,25 @@ import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transa
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
 
-export default function TransactionDetailModal({ transaction, open, onClose, onChanged, onOpenPlan, hasActivePlan = false, }) {
+export default function TransactionDetailModal({
+  transaction,
+  open,
+  onClose,
+  onChanged,
+  onOpenPlan,
+  hasActivePlan = false,
+  accountId,
+  isGroup = false,
+  categoriesVersion = 0,
+}) {
   const { showSuccess, showError } = useAlerts();
   const [mode, setMode] = useState("view");
 
-  const { options: categories } = useParameters("transactionCategories");
+  const { options: categories } = useParameters("transactionCategories", {
+    accountId,
+    isGroup,
+    refreshKey: categoriesVersion,
+  });
   const { options: types } = useParameters("transactionTypes");
 
   const [amountDigits, setAmountDigits] = useState("");
@@ -146,7 +160,9 @@ export default function TransactionDetailModal({ transaction, open, onClose, onC
               <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
                 <option value="">Seleccionar</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.label}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+                  </option>
                 ))}
               </select>
             </div>

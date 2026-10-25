@@ -8,7 +8,14 @@ import { useParameters } from "@/lib/hooks/useParameters";
 import { createPlannedExpense, deactivatePlannedExpense } from "@/lib/endpoints/plannedExpenses";
 import { createTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
 
-export default function NewExpenseModal({ open, onClose, accountId, onCreated }) {
+export default function NewExpenseModal({
+  open,
+  onClose,
+  accountId,
+  isGroup = false,
+  categoriesVersion = 0,
+  onCreated,
+}) {
   const { showSuccess, showError } = useAlerts();
 
   const [kind, setKind] = useState("installments");
@@ -17,7 +24,11 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
   const [fixedAmountDigits, setFixedAmountDigits] = useState("");
   const [installments, setInstallments] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
-  const { options: categories } = useParameters("transactionCategories");
+  const { options: categories } = useParameters("transactionCategories", {
+    accountId,
+    isGroup,
+    refreshKey: categoriesVersion,
+  });
   const { options: types } = useParameters("transactionTypes");
   const expenseType = types.find((t) => {
     const v = t.value?.toLowerCase();
@@ -189,7 +200,9 @@ export default function NewExpenseModal({ open, onClose, accountId, onCreated })
           >
             <option value="">Seleccionar</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.label}</option>
+              <option key={c.id} value={c.id}>
+                {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+              </option>
             ))}
           </select>
         </div>

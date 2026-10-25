@@ -19,6 +19,7 @@ from app.routers.password_routes import router as password_router
 from app.routers.parameters_routes import router as parameters_router
 from app.routers.account_routes import router as account_router
 from app.routers.transaction_routes import router as transaction_router
+from app.routers.transaction_category_routes import router as transaction_category_router
 from app.routers.planned_expense_routes import router as planned_expense_router
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,6 +44,11 @@ app.include_router(password_router, prefix="/auth", tags=["auth"])
 app.include_router(parameters_router, prefix="/parameters", tags=["parameters"])
 app.include_router(account_router, prefix="/accounts", tags=["accounts"])
 app.include_router(transaction_router, prefix="/transactions", tags=["transactions"])
+app.include_router(
+    transaction_category_router,
+    prefix="/transaction-categories",
+    tags=["transaction-categories"],
+)
 app.include_router(planned_expense_router, prefix="/planned_expenses", tags=["planned-expenses"])
 
 
