@@ -17,8 +17,8 @@ class Settings(BaseSettings):
     FORGET_PWD_SECRET_KEY: str
     ALGORITHM: str
     FORGET_PASSWORD_LINK_EXPIRE_MINUTES: int
-    APP_HOST: str
-    FRONTEND_URL: str
+    APP_HOST: str | None = None #Modificar luego
+    FRONTEND_URL: str | None = None #Modificar luego
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     SECRET_KEY: str
 
