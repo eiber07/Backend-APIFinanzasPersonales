@@ -5,13 +5,20 @@ const MONTH_NAMES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
-export default function TransactionsTable({ filteredTransactions, loading, isGroup, month, year, onRowClick, onAddClick }) {
+export default function TransactionsTable({ filteredTransactions, loading, isGroup, month, year, onRowClick, onAddClick, onManageCategoriesClick }) {
   const periodLabel = `${MONTH_NAMES[month - 1]} ${year}`;
   const colSpan = isGroup ? 5 : 4;
 
   return (
     <section className="componente-transacciones">
       <div className="titulo-seccion titulo-seccion-derecha">
+        <button
+          type="button"
+          className="btn-add btn-manage-categories"
+          onClick={() => onManageCategoriesClick?.()}
+        >
+          Administrar categorías
+        </button>
         <button type="button" className="btn-add" onClick={() => onAddClick?.()}>
           Agregar nuevo registro
         </button>

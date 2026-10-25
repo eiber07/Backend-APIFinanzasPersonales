@@ -30,13 +30,24 @@ class TransactionCategoryDAL:
         )
         return result.scalars().all()
 
-    async def get_visible_categories(self, user_id: int, group_ids: list[int]):
+    async def get_visible_categories(
+        self,
+        user_id: int,
+        group_ids: list[int],
+        account_ids: list[int] | None = None,
+    ):
         visible_scope = [
-            (TransactionCategory.owner_id.is_(None) & TransactionCategory.group_id.is_(None)),
+            (
+                TransactionCategory.owner_id.is_(None)
+                & TransactionCategory.group_id.is_(None)
+                & TransactionCategory.account_id.is_(None)
+            ),
             TransactionCategory.owner_id == user_id,
         ]
         if group_ids:
             visible_scope.append(TransactionCategory.group_id.in_(group_ids))
+        if account_ids:
+            visible_scope.append(TransactionCategory.account_id.in_(account_ids))
 
         result = await self.db.execute(
             select(TransactionCategory)
@@ -45,6 +56,15 @@ class TransactionCategoryDAL:
             .order_by(TransactionCategory.id)
         )
         return result.scalars().all()
+
+    async def get_personal_account_ids_for_user(self, user_id: int) -> list[int]:
+        result = await self.db.execute(
+            select(Account.id).where(
+                Account.id_admin_user == user_id,
+                Account.account_type_id == 1,
+            )
+        )
+        return list(result.scalars().all())
 
     async def get_by_id(self, transaction_category_id: int):
         result = await self.db.execute(

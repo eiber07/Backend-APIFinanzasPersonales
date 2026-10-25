@@ -12,13 +12,18 @@ export default function NewTransactionModal({
   onClose,
    accountId = [],
   isGroup = false,
+   categoriesVersion = 0,
   members = [],
   currentUser,
   plannedExpenses = [],
   onCreated,
 }) {
   const { showSuccess, showError } = useAlerts();
-  const { options: categories } = useParameters("transactionCategories");
+  const { options: categories } = useParameters("transactionCategories", {
+    accountId,
+    isGroup,
+    refreshKey: categoriesVersion,
+  });
   const { options: types } = useParameters("transactionTypes");
 
   const [typeId, setTypeId] = useState("");
@@ -154,7 +159,9 @@ export default function NewTransactionModal({
           <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
             <option value="">Seleccionar</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.label}</option>
+              <option key={c.id} value={c.id}>
+                {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+              </option>
             ))}
           </select>
         </div>

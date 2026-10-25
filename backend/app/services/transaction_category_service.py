@@ -18,9 +18,15 @@ class TransactionCategoryService:
 
     async def _visible_categories(self, current_user: User):
         group_ids = await self.category_dal.get_group_ids_for_user(current_user.id)
+        account_ids = (
+            await self.category_dal.get_personal_account_ids_for_user(
+                current_user.id
+            )
+        )
         categories = await self.category_dal.get_visible_categories(
             current_user.id,
             group_ids,
+            account_ids,
         )
         return categories, {category.id: category for category in categories}
 
@@ -89,6 +95,11 @@ class TransactionCategoryService:
             raise HTTPException(status_code=404, detail="La categoría padre no existe.")
 
         group_ids = await self.category_dal.get_group_ids_for_user(current_user.id)
+        account_ids = (
+            await self.category_dal.get_personal_account_ids_for_user(
+                current_user.id
+            )
+        )
         is_visible = (
             (
                 parent.owner_id is None
@@ -97,6 +108,7 @@ class TransactionCategoryService:
             )
             or parent.owner_id == current_user.id
             or parent.group_id in group_ids
+            or parent.account_id in account_ids
         )
         if not is_visible:
             raise HTTPException(status_code=404, detail="La categoría padre no existe.")
@@ -120,6 +132,12 @@ class TransactionCategoryService:
             or (
                 account_id is not None
                 and parent.account_id == account_id
+            )
+            or (
+                account_id is not None
+                and parent.account_id is None
+                and parent.group_id is None
+                and parent.owner_id == current_user.id
             )
             or (
                 group_id is None

@@ -26,6 +26,7 @@ import ExpenseDetailModal from "@/components/ExpenseDetailModal";
 import NewExpenseModal from "@/components/NewExpenseModal";
 import AddMemberModal from "@/components/AddMemberModal";
 import MemberInfoModal from "@/components/MemberInfoModal";
+import TransactionCategoriesModal from "@/components/TransactionCategoriesModal";
 
 import { useEffect, useCallback } from "react";
 
@@ -72,6 +73,8 @@ export default function DashboardPage() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [transactionDetailOpen, setTransactionDetailOpen] = useState(false);
   const [newTransactionOpen, setNewTransactionOpen] = useState(false);
+  const [transactionCategoriesOpen, setTransactionCategoriesOpen] = useState(false);
+  const [categoriesVersion, setCategoriesVersion] = useState(0);
 
   const [plannedExpensesModalOpen, setPlannedExpensesModalOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
@@ -299,6 +302,7 @@ export default function DashboardPage() {
                   year={selectedFilterYear}
                   onRowClick={handleTransactionRowClick}
                   onAddClick={() => setNewTransactionOpen(true)}
+                  onManageCategoriesClick={() => setTransactionCategoriesOpen(true)}
                 />
 
               </section>
@@ -324,6 +328,9 @@ export default function DashboardPage() {
       <TransactionDetailModal
         transaction={selectedTransaction}
         open={transactionDetailOpen}
+        accountId={activeAccount?.id}
+        isGroup={isGroup}
+        categoriesVersion={categoriesVersion}
         onClose={() => setTransactionDetailOpen(false)}
         onChanged={handleTransactionChanged}
         onOpenPlan={handleOpenPlan}
@@ -338,6 +345,7 @@ export default function DashboardPage() {
         onClose={() => setNewTransactionOpen(false)}
         accountId={activeAccount?.id}
         isGroup={isGroup}
+        categoriesVersion={categoriesVersion}
         members={members}
         currentUser={user}
         onCreated={handleTransactionCreated}
@@ -367,7 +375,18 @@ export default function DashboardPage() {
         open={newExpenseOpen}
         onClose={() => setNewExpenseOpen(false)}
         accountId={activeAccount?.id}
+        isGroup={isGroup}
+        categoriesVersion={categoriesVersion}
         onCreated={handleExpenseCreated}
+      />
+
+      <TransactionCategoriesModal
+        open={transactionCategoriesOpen}
+        onClose={() => setTransactionCategoriesOpen(false)}
+        accountId={activeAccount?.id}
+        accountName={activeAccount?.name}
+        isGroup={isGroup}
+        onChanged={() => setCategoriesVersion((version) => version + 1)}
       />
 
       {/* ---- Modales de participantes (solo aplican en cuentas grupales) ---- */}

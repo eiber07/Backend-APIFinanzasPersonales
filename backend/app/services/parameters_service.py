@@ -53,15 +53,23 @@ class ParametersService:
             group_ids = await self.transaction_category_dal.get_group_ids_for_user(
                 current_user.id
             )
+            account_ids = (
+                await self.transaction_category_dal.get_personal_account_ids_for_user(
+                    current_user.id
+                )
+            )
             categories = await self.transaction_category_dal.get_visible_categories(
                 current_user.id,
                 group_ids,
+                account_ids,
             )
         return [
             TransactionCategoryParameterResponse(
                 id=category.id,
                 value=category.name,
                 parent_category_id=category.parent_category_id,
+                owner_id=category.owner_id,
+                group_id=category.group_id,
                 account_id=category.account_id,
             )
             for category in categories
