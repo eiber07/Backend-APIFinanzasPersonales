@@ -106,7 +106,11 @@ class TransactionCategoryService:
                 and parent.group_id is None
                 and parent.account_id is None
             )
-            or parent.owner_id == current_user.id
+            or (
+                parent.owner_id == current_user.id
+                and parent.group_id is None
+                and parent.account_id is None
+            )
             or parent.group_id in group_ids
             or parent.account_id in account_ids
         )
