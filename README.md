@@ -62,7 +62,10 @@ Una transacción representa un movimiento financiero registrado en una cuenta. P
 | Egreso | Representa un gasto realizado por un miembro. Puede corresponder a una cuenta personal o a una cuenta grupal. |
 | Gasto planificado | Representa una obligación financiera futura, como cuotas, suscripciones o pagos recurrentes. Permite proyectar compromisos antes de que se materialicen como movimientos reales. |
 
----
+### Categorías de transacción
+Las categorías estándar existentes siguen siendo globales. Los usuarios autenticados pueden crear categorías propias, asociarlas a una cuenta personal mediante `account_id` o a una cuenta grupal mediante `group_id`. Las categorías personales solo son visibles para su creador y las grupales para los integrantes del grupo. Los integrantes pueden administrar las categorías de su grupo. Las categorías estándar son de solo lectura.
+
+Una categoría puede ser raíz (`parent_category_id: null` o `0`) o subcategoría. La jerarquía admite como máximo dos niveles. Las respuestas de categorías incluyen `parent_category_id`, `parent` y `children` sin anidamiento recursivo. El nombre se mantiene único globalmente para conservar la restricción existente.
 
 ## 5. Funcionamiento de las cuentas grupales
 
@@ -223,6 +226,4 @@ Backend-APIFinanzasPersonales/
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | Minutos de validez del token JWT de acceso. |
 | `APP_HOST` | Host donde corre la API (ej: http://localhost:8000). |
 | `FRONTEND_URL` | URL del frontend para redirecciones (ej: para el link de recuperación de contraseña) |
-
-
 

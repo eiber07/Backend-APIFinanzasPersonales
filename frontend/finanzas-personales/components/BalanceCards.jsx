@@ -1,7 +1,5 @@
 "use client";
 
-import PeriodFilter from "@/components/PeriodFilter";
-
 function formatDashboardMoney(amount) {
   const numericAmount = Number(amount) || 0;
   const absoluteAmount = Math.abs(numericAmount);
@@ -12,7 +10,7 @@ function formatDashboardMoney(amount) {
   return numericAmount < 0 ? `-$${formatted}` : `$${formatted}`;
 }
 
-export default function BalanceCards({ filteredTransactions, loading, month, year, onPeriodChange }) {
+export default function BalanceCards({ filteredTransactions, loading }) {
   let incomeTotal = 0;
   let expenseTotal = 0;
 
@@ -25,12 +23,7 @@ export default function BalanceCards({ filteredTransactions, loading, month, yea
   const balanceTotal = incomeTotal - expenseTotal;
 
   return (
-    <>
-      <div className="dashboard-period-filter">
-        <PeriodFilter month={month} year={year} onChange={onPeriodChange} />
-      </div>
-
-      <section className="componente-tarjetas">
+    <section className="componente-tarjetas">
         <article className="tarjeta-resumen tarjeta-resumen-grande">
           <div className="tarjeta-resumen-header">
             <div className="tarjeta-resumen-icono balance">↔</div>
@@ -60,7 +53,6 @@ export default function BalanceCards({ filteredTransactions, loading, month, yea
             {loading ? "..." : formatDashboardMoney(expenseTotal)}
           </h2>
         </article>
-      </section>
-    </>
+    </section>
   );
 }
