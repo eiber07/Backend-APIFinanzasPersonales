@@ -6,6 +6,7 @@ import { useParameters } from "@/lib/hooks/useParameters";
 import { createTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
+import { getCategoryTransactionType } from "@/lib/constants/transactionTypes";
 
 export default function NewTransactionModal({
   open,
@@ -15,7 +16,6 @@ export default function NewTransactionModal({
    categoriesVersion = 0,
   members = [],
   currentUser,
-  plannedExpenses = [],
   onCreated,
 }) {
   const { showSuccess, showError } = useAlerts();
@@ -35,7 +35,10 @@ export default function NewTransactionModal({
   const [saving, setSaving] = useState(false);
 
   const selectedType = types.find((t) => String(t.id) === String(typeId));
-  const isPlannedExpenseType = selectedType?.value?.toLowerCase() === "gasto planificado";
+  const categoryType = getCategoryTransactionType(selectedType?.value);
+  const availableCategories = categoryType
+    ? categories.filter((category) => category.transactionType === categoryType)
+    : [];
   const defaultPerformedByUserId = members.some(
     (member) => String(member.user_id) === String(currentUser?.id)
   )
@@ -46,11 +49,6 @@ export default function NewTransactionModal({
   )
     ? performedByUserId
     : defaultPerformedByUserId;
-  const availablePlannedExpenses = plannedExpenses.filter((e) => !e.completed);
-  const selectedPlannedExpense = availablePlannedExpenses.find(
-    (e) => String(e.id) === String(plannedExpenseId)
-  );
-
   function resetForm() {
     setTypeId("");
     setCategoryId("");
@@ -68,6 +66,7 @@ export default function NewTransactionModal({
   function handleTypeChange(value) {
     setTypeId(value);
     setAmountDigits("");
+    setCategoryId("");
   }
 
   async function handleSave() {
@@ -156,9 +155,14 @@ export default function NewTransactionModal({
 
         <div className="form-group">
           <label className="label">Categoría</label>
-          <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-            <option value="">Seleccionar</option>
-            {categories.map((c) => (
+          <select
+            className="input"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            disabled={!categoryType}
+          >
+            <option value="">{categoryType ? "Seleccionar" : "Primero seleccioná un tipo"}</option>
+            {availableCategories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.parentCategoryId ? `↳ ${c.label}` : c.label}
               </option>

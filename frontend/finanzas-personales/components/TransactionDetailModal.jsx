@@ -6,6 +6,10 @@ import { useParameters } from "@/lib/hooks/useParameters";
 import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
+import {
+  getCategoryTransactionType,
+  TRANSACTION_TYPE_EXPENSE,
+} from "@/lib/constants/transactionTypes";
 
 export default function TransactionDetailModal({
   transaction,
@@ -35,8 +39,20 @@ export default function TransactionDetailModal({
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const selectedType = types.find((type) => String(type.id) === String(typeId));
+  const categoryType = getCategoryTransactionType(selectedType?.value);
+  const availableCategories = categoryType
+    ? categories.filter((category) => category.transactionType === categoryType)
+    : [];
+
   const isLinkedToPlannedExpense =
     Boolean(transaction?.plannedExpenseId) && hasActivePlan;
+  const availableTypes = isLinkedToPlannedExpense
+    ? types.filter(
+        (type) =>
+          getCategoryTransactionType(type.value) === TRANSACTION_TYPE_EXPENSE
+      )
+    : types;
     
   useEffect(() => {
     if (open && transaction) {
@@ -82,6 +98,11 @@ export default function TransactionDetailModal({
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleTypeChange(value) {
+    setTypeId(value);
+    setCategoryId("");
   }
 
   async function handleDelete() {
@@ -157,9 +178,14 @@ export default function TransactionDetailModal({
             </div>
             <div className="form-group">
               <label className="label">Categoría</label>
-              <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-                <option value="">Seleccionar</option>
-                {categories.map((c) => (
+              <select
+                className="input"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                disabled={!categoryType}
+              >
+                <option value="">{categoryType ? "Seleccionar" : "Primero seleccioná un tipo"}</option>
+                {availableCategories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.parentCategoryId ? `↳ ${c.label}` : c.label}
                   </option>
@@ -168,9 +194,9 @@ export default function TransactionDetailModal({
             </div>
             <div className="form-group">
               <label className="label">Tipo de transacción</label>
-              <select className="input" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+              <select className="input" value={typeId} onChange={(e) => handleTypeChange(e.target.value)}>
                 <option value="">Seleccionar</option>
-                {types.map((t) => (
+                {availableTypes.map((t) => (
                   <option key={t.id} value={t.id}>{t.label}</option>
                 ))}
               </select>

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Modal from "@/components/Modal";
 import { useAlerts } from "@/components/AlertProvider";
-import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount,PLANNED_TYPE_NAME } from "@/lib/format";
+import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
 import { useParameters } from "@/lib/hooks/useParameters";
 import { createPlannedExpense, deactivatePlannedExpense } from "@/lib/endpoints/plannedExpenses";
 import { createTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
+import { TRANSACTION_TYPE_EXPENSE } from "@/lib/constants/transactionTypes";
 
 export default function NewExpenseModal({
   open,
@@ -31,9 +32,12 @@ export default function NewExpenseModal({
   });
   const { options: types } = useParameters("transactionTypes");
   const expenseType = types.find((t) => {
-    const v = t.value?.toLowerCase();
-    return v !== "ingreso" && v !== PLANNED_TYPE_NAME;
-  });  
+    const value = t.value?.trim().toLocaleLowerCase();
+    return value === TRANSACTION_TYPE_EXPENSE;
+  });
+  const expenseCategories = categories.filter(
+    (category) => category.transactionType === TRANSACTION_TYPE_EXPENSE
+  );
   const [categoryId, setCategoryId] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -199,7 +203,7 @@ export default function NewExpenseModal({
             onChange={(e) => setCategoryId(e.target.value)}
           >
             <option value="">Seleccionar</option>
-            {categories.map((c) => (
+            {expenseCategories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.parentCategoryId ? `↳ ${c.label}` : c.label}
               </option>
