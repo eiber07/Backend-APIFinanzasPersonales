@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "@/components/Modal";
 import { useParameters } from "@/lib/hooks/useParameters";
 import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
@@ -18,7 +18,7 @@ export default function TransactionDetailModal({
   isGroup = false,
   categoriesVersion = 0,
 }) {
-  const { showSuccess, showError } = useAlerts();
+  const { showSuccess, showError, showWarning } = useAlerts();
   const [mode, setMode] = useState("view");
 
   const { options: categories } = useParameters("transactionCategories", {
@@ -37,24 +37,84 @@ export default function TransactionDetailModal({
 
   const isLinkedToPlannedExpense =
     Boolean(transaction?.plannedExpenseId) && hasActivePlan;
-    
-  useEffect(() => {
-    if (open && transaction) {
-      setMode("view");
-      setDate(transaction.dateRaw || "");
-      setDescription(transaction.description || "");
-      setCategoryId(transaction.categoryId ? String(transaction.categoryId) : "");
-      setTypeId(transaction.typeId ? String(transaction.typeId) : "");
-      const abs = Math.abs(transaction.amountNumber || 0);
-      setAmountDigits(String(Math.round(abs * 100)));
-    }
-  }, [open, transaction]);
+
+  function startEdit() {
+    if (!transaction) return;
+
+    setDate(
+      transaction.dateRaw ||
+      transaction.transaction_date?.split("T")[0] ||
+      ""
+    );
+
+    setDescription(transaction.description || "");
+
+    const categoryRaw = String(transaction.category || "")
+      .trim().toLowerCase();
+    const directCatId =
+      transaction.category_id ?? transaction.categoryId;
+
+    const foundCategory =
+      categories.find(c => String(c.id) === String(directCatId)) ||
+      categories.find(c =>
+        String(c.label || c.name || "").trim().toLowerCase() === categoryRaw
+      );
+
+    setCategoryId(
+      foundCategory
+        ? String(foundCategory.id)
+        : directCatId != null ? String(directCatId) : ""
+    );
+
+    const typeRaw = String(transaction.type || "")
+      .trim().toLowerCase();
+    const directTypeId =
+      transaction.type_id ??
+      transaction.typeId ??
+      transaction.type?.id;
+
+    const foundType =
+      types.find(t => String(t.id) === String(directTypeId)) ||
+      types.find(t =>
+        String(t.label || t.name || t.value || "")
+          .trim().toLowerCase() === typeRaw
+      );
+
+    setTypeId(
+      foundType
+        ? String(foundType.id)
+        : directTypeId != null ? String(directTypeId) : ""
+    );
+
+    const abs = Math.abs(
+      transaction.amountNumber || transaction.amount || 0
+    );
+
+    setAmountDigits(String(Math.round(abs * 100)));
+    setMode("edit");
+  }
 
   if (!transaction) return null;
 
-  async function handleSave() {
+  async function handleSave(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     if (!amountDigits || !date || !categoryId || !typeId || !description.trim()) {
       showError("Completá todos los campos.");
+      return;
+    }
+
+    const amountNumber = parseTransactionAmount(digitsToMoneyDisplay(amountDigits));
+    if (!amountNumber || amountNumber <= 0) {
+      showError("Ingresá un monto válido.");
+      return;
+    }
+
+    if (amountNumber >= 100000000000) {
+      showError("El monto ingresado es demasiado grande (máximo $99.999.999.999,99).");
       return;
     }
 
@@ -63,7 +123,7 @@ export default function TransactionDetailModal({
       const res = await updateTransaction({
         id: Number(transaction.id),
         type_id: Number(typeId),
-        amount: parseTransactionAmount(digitsToMoneyDisplay(amountDigits)),
+        amount: amountNumber,
         description: description.trim(),
         category_id: Number(categoryId),
         transaction_date: `${date}T00:00:00`,
@@ -72,7 +132,7 @@ export default function TransactionDetailModal({
       if (res.ok) {
         showSuccess("Transacción actualizada correctamente.");
         onChanged?.();
-        onClose();
+        handleCloseModal();
       } else {
         const err = await res.json();
         showError(err.detail || "Error al actualizar la transacción.");
@@ -84,30 +144,41 @@ export default function TransactionDetailModal({
     }
   }
 
-  async function handleDelete() {
+  function handleCloseModal() {
+    setMode("view");
+    onClose();
+  }
+
+  function handleDelete() {
     if (isLinkedToPlannedExpense) {
       showError("No podés eliminar una transacción asociada a un gasto planificado.");
       return;
     }
-    if (!confirm(`¿Eliminar la transacción #${transaction.id}?`)) return;
 
-    try {
-      const res = await deactivateTransaction(transaction.id);
-      if (res.ok) {
-        showSuccess("Transacción eliminada correctamente.");
-        onChanged?.();
-        onClose();
-      } else {
-        const err = await res.json();
-        showError(err.detail || "Error al eliminar la transacción.");
-      }
-    } catch {
-      showError("No se pudo establecer conexión con el servidor.");
-    }
+    showWarning(
+      `¿Estás seguro de que querés eliminar la transacción "${transaction.description}"?`,
+      "Confirmar eliminación",
+      async () => {
+        try {
+          const res = await deactivateTransaction(transaction.id);
+          if (res.ok) {
+            showSuccess("Transacción eliminada correctamente.");
+            onChanged?.();
+            handleCloseModal();
+          } else {
+            const err = await res.json();
+            showError(err.detail || "Error al eliminar la transacción.");
+          }
+        } catch {
+          showError("No se pudo establecer conexión con el servidor.");
+        }
+      },
+      () => {}
+    );
   }
 
   return (
-    <Modal id="modalTransax" open={open} onClose={onClose}>
+    <Modal id="modalTransax" open={open} onClose={handleCloseModal}>
       {mode === "view" ? (
         <>
           <h2 style={{ color: "#1F2937", margin: 0 }}>Detalle de Transacción</h2>
@@ -122,10 +193,22 @@ export default function TransactionDetailModal({
             </tbody>
           </table>
           <div className="acciones-modal">
-            <button className="btn-secondary" onClick={() => setMode("edit")}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startEdit();
+              }}
+            >
               Editar
             </button>
-            <button className="btn-primary btn-red" onClick={handleDelete}>
+            <button
+              type="button"
+              className="btn-primary btn-red"
+              onClick={handleDelete}
+            >
               Eliminar
             </button>
           </div>
@@ -157,10 +240,14 @@ export default function TransactionDetailModal({
             </div>
             <div className="form-group">
               <label className="label">Categoría</label>
-              <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+              <select
+                className="input"
+                value={String(categoryId)}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
                 <option value="">Seleccionar</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={String(c.id)}>
                     {c.parentCategoryId ? `↳ ${c.label}` : c.label}
                   </option>
                 ))}
@@ -168,10 +255,16 @@ export default function TransactionDetailModal({
             </div>
             <div className="form-group">
               <label className="label">Tipo de transacción</label>
-              <select className="input" value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+              <select
+                className="input"
+                value={String(typeId)}
+                onChange={(e) => setTypeId(e.target.value)}
+              >
                 <option value="">Seleccionar</option>
                 {types.map((t) => (
-                  <option key={t.id} value={t.id}>{t.label}</option>
+                  <option key={t.id} value={String(t.id)}>
+                    {t.label || t.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -184,13 +277,26 @@ export default function TransactionDetailModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
-              <div style={{fontSize:"14px"}}>{description.length} / 25 caracteres</div>
+              <div style={{ fontSize: "14px" }}>{description.length} / 25 caracteres</div>
             </div>
             <div className="acciones-modal">
-              <button className="btn-primary" onClick={handleSave} disabled={saving}>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleSave}
+                disabled={saving}
+              >
                 {saving ? "Guardando..." : "Guardar cambios"}
               </button>
-              <button className="btn-secondary" onClick={() => setMode("view")}>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMode("view");
+                }}
+              >
                 Cancelar
               </button>
             </div>

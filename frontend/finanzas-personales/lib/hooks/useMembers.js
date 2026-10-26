@@ -43,7 +43,11 @@ export function useMembers(accountId, month, year) {
   }, [accountId, month, year]);
 
   useEffect(() => {
-    fetchMembers();
+    const timer = setTimeout(() => {
+      void fetchMembers();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [fetchMembers]);
 
   return { members, balancesByUserId, loading, refetch: fetchMembers };

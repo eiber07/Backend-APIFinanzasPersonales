@@ -8,7 +8,7 @@ import { useAlerts } from "@/components/AlertProvider";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { showSuccess, showError } = useAlerts();
+  const { showSuccess } = useAlerts();
 
   const [name, setName] = useState("");
   const [lastname, setLastname] = useState("");
@@ -67,15 +67,26 @@ export default function RegisterPage() {
       });
 
       if (res.ok) {
-        showSuccess("Registro exitoso!");
-        router.push("/login");
+        const redirectToLogin = () => router.push("/login");
+        showSuccess(
+          "Tu cuenta ha sido creada con éxito. Ya puedes iniciar sesión.",
+          "¡Registro Exitoso!",
+          redirectToLogin,
+          redirectToLogin
+        );
       } else {
         const errorData = await res.json();
-        showError(errorData.detail || "No se pudo completar el registro.");
+        const detail = errorData.detail || "No se pudo completar el registro.";
+
+        if (detail.toLowerCase().includes("email")) {
+          setErrorEmail(detail);
+        } else {
+          setErrorPassword(detail);
+        }
       }
     } catch (error) {
       console.error("Error de conexión:", error);
-      showError("No se pudo conectar con el servidor.");
+      setErrorEmail("No se pudo conectar con el servidor.");
     }
   }
 
