@@ -47,18 +47,6 @@ export default function StatusModal({ isOpen, onClose, type = "info", title, mes
             </button>
           </div>
         )}
-
-        {type !== "warning" && (
-          <div className="status-modal-actions">
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={handleAction}
-            >
-              Aceptar
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
