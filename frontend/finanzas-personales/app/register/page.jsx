@@ -71,14 +71,13 @@ export default function RegisterPage() {
         showSuccess(
           "Tu cuenta ha sido creada con éxito. Ya puedes iniciar sesión.",
           "¡Registro Exitoso!",
-          redirectToLogin, // onConfirm
-          redirectToLogin  // onCancel (al hacer clic afuera o en la 'X')
+          redirectToLogin,
+          redirectToLogin
         );
       } else {
         const errorData = await res.json();
         const detail = errorData.detail || "No se pudo completar el registro.";
         
-        // Si el mensaje del backend indica que el email ya está en uso, se asigna al campo email
         if (detail.toLowerCase().includes("email")) {
           setErrorEmail(detail);
         } else {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { clearToken, getToken } from "@/lib/api";
 import { getCurrentUser } from "@/lib/endpoints/users";
@@ -27,8 +27,6 @@ import NewExpenseModal from "@/components/NewExpenseModal";
 import AddMemberModal from "@/components/AddMemberModal";
 import MemberInfoModal from "@/components/MemberInfoModal";
 import TransactionCategoriesModal from "@/components/TransactionCategoriesModal";
-
-import { useEffect, useCallback } from "react";
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -179,7 +177,7 @@ export default function DashboardPage() {
 
   function handleTransactionChanged() {
     refetchTransactions();
-    refetchPlannedExpenses(); // por si estaba ligada a una cuota
+    refetchPlannedExpenses();
     if (isGroup) refetchMembers();
   }
 
@@ -260,6 +258,7 @@ export default function DashboardPage() {
           <p>No tenés cuentas todavía. Creá una desde el menú lateral.</p>
         ) : (
           <>
+            {/* Barra superior con Filtro de Período y Participantes si es grupal */}
             <div className="dashboard-toolbar">
               {isGroup && (
                 <MembersPanel
@@ -279,11 +278,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <BalanceCards
-              filteredTransactions={filteredTransactions}
-              loading={transactionsLoading}
-            />
-
             {isGroup && (
               <DebtsPanel
                 accountId={activeAccount.id}
@@ -292,8 +286,28 @@ export default function DashboardPage() {
               />
             )}
 
-            <section className="componente-main2">
-              <section className="componente-transacciones">
+            {/* Grilla principal alineada horizontalmente */}
+            <section className="componente-main2 layout-invertido">
+              {/* COLUMNA IZQUIERDA: Balance + Pagos del Mes */}
+              <div className="columna-izquierda">
+                <BalanceCards
+                  filteredTransactions={filteredTransactions}
+                  loading={transactionsLoading}
+                />
+
+                <PlannedExpensesPreview
+                  plannedExpenses={plannedExpenses}
+                  loading={plannedExpensesLoading}
+                  month={selectedFilterMonth}
+                  year={selectedFilterYear}
+                  onNewExpenseClick={() => setNewExpenseOpen(true)}
+                  onManageClick={() => setPlannedExpensesModalOpen(true)}
+                  onCardClick={handleExpenseCardClick}
+                />
+              </div>
+
+              {/* COLUMNA DERECHA: Tabla de Transacciones */}
+              <div className="columna-derecha-tabla">
                 <TransactionsTable
                   filteredTransactions={filteredTransactions}
                   loading={transactionsLoading}
@@ -304,20 +318,6 @@ export default function DashboardPage() {
                   onAddClick={() => setNewTransactionOpen(true)}
                   onManageCategoriesClick={() => setTransactionCategoriesOpen(true)}
                 />
-
-              </section>
-
-              <div className={`columna-derecha ${isGroup ? "cuenta-grupal" : ""}`}>
-                <PlannedExpensesPreview
-                  plannedExpenses={plannedExpenses}
-                  loading={plannedExpensesLoading}
-                  month={selectedFilterMonth}
-                  year={selectedFilterYear}
-                  onNewExpenseClick={() => setNewExpenseOpen(true)}
-                  onManageClick={() => setPlannedExpensesModalOpen(true)}
-                  onCardClick={handleExpenseCardClick}
-                />
-
               </div>
             </section>
           </>
@@ -389,7 +389,7 @@ export default function DashboardPage() {
         onChanged={() => setCategoriesVersion((version) => version + 1)}
       />
 
-      {/* ---- Modales de participantes (solo aplican en cuentas grupales) ---- */}
+      {/* ---- Modales de participantes (cuentas grupales) ---- */}
       <AddMemberModal
         open={addMemberOpen}
         onClose={() => setAddMemberOpen(false)}

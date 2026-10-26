@@ -45,7 +45,6 @@ export default function LoginPage() {
         const detail = err.detail || "No se pudo iniciar sesión.";
         const lowerDetail = detail.toLowerCase();
 
-        // Muestra el error debajo del Email o de la Contraseña según corresponda
         if (
           lowerDetail.includes("usuario") ||
           lowerDetail.includes("email") ||

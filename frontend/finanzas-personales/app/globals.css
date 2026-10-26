@@ -389,7 +389,6 @@ width: 100%;
   color: #1F2937;
   font-size: 20px;
 }
-
 .transaction-modal {
     color-scheme: light;
     max-height: 90vh;
@@ -425,7 +424,7 @@ width: 100%;
     font-size: 24px;
     font-weight: 700;
     cursor: pointer;
-    }
+}
 
 .grid-contenedor,
 .grid-contenedor * {
@@ -475,15 +474,6 @@ width: 100%;
     overflow: hidden;
     padding: 22px 24px 40px;
     background: #ffffff;
-}
-
-.componente-tarjetas {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
-    padding: 0;
-    margin-bottom: 24px;
-    align-items: stretch;
 }
 
 .tarjeta-monto {
@@ -553,16 +543,6 @@ width: 100%;
     background: #ffffff;
     border: 1px solid rgba(29, 78, 216, 0.22);
     border-radius: 8px;
-}
-
-.tarjeta-resumen-grande {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    height: 165px;
-    padding: 24px;
-    box-sizing: border-box;
 }
 
 .tarjeta-resumen-header {
@@ -698,7 +678,6 @@ width: 100%;
     text-align: center;
 }
 
-
 .categoria-etiqueta {
     display: inline-block;
     background: #E5E7EB;
@@ -714,7 +693,7 @@ width: 100%;
 
 .componente-cuentas {
     width: 100%;
-    height: 340px;
+    height: auto;
 }
 
 .installmentCards {
@@ -758,7 +737,6 @@ width: 100%;
     background: #5D6772;
     color: #fff;
     font-weight: 500;
-
 }
 
 .factura-info h3 {
@@ -772,7 +750,6 @@ width: 100%;
     font-size: 12px;
     color: #4B5563;
     margin: 0;
-    
 }
 
 .factura-monto {
@@ -789,10 +766,6 @@ width: 100%;
         grid-template-columns: 200px 1fr;
     }
 
-    .componente-tarjetas {
-        grid-template-columns: 1fr 1fr;
-    }
-
     .componente-main2 {
         grid-template-columns: 1fr;
     }
@@ -806,20 +779,6 @@ width: 100%;
             "header"
             "sidebar"
             "main";
-    }
-
-    .componente-tarjetas {
-        display: flex;
-        gap: 12px;
-        overflow-x: auto;
-        padding-bottom: 8px;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .componente-tarjetas > article {
-        flex: 0 0 252px;
-        scroll-snap-align: start;
     }
 
     .tabla-contenedor {
@@ -1138,7 +1097,6 @@ width: 100%;
     }
 }
 
-
 #modalUserProfile .content-modal {
     align-items: flex-start;
     max-width: 420px;
@@ -1152,7 +1110,6 @@ width: 100%;
     margin: 20px 0 8px;
     width: 100%;
 }
-
 
 #modalUserProfile h2 {
     width: 100%;
@@ -1257,10 +1214,10 @@ width: 100%;
 }
 
 .columna-derecha {
-    display: grid;
-    grid-template-rows: auto 1fr auto;
+    display: flex;
+    flex-direction: column;
     min-width: 0;
-    min-height: 455px;
+    min-height: auto;
 }
 
 .componente-participantes {
@@ -1474,9 +1431,8 @@ width: 100%;
         display: flex;
         flex-direction: column;
         min-height: auto;
-        gap: 24px;
+        gap: 16px;
     }
-
 }
 
 @media (max-width: 600px) {
@@ -1635,7 +1591,7 @@ width: 100%;
 .columna-derecha.cuenta-grupal {
     display: flex;
     flex-direction: column;
-    min-height: 455px;
+    min-height: auto;
 }
 
 .columna-derecha.cuenta-grupal .componente-cuentas {
@@ -2517,4 +2473,113 @@ width: 100%;
 
 [data-theme="dark"] .status-modal-message {
   color: var(--text-dark-secondary) !important;
+}
+
+/* --- LAYOUT INVERTIDO (Izquierda: Balance/Pagos, Derecha: Tabla) --- */
+
+.componente-main2.layout-invertido {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.columna-izquierda {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 48px;
+}
+
+@media (max-width: 1100px) {
+  .columna-izquierda {
+    margin-top: 0;
+    gap: 16px;
+  }
+}
+
+.columna-derecha-tabla {
+  min-width: 0;
+}
+
+/* --- ESTILOS DE LA TARJETA DE BALANCE COMPACTA --- */
+
+.card-balance-vertical {
+  background: #ffffff;
+  border: 1px solid rgba(29, 78, 216, 0.22);
+  border-radius: 8px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.balance-main-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.balance-principal {
+  font-size: 28px !important;
+  font-weight: 700;
+  margin: 2px 0 0;
+}
+
+.balance-divider {
+  height: 1px;
+  background-color: #E5E7EB;
+  width: 100%;
+}
+
+.balance-secondary-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.balance-subitem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subicono {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 14px !important;
+}
+
+.sublabel {
+  font-size: 11px !important;
+}
+
+.balance-submonto {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* --- MODO OSCURO --- */
+
+[data-theme="dark"] .card-balance-vertical {
+  background-color: var(--bg-dark-card) !important;
+  border-color: var(--border-dark) !important;
+}
+
+[data-theme="dark"] .balance-divider {
+  background-color: var(--border-dark) !important;
+}
+
+[data-theme="dark"] .balance-submonto {
+  color: #FFFFFF;
+}
+
+/* RESPONSIVO */
+@media (max-width: 1100px) {
+  .componente-main2.layout-invertido {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
