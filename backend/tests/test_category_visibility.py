@@ -83,7 +83,7 @@ async def test_visibilidad_categorias():
 
             # Conserva su categoría privada, pero pierde la grupal.
             assert await visibles(2) == {1, 2}
-            
+
             servicio = TransactionCategoryService(dal)
             juan = await db.get(User, 2)
 
@@ -104,7 +104,7 @@ async def test_visibilidad_categorias():
                 )
 
             assert error.value.status_code == 404
-            
+
             # Juan no puede modificar la categoría grupal.
             with pytest.raises(HTTPException) as error:
                 await servicio.update(
