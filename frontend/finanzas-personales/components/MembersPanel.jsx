@@ -25,7 +25,6 @@ export default function MembersPanel({
             className="btn-participants-info"
             aria-label="Máximo de 7 participantes por cuenta grupal, incluyendo al administrador"
             data-tooltip="Máximo de 7 participantes por cuenta grupal, incluyendo al administrador"
-            title="Máximo de 7 participantes por cuenta grupal, incluyendo al administrador"
           >
             <span aria-hidden="true">i</span>
           </button>
@@ -36,7 +35,7 @@ export default function MembersPanel({
             aria-label="Agregar participante"
             onClick={() => onAddMemberClick?.()}
           >
-            <img src="/img/icono-mas.png" height="25" alt="" />
+            <img title="Agregar participantes" src="/img/icono-mas.png" height="25" alt="" />
           </button>
           )}
         </div>

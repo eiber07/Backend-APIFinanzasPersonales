@@ -1,4 +1,5 @@
 
+from fastapi import HTTPException, status
 from app.dals.account_dal import AccountDAL
 from app.dals.account_type_dal import AccountTypeDAL
 from app.dals.status_dal import StatusDAL
@@ -32,8 +33,11 @@ class UserService:
 
         existing_user = await self.userDal.get_by_email(user.email)
         if existing_user:
-            raise ValueError("El email ya está registrado")
-
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El email ya está registrado"
+            )
+        
         new_user = User(
             name=user.name,
             last_name=user.last_name,

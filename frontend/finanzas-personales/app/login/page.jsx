@@ -9,7 +9,7 @@ import { useAlerts } from "@/components/AlertProvider";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { showError } = useAlerts();
+  const { showSuccess } = useAlerts();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +19,6 @@ export default function LoginPage() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetError, setResetError] = useState("");
-  const [resetSent, setResetSent] = useState(false);
 
   async function handleLogin() {
     let valid = true;
@@ -43,11 +42,24 @@ export default function LoginPage() {
         router.push("/dashboard");
       } else {
         const err = await res.json();
-        showError(err.detail || "No se pudo iniciar sesión.");
+        const detail = err.detail || "No se pudo iniciar sesión.";
+        const lowerDetail = detail.toLowerCase();
+
+        // Muestra el error debajo del Email o de la Contraseña según corresponda
+        if (
+          lowerDetail.includes("usuario") ||
+          lowerDetail.includes("email") ||
+          lowerDetail.includes("registrado") ||
+          lowerDetail.includes("correo")
+        ) {
+          setErrorEmail(detail);
+        } else {
+          setErrorPassword(detail);
+        }
       }
     } catch (error) {
       console.error("Error de conexión:", error);
-      showError("No se pudo conectar con el servidor.");
+      setErrorEmail("No se pudo conectar con el servidor.");
     }
   }
 
@@ -64,7 +76,11 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
-        setResetSent(true);
+        closeForgot();
+        showSuccess(
+          "Revisa tu bandeja de entrada para restablecer la contraseña.",
+          "Correo enviado"
+        );
       } else {
         setResetError(data.detail || "Ocurrió un error, intenta de nuevo.");
       }
@@ -77,7 +93,6 @@ export default function LoginPage() {
     setForgotOpen(false);
     setResetEmail("");
     setResetError("");
-    setResetSent(false);
   }
 
   return (
@@ -125,6 +140,7 @@ export default function LoginPage() {
 
           <div className="forgot">
             <button
+              type="button"
               className="boton-invisible"
               onClick={() => setForgotOpen(true)}
             >
@@ -132,7 +148,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <button className="btn-primary" onClick={handleLogin}>
+          <button type="button" className="btn-primary" onClick={handleLogin}>
             <span>Ingresar</span>
           </button>
 
@@ -148,44 +164,27 @@ export default function LoginPage() {
       </div>
 
       <Modal id="modalForget" open={forgotOpen} onClose={closeForgot}>
-        {!resetSent ? (
-          <>
-            <h2>¿Olvidaste tu contraseña?</h2>
-            <p>
-              No hay de qué preocuparse, te enviaremos un enlace para
-              restablecerla.
-            </p>
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                className="input"
-                placeholder="Tu correo"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-              />
-              {resetError && (
-                <span className="error active">{resetError}</span>
-              )}
-            </div>
-            <button className="btn-primary" onClick={handleSendReset}>
-              Enviar enlace
-            </button>
-            <div style={{ textAlign: "left", width: "100%" }}>
-              Regístrate{" "}
-              <Link href="/register" className="signup">
-                aquí
-              </Link>
-              .
-            </div>
-          </>
-        ) : (
-          <div style={{ textAlign: "center" }}>
-            <img src="/img/logo-OK.png" height={100} alt="" />
-            <h2>Correo enviado</h2>
-            <p>Revisa tu bandeja de entrada y actualiza tu contraseña.</p>
-          </div>
-        )}
+        <h2>¿Olvidaste tu contraseña?</h2>
+        <p>
+          No hay de qué preocuparse, te enviaremos un enlace para
+          restablecerla.
+        </p>
+        <div className="form-group">
+          <label className="label">Email</label>
+          <input
+            type="email"
+            className="input"
+            placeholder="Tu correo"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+          />
+          {resetError && (
+            <span className="error active">{resetError}</span>
+          )}
+        </div>
+        <button type="button" className="btn-primary" onClick={handleSendReset}>
+          Enviar enlace
+        </button>
       </Modal>
     </>
   );

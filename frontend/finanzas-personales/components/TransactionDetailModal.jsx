@@ -18,7 +18,7 @@ export default function TransactionDetailModal({
   isGroup = false,
   categoriesVersion = 0,
 }) {
-  const { showSuccess, showError } = useAlerts();
+  const { showSuccess, showError, showWarning } = useAlerts();
   const [mode, setMode] = useState("view");
 
   const { options: categories } = useParameters("transactionCategories", {
@@ -83,28 +83,33 @@ export default function TransactionDetailModal({
       setSaving(false);
     }
   }
-
   async function handleDelete() {
-    if (isLinkedToPlannedExpense) {
-      showError("No podés eliminar una transacción asociada a un gasto planificado.");
-      return;
-    }
-    if (!confirm(`¿Eliminar la transacción #${transaction.id}?`)) return;
-
-    try {
-      const res = await deactivateTransaction(transaction.id);
-      if (res.ok) {
-        showSuccess("Transacción eliminada correctamente.");
-        onChanged?.();
-        onClose();
-      } else {
-        const err = await res.json();
-        showError(err.detail || "Error al eliminar la transacción.");
+      if (isLinkedToPlannedExpense) {
+        showError("No podés eliminar una transacción asociada a un gasto planificado.");
+        return;
       }
-    } catch {
-      showError("No se pudo establecer conexión con el servidor.");
+
+      // Modal de confirmación estilizado
+      showWarning(
+        `¿Estás seguro de que querés eliminar la transacción "${transaction.description}"?`,
+        "Confirmar eliminación",
+        async () => {
+          try {
+            const res = await deactivateTransaction(transaction.id);
+            if (res.ok) {
+              showSuccess("Transacción eliminada correctamente.");
+              onChanged?.();
+              onClose();
+            } else {
+              const err = await res.json();
+              showError(err.detail || "Error al eliminar la transacción.");
+            }
+          } catch {
+            showError("No se pudo establecer conexión con el servidor.");
+          }
+        }
+      );
     }
-  }
 
   return (
     <Modal id="modalTransax" open={open} onClose={onClose}>
