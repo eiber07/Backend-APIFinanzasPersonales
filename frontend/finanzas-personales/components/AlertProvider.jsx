@@ -1,70 +1,61 @@
 "use client";
 
 import { createContext, useCallback, useContext, useState } from "react";
+import StatusModal from "@/components/StatusModal";
 
 const AlertsContext = createContext(null);
 
-const ICONS = { error: "✕", success: "✓", warning: "⚠", info: "ℹ" };
-const DEFAULT_DURATIONS = { error: 5000, success: 4000, warning: 5000, info: 4000 };
-const DEFAULT_TITLES = { error: "Error", success: "Éxito", warning: "Advertencia", info: "Info" };
-
 export function AlertProvider({ children }) {
-  const [alerts, setAlerts] = useState([]);
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    type: "info",
+    title: "",
+    message: "",
+    onConfirm: null,
+    onCancel: null,
+  });
 
-  const remove = useCallback((id) => {
-    // marca "removing" para disparar la animación slideOut de tu CSS
-    setAlerts((current) =>
-      current.map((a) => (a.id === id ? { ...a, removing: true } : a))
-    );
-    setTimeout(() => {
-      setAlerts((current) => current.filter((a) => a.id !== id));
-    }, 300);
+  const closeModal = useCallback(() => {
+    setModalState((prev) => ({ ...prev, isOpen: false }));
   }, []);
 
-  const push = useCallback(
-    (type, message, title, duration) => {
-      const id = crypto.randomUUID();
-      const finalDuration = duration ?? DEFAULT_DURATIONS[type];
+  const push = useCallback((type, message, title, onConfirm, onCancel) => {
+    const defaultTitles = {
+      error: "Error",
+      success: "¡Éxito!",
+      warning: "Advertencia",
+      info: "Información",
+    };
 
-      setAlerts((current) => [
-        ...current,
-        { id, type, title: title ?? DEFAULT_TITLES[type], message, removing: false },
-      ]);
-
-      if (finalDuration > 0) {
-        setTimeout(() => remove(id), finalDuration);
-      }
-    },
-    [remove]
-  );
+    setModalState({
+      isOpen: true,
+      type,
+      title: title || defaultTitles[type],
+      message,
+      onConfirm: onConfirm || null,
+      onCancel: onCancel || null,
+    });
+  }, []);
 
   const value = {
-    showError: (message, title, duration) => push("error", message, title, duration),
-    showSuccess: (message, title, duration) => push("success", message, title, duration),
-    showWarning: (message, title, duration) => push("warning", message, title, duration),
-    showInfo: (message, title, duration) => push("info", message, title, duration),
+    showError: (message, title, onConfirm, onCancel) => push("error", message, title, onConfirm, onCancel),
+    showSuccess: (message, title, onConfirm, onCancel) => push("success", message, title, onConfirm, onCancel),
+    showWarning: (message, title, onConfirm, onCancel) => push("warning", message, title, onConfirm, onCancel),
+    showInfo: (message, title, onConfirm, onCancel) => push("info", message, title, onConfirm, onCancel),
   };
 
   return (
     <AlertsContext.Provider value={value}>
       {children}
-      <div id="alertsContainer" className="alerts-container">
-        {alerts.map((alert) => (
-          <div
-            key={alert.id}
-            className={`alert alert-${alert.type} ${alert.removing ? "removing" : ""}`}
-          >
-            <div className="alert-icon">{ICONS[alert.type]}</div>
-            <div className="alert-content">
-              <div className="alert-title">{alert.title}</div>
-              <div className="alert-message">{alert.message}</div>
-            </div>
-            <button className="alert-close" onClick={() => remove(alert.id)}>
-              &times;
-            </button>
-          </div>
-        ))}
-      </div>
+      <StatusModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+        onConfirm={modalState.onConfirm}
+        onCancel={modalState.onCancel}
+      />
     </AlertsContext.Provider>
   );
 }
