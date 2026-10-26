@@ -77,7 +77,7 @@ export default function RegisterPage() {
       } else {
         const errorData = await res.json();
         const detail = errorData.detail || "No se pudo completar el registro.";
-        
+
         if (detail.toLowerCase().includes("email")) {
           setErrorEmail(detail);
         } else {

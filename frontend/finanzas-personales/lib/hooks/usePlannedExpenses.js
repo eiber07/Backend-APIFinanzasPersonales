@@ -82,7 +82,11 @@ export function usePlannedExpenses(accountId) {
   }, [accountId]);
 
   useEffect(() => {
-    fetchPlannedExpenses();
+    const timer = setTimeout(() => {
+      void fetchPlannedExpenses();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [fetchPlannedExpenses]);
 
   return { plannedExpenses, loading, refetch: fetchPlannedExpenses };

@@ -42,7 +42,11 @@ class TransactionCategoryDAL:
                 & TransactionCategory.group_id.is_(None)
                 & TransactionCategory.account_id.is_(None)
             ),
-            TransactionCategory.owner_id == user_id,
+            (
+                (TransactionCategory.owner_id == user_id)
+                & TransactionCategory.group_id.is_(None)
+                & TransactionCategory.account_id.is_(None)
+            ),
         ]
         if group_ids:
             visible_scope.append(TransactionCategory.group_id.in_(group_ids))

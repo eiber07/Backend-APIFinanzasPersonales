@@ -83,7 +83,11 @@ export function useGroupDebts(accountId, month, year) {
   }, [accountId, month, year]);
 
   useEffect(() => {
-    fetchDebts();
+    const timer = setTimeout(() => {
+      void fetchDebts();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [fetchDebts]);
 
   return { debts, loading, error, refetch: fetchDebts };

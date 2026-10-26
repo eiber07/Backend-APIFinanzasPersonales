@@ -60,7 +60,11 @@ export function useTransactions(accountId, month, year) {
   }, [accountId]);
 
   useEffect(() => {
-    fetchTransactions();
+    const timer = setTimeout(() => {
+      void fetchTransactions();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [fetchTransactions]);
 
   const filteredTransactions = transactions.filter((t) => {

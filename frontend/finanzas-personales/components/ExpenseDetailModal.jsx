@@ -41,7 +41,11 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted, 
   function toggle(n) {
     setSelected((current) => {
       const next = new Set(current);
-      next.has(n) ? next.delete(n) : next.add(n);
+      if (next.has(n)) {
+        next.delete(n);
+      } else {
+        next.add(n);
+      }
       return next;
     });
   }
@@ -122,7 +126,7 @@ export default function ExpenseDetailModal({ expense, open, onClose, onDeleted, 
         <>
           <h2 style={{ margin: 0 }}>Eliminar pagos</h2>
           <p className="delete-summary">
-            Elegí qué pagos de "{expense.detail}" querés eliminar.
+            Elegí qué pagos de &quot;{expense.detail}&quot; querés eliminar.
           </p>
 
           <div className="delete-quick">

@@ -38,7 +38,7 @@ class AccountService:
             account_type=account.account_type.name,
             member_ids=member_ids,
         )
-        
+
     async def _get_group_account_with_access(
         self,
         account_id: int,
@@ -52,6 +52,13 @@ class AccountService:
             raise HTTPException(
                 status_code=404,
                 detail="La cuenta no existe.",
+            )
+        active_status = await self.statusDAL.get_by_name("activa")
+
+        if active_status is None or account.status_id != active_status.id:
+            raise HTTPException(
+                status_code=403,
+                detail="La cuenta se encuentra inactiva"
             )
 
         if account.account_type.name.lower() != "grupal":
@@ -255,13 +262,13 @@ class AccountService:
 
                 has_transactions = await self.transactionDAL.member_has_active_transactions(
                     account_id, member.user_id)
-                
+
                 if has_transactions:
                     raise HTTPException(
                         status_code=400,
                         detail="No se puede eliminar un miembro con transacciones activas."
                     )
-                
+
                 await self.groupAccountMemberDAL.create(
                     GroupAccountMember(
                         user_id=user_id,
@@ -295,10 +302,10 @@ class AccountService:
                 )
 
         return await self._build_account_response(account)
-    
+
     async def get_by_user_id(self, id: int):
         return await self.accountDAL.get_accounts_by_user_id(id)
-    
+
     async def get_all_by_current_user(self, current_user: User):
         accounts = await self.get_by_user_id(current_user.id)
         accounts_response = []
@@ -348,16 +355,16 @@ class AccountService:
                 )
 
         return await self._build_account_response(account_created)
-    
+
     async def update_account(self, account: AccountRequest, current_user: User):
         account_exists = await self.accountDAL.get_account_by_id(account.id)
-        
+
         if account_exists is None:
             raise HTTPException(
                 status_code=404,
                 detail="La cuenta no existe.",
             )
-        
+
         if account_exists.id_admin_user != current_user.id:
             raise HTTPException(
                 status_code=403,
@@ -395,19 +402,19 @@ class AccountService:
 
     async def deactivate_account(self, id: int, current_user: User):
         account = await self.accountDAL.get_account_by_id(id)
-        
+
         if account is None:
             raise HTTPException(
                 status_code=404,
                 detail="La cuenta no existe.",
             )
-        
+
         if account.id_admin_user != current_user.id:
             raise HTTPException(
                 status_code=403,
                 detail="No tienes permiso para actualizar esta cuenta.",
             )
-        
+
         inactive_status = await self.statusDAL.get_by_name('inactiva')
 
         if self.transactionDAL:
@@ -431,7 +438,7 @@ class AccountService:
             status_code=200,
             content={"message": "Cuenta borrada exitosamente", "success": True}
         )
-    
+
     async def delete_member(
     self,
     account_id: int,

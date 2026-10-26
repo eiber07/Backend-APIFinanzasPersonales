@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "@/components/Modal";
 import { useParameters } from "@/lib/hooks/useParameters";
 import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
@@ -38,52 +38,61 @@ export default function TransactionDetailModal({
   const isLinkedToPlannedExpense =
     Boolean(transaction?.plannedExpenseId) && hasActivePlan;
 
-  useEffect(() => {
-    if (open && transaction) {
-      setMode("view");
-      setDate(transaction.dateRaw || transaction.transaction_date?.split("T")[0] || "");
-      setDescription(transaction.description || "");
+  function startEdit() {
+    if (!transaction) return;
 
-      const categoryRaw = String(transaction.category || "").trim().toLowerCase();
-      const directCatId = transaction.category_id ?? transaction.categoryId;
-      const foundCategory =
-        categories.find((c) => String(c.id) === String(directCatId)) ||
-        categories.find((c) => String(c.label || c.name || "").trim().toLowerCase() === categoryRaw);
-      
-      setCategoryId(foundCategory ? String(foundCategory.id) : (directCatId ? String(directCatId) : ""));
+    setDate(
+      transaction.dateRaw ||
+      transaction.transaction_date?.split("T")[0] ||
+      ""
+    );
 
-      const typeRaw = String(transaction.type || "").trim().toLowerCase();
-      const directTypeId = transaction.type_id ?? transaction.typeId ?? transaction.type?.id;
-      const foundType =
-        types.find((t) => String(t.id) === String(directTypeId)) ||
-        types.find((t) => String(t.label || t.name || t.value || "").trim().toLowerCase() === typeRaw);
+    setDescription(transaction.description || "");
 
-      setTypeId(foundType ? String(foundType.id) : (directTypeId ? String(directTypeId) : ""));
+    const categoryRaw = String(transaction.category || "")
+      .trim().toLowerCase();
+    const directCatId =
+      transaction.category_id ?? transaction.categoryId;
 
-      const abs = Math.abs(transaction.amountNumber || transaction.amount || 0);
-      setAmountDigits(String(Math.round(abs * 100)));
-    }
-  }, [open, transaction?.id]); // SOLO depende de la apertura y del ID de la transacción
+    const foundCategory =
+      categories.find(c => String(c.id) === String(directCatId)) ||
+      categories.find(c =>
+        String(c.label || c.name || "").trim().toLowerCase() === categoryRaw
+      );
 
-  useEffect(() => {
-    if (open && transaction && types.length > 0 && !typeId) {
-      const typeRaw = String(transaction.type || "").trim().toLowerCase();
-      const directTypeId = transaction.type_id ?? transaction.typeId ?? transaction.type?.id;
-      const foundType =
-        types.find((t) => String(t.id) === String(directTypeId)) ||
-        types.find((t) => String(t.label || t.name || t.value || "").trim().toLowerCase() === typeRaw);
-      if (foundType) setTypeId(String(foundType.id));
-    }
+    setCategoryId(
+      foundCategory
+        ? String(foundCategory.id)
+        : directCatId != null ? String(directCatId) : ""
+    );
 
-    if (open && transaction && categories.length > 0 && !categoryId) {
-      const categoryRaw = String(transaction.category || "").trim().toLowerCase();
-      const directCatId = transaction.category_id ?? transaction.categoryId;
-      const foundCategory =
-        categories.find((c) => String(c.id) === String(directCatId)) ||
-        categories.find((c) => String(c.label || c.name || "").trim().toLowerCase() === categoryRaw);
-      if (foundCategory) setCategoryId(String(foundCategory.id));
-    }
-  }, [types, categories, open, transaction]);
+    const typeRaw = String(transaction.type || "")
+      .trim().toLowerCase();
+    const directTypeId =
+      transaction.type_id ??
+      transaction.typeId ??
+      transaction.type?.id;
+
+    const foundType =
+      types.find(t => String(t.id) === String(directTypeId)) ||
+      types.find(t =>
+        String(t.label || t.name || t.value || "")
+          .trim().toLowerCase() === typeRaw
+      );
+
+    setTypeId(
+      foundType
+        ? String(foundType.id)
+        : directTypeId != null ? String(directTypeId) : ""
+    );
+
+    const abs = Math.abs(
+      transaction.amountNumber || transaction.amount || 0
+    );
+
+    setAmountDigits(String(Math.round(abs * 100)));
+    setMode("edit");
+  }
 
   if (!transaction) return null;
 
@@ -190,7 +199,7 @@ export default function TransactionDetailModal({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                setMode("edit");
+                startEdit();
               }}
             >
               Editar

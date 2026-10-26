@@ -28,7 +28,7 @@ class UserService:
             email=user.email
         )
         return user_response
-    
+
     async def create(self, user: UserCreate):
 
         existing_user = await self.userDal.get_by_email(user.email)
@@ -37,14 +37,14 @@ class UserService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="El email ya está registrado"
             )
-        
+
         new_user = User(
             name=user.name,
             last_name=user.last_name,
             dni=user.dni,
             email=user.email,
             phone=user.phone,
-            password=user.password 
+            password=user.password
         )
 
         created_user = await self.userDal.create(new_user)
@@ -55,13 +55,13 @@ class UserService:
         new_account = Account(
             id_admin_user = created_user.id,
             name = "Cuenta Personal",
-            status_id = status_active.id, 
+            status_id = status_active.id,
             account_type_id = personal_account_type.id,
         )
 
         # Crear cuenta cuando un usuario se registra
         await self.accountDal.create_account(new_account)
-        
+
         user_response = UserResponse(
             id=created_user.id,
             name=created_user.name,
@@ -69,6 +69,6 @@ class UserService:
             email=created_user.email
         )
         return user_response
-    
+
     async def update(self, user: User):
         return await self.userDal.update(user)
