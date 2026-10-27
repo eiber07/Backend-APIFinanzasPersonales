@@ -2174,6 +2174,521 @@ width: 100%;
     color: var(--text-dark-secondary) !important;
 }
 
+.dashboard-view-switch {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    margin: 0 0 22px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    background: #F3F4F6;
+}
+
+.dashboard-view-switch button {
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 16px;
+    background: transparent;
+    color: #4B5563;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.dashboard-view-switch button.active {
+    background: #FFFFFF;
+    color: #1D4ED8;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.financial-health-view {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+}
+
+.financial-health-view .componente-tarjetas {
+    margin-bottom: 0;
+}
+
+.financial-health-view .tarjeta-resumen-label {
+    text-transform: none;
+}
+
+.financial-health-view .health-balance-card {
+    border-color: rgba(37, 99, 235, 0.3);
+    background: #EFF6FF;
+}
+
+.financial-health-view .health-balance-card .tarjeta-resumen-label {
+    color: #1D4ED8;
+}
+
+.financial-health-view .health-balance-card .tarjeta-monto {
+    color: #1E3A8A;
+}
+
+.health-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.health-card {
+    min-width: 0;
+    padding: 22px;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: #111827;
+}
+
+.health-card-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+
+.health-card-heading h2 {
+    margin: 0;
+    color: #1F2937;
+    font-size: 18px;
+}
+
+.health-card-heading p {
+    margin: 6px 0 0;
+    color: #6B7280;
+    font-size: 13px;
+}
+
+.donut-content {
+    display: grid;
+    grid-template-columns: minmax(170px, 0.85fr) minmax(150px, 1fr);
+    align-items: center;
+    gap: 20px;
+}
+
+.donut-chart {
+    display: grid;
+    width: min(100%, 220px);
+    aspect-ratio: 1;
+    place-items: center;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--donut-gradient, #E5E7EB);
+    transform: rotate(-90deg);
+}
+
+.donut-center {
+    display: flex;
+    width: 68%;
+    aspect-ratio: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    text-align: center;
+    transform: rotate(90deg);
+}
+
+.donut-center span {
+    color: #6B7280;
+    font-size: 11px;
+}
+
+.donut-center strong {
+    max-width: 95%;
+    overflow-wrap: anywhere;
+    color: #111827;
+    font-size: clamp(14px, 1.4vw, 19px);
+    font-variant-numeric: tabular-nums;
+}
+
+.donut-center small {
+    color: #6B7280;
+    font-size: 11px;
+}
+
+.donut-legend {
+    display: grid;
+    gap: 13px;
+    max-height: 240px;
+    margin: 0;
+    padding: 0 4px 0 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.donut-legend li {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    color: #374151;
+    font-size: 13px;
+}
+
+.donut-legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.donut-legend-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.donut-legend li strong {
+    color: #111827;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.health-empty,
+.health-loading {
+    padding: 26px 12px;
+    color: #6B7280;
+    text-align: center;
+    font-size: 14px;
+}
+
+.budget-create-form {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(150px, 0.8fr) auto;
+    align-items: end;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 16px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    background: #F9FAFB;
+}
+
+.budget-create-form label {
+    display: grid;
+    gap: 7px;
+    color: #4B5563;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.budget-create-form input,
+.budget-create-form select,
+.budget-edit-form input {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #D1D5DB;
+    border-radius: 7px;
+    background: #FFFFFF;
+    color: #111827;
+    font: inherit;
+}
+
+.health-primary-button,
+.health-secondary-button {
+    min-height: 40px;
+    padding: 8px 13px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.health-primary-button {
+    background: #1D4ED8;
+    color: #FFFFFF;
+}
+
+.health-primary-button:hover {
+    background: #1E40AF;
+}
+
+.health-secondary-button {
+    border-color: #D1D5DB;
+    background: #FFFFFF;
+    color: #374151;
+}
+
+.health-primary-button:disabled,
+.health-secondary-button:disabled,
+.health-text-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.budget-list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 0 16px;
+}
+
+.budget-row {
+    min-width: 0;
+    padding: 16px 0;
+    border-top: 1px solid #E5E7EB;
+}
+
+.budget-row-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.budget-row-heading h3 {
+    margin: 0;
+    color: #1F2937;
+    font-size: 15px;
+}
+
+.budget-row-heading p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 16px;
+    margin: 6px 0 0;
+    color: #6B7280;
+    font-size: 12px;
+}
+
+.budget-actions,
+.budget-edit-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.health-text-button {
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: #1D4ED8;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.health-text-button.danger {
+    color: #DC2626;
+}
+
+.budget-progress {
+    height: 9px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: #E5E7EB;
+}
+
+.budget-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    transition: width 180ms ease;
+}
+
+.budget-progress.safe span {
+    background: #22C55E;
+}
+
+.budget-progress.warning span {
+    background: #EAB308;
+}
+
+.budget-progress.danger span {
+    background: #EF4444;
+}
+
+.budget-progress-label {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px;
+    margin-top: 7px;
+    color: #6B7280;
+    font-size: 12px;
+}
+
+.budget-over-limit {
+    color: #DC2626;
+}
+
+.budget-edit-form {
+    justify-content: flex-end;
+}
+
+.budget-edit-form input {
+    max-width: 180px;
+    margin-right: auto;
+}
+
+[data-theme="dark"] .dashboard-view-switch {
+    border-color: var(--border-dark);
+    background: #1F2937;
+}
+
+[data-theme="dark"] .dashboard-view-switch button {
+    color: #D1D5DB;
+}
+
+[data-theme="dark"] .dashboard-view-switch button.active {
+    background: #374151;
+    color: #60A5FA;
+    box-shadow: none;
+}
+
+[data-theme="dark"] .health-card {
+    border-color: var(--border-dark);
+    background: var(--bg-dark-card);
+    color: var(--text-dark-primary);
+}
+
+[data-theme="dark"] .health-card-heading h2,
+[data-theme="dark"] .budget-row-heading h3,
+[data-theme="dark"] .donut-legend li strong,
+[data-theme="dark"] .donut-center strong {
+    color: var(--text-dark-primary);
+}
+
+[data-theme="dark"] .health-card-heading p,
+[data-theme="dark"] .donut-center span,
+[data-theme="dark"] .donut-center small,
+[data-theme="dark"] .donut-legend li,
+[data-theme="dark"] .health-empty,
+[data-theme="dark"] .health-loading,
+[data-theme="dark"] .budget-row-heading p,
+[data-theme="dark"] .budget-progress-label {
+    color: var(--text-dark-muted);
+}
+
+[data-theme="dark"] .donut-center {
+    background: var(--bg-dark-card);
+}
+
+[data-theme="dark"] .financial-health-view .health-balance-card {
+    border-color: rgba(96, 165, 250, 0.48);
+    background: rgba(37, 99, 235, 0.22);
+}
+
+[data-theme="dark"] .financial-health-view .health-balance-card .tarjeta-resumen-label,
+[data-theme="dark"] .financial-health-view .health-balance-card .tarjeta-monto {
+    color: #BFDBFE !important;
+}
+
+[data-theme="dark"] .budget-create-form {
+    border-color: var(--border-dark);
+    background: #172033;
+}
+
+[data-theme="dark"] .budget-create-form label {
+    color: var(--text-dark-secondary);
+}
+
+[data-theme="dark"] .budget-create-form input,
+[data-theme="dark"] .budget-create-form select,
+[data-theme="dark"] .budget-edit-form input,
+[data-theme="dark"] .health-secondary-button {
+    border-color: var(--border-dark);
+    background: var(--bg-dark-input);
+    color: var(--text-dark-primary);
+}
+
+[data-theme="dark"] .budget-row {
+    border-color: var(--border-dark);
+}
+
+[data-theme="dark"] .budget-progress {
+    background: #334155;
+}
+
+@media (max-width: 1050px) {
+    .health-charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .donut-content {
+        grid-template-columns: minmax(160px, 0.7fr) minmax(150px, 1fr);
+    }
+
+    .budget-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .dashboard-view-switch {
+        display: flex;
+        width: 100%;
+    }
+
+    .dashboard-view-switch button {
+        flex: 1;
+        padding: 9px 8px;
+        font-size: 13px;
+    }
+
+    .health-card {
+        padding: 16px;
+    }
+
+    .donut-content {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .donut-chart {
+        width: min(72vw, 210px);
+    }
+
+    .donut-legend {
+        max-height: 190px;
+    }
+
+    .budget-create-form {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 12px;
+    }
+
+    .budget-create-form .health-primary-button {
+        width: 100%;
+    }
+
+    .budget-row-heading {
+        flex-direction: column;
+    }
+
+    .budget-edit-form {
+        flex-wrap: wrap;
+    }
+
+    .budget-edit-form input {
+        max-width: none;
+        flex-basis: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .budget-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 [data-theme="dark"] .input,
 [data-theme="dark"] .select-periodo {
     background-color: var(--bg-dark-input) !important;

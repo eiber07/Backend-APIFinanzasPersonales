@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 const AlertsContext = createContext(null);
 
@@ -38,12 +38,26 @@ export function AlertProvider({ children }) {
     [remove]
   );
 
-  const value = {
-    showError: (message, title, duration) => push("error", message, title, duration),
-    showSuccess: (message, title, duration) => push("success", message, title, duration),
-    showWarning: (message, title, duration) => push("warning", message, title, duration),
-    showInfo: (message, title, duration) => push("info", message, title, duration),
-  };
+  const showError = useCallback(
+    (message, title, duration) => push("error", message, title, duration),
+    [push]
+  );
+  const showSuccess = useCallback(
+    (message, title, duration) => push("success", message, title, duration),
+    [push]
+  );
+  const showWarning = useCallback(
+    (message, title, duration) => push("warning", message, title, duration),
+    [push]
+  );
+  const showInfo = useCallback(
+    (message, title, duration) => push("info", message, title, duration),
+    [push]
+  );
+  const value = useMemo(
+    () => ({ showError, showSuccess, showWarning, showInfo }),
+    [showError, showInfo, showSuccess, showWarning]
+  );
 
   return (
     <AlertsContext.Provider value={value}>

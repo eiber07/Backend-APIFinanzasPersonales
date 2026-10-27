@@ -24,35 +24,32 @@ export default function BalanceCards({ filteredTransactions, loading }) {
 
   return (
     <section className="componente-tarjetas">
-        <article className="tarjeta-resumen tarjeta-resumen-grande">
-          <div className="tarjeta-resumen-header">
-            <div className="tarjeta-resumen-icono balance">↔</div>
-            <p className="tarjeta-resumen-label">Balance total</p>
-          </div>
-          <h2 className="tarjeta-monto">
-            {loading ? "..." : formatDashboardMoney(balanceTotal)}
-          </h2>
-        </article>
+      <article className="tarjeta-resumen tarjeta-resumen-grande health-balance-card">
+        <div className="tarjeta-resumen-header">
+          <p className="tarjeta-resumen-label">Te queda</p>
+        </div>
+        <h2 className="tarjeta-monto">
+          {loading ? "..." : formatDashboardMoney(balanceTotal)}
+        </h2>
+      </article>
 
-        <article className="tarjeta-resumen tarjeta-resumen-grande">
-          <div className="tarjeta-resumen-header">
-            <div className="tarjeta-resumen-icono ingreso">↗</div>
-            <p className="tarjeta-resumen-label">Ingreso total</p>
-          </div>
-          <h2 className="tarjeta-monto">
-            {loading ? "..." : formatDashboardMoney(incomeTotal)}
-          </h2>
-        </article>
+      <article className="tarjeta-resumen tarjeta-resumen-grande">
+        <div className="tarjeta-resumen-header">
+          <p className="tarjeta-resumen-label">Ingresos del Mes</p>
+        </div>
+        <h2 className="tarjeta-monto">
+          {loading ? "..." : formatDashboardMoney(incomeTotal)}
+        </h2>
+      </article>
 
-        <article className="tarjeta-resumen tarjeta-resumen-grande">
-          <div className="tarjeta-resumen-header">
-            <div className="tarjeta-resumen-icono egreso">↘</div>
-            <p className="tarjeta-resumen-label">Egreso total</p>
-          </div>
-          <h2 className="tarjeta-monto">
-            {loading ? "..." : formatDashboardMoney(expenseTotal)}
-          </h2>
-        </article>
+      <article className="tarjeta-resumen tarjeta-resumen-grande">
+        <div className="tarjeta-resumen-header">
+          <p className="tarjeta-resumen-label">Gastos del Mes</p>
+        </div>
+        <h2 className="tarjeta-monto">
+          {loading ? "..." : formatDashboardMoney(expenseTotal)}
+        </h2>
+      </article>
     </section>
   );
 }
