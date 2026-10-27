@@ -67,6 +67,10 @@ Las categorías pertenecen a un tipo de transacción: `ingreso` o `egreso`. Las 
 
 Una categoría puede ser raíz (`parent_category_id: null` o `0`) o subcategoría. La jerarquía admite como máximo dos niveles. Las respuestas de categorías incluyen `parent_category_id`, `parent` y `children` sin anidamiento recursivo. El nombre se mantiene único globalmente para conservar la restricción existente.
 
+## Presupuestos y dashboard financiero
+
+Cada cuenta puede tener un único presupuesto vigente, que permanece activo indefinidamente hasta que el usuario lo actualice o elimine. El presupuesto puede incluir objetivos para categorías de egreso raíz o subcategorías. Cada categoría puede aparecer una sola vez por presupuesto. Las categorías deben existir, estar disponibles para la cuenta y ser de tipo `egreso`.
+
 ## 5. Funcionamiento de las cuentas grupales
 
 Las cuentas grupales funcionan como un espacio compartido para administrar gastos entre varios participantes.

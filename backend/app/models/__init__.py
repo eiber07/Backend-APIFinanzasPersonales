@@ -7,6 +7,7 @@ from app.models.transaction_category import TransactionCategory
 from app.models.transaction import Transaction
 from app.models.group_account_member import GroupAccountMember
 from app.models.planned_expense import PlannedExpense
+from app.models.budget import Budget, BudgetItem
 
 __all__ = [
     "User",
@@ -18,4 +19,6 @@ __all__ = [
     "TransactionCategory",
     "GroupAccountMember",
     "PlannedExpense",
+    "Budget",
+    "BudgetItem",
 ]

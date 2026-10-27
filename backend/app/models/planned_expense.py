@@ -9,6 +9,12 @@ class PlannedExpense(Base, AuditMixin):
     id_planned_expense = Column(Integer, nullable=False) 
     installment_number = Column(Integer, nullable=False)
     account_id = Column(Integer, ForeignKey("accounts.id"), nullable=False)
+    category_id = Column(
+        Integer,
+        ForeignKey("transaction_categories.id", ondelete="RESTRICT"),
+        nullable=True,
+        index=True,
+    )
     installment_amount = Column(DECIMAL(13, 2), nullable=False)
     description = Column(String, nullable=True)
     due_date = Column(DateTime, nullable=False)
@@ -20,5 +26,5 @@ class PlannedExpense(Base, AuditMixin):
 
     accounts = relationship("Account", back_populates="planned_expenses")
     status = relationship("Status", back_populates="planned_expenses")
-
+    category = relationship("TransactionCategory")
 

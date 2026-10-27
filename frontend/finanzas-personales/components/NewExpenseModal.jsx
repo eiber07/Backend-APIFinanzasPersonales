@@ -103,6 +103,7 @@ export default function NewExpenseModal({
     try {
       const res = await createPlannedExpense({
         account_id: accountId,
+        category_id: Number(categoryId),
         description: description.trim(),
         installment_amount: installmentAmount,
         installments: Number(installments),

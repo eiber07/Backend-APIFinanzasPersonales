@@ -336,6 +336,11 @@ class TransactionCategoryService:
                 status_code=409,
                 detail="No se puede eliminar una categoría asociada a transacciones.",
             )
+        if await self.category_dal.has_budget_items(category_id):
+            raise HTTPException(
+                status_code=409,
+                detail="No se puede eliminar una categoría asociada a presupuestos.",
+            )
 
         try:
             await self.category_dal.delete(category)

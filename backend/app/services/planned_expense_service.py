@@ -6,8 +6,10 @@ from app.dals.status_dal import StatusDAL
 from app.dals.account_dal import AccountDAL
 from app.models.planned_expense import PlannedExpense
 from app.models.user import User
+from app.dals.transaction_category_dal import TransactionCategoryDAL
 from app.schemas.planned_expense import PlannedExpenseCreate, PlannedExpenseRequest, PlannedExpenseResponse
 from dateutil.relativedelta import relativedelta
+from app.constants.transaction_types import TRANSACTION_TYPE_EXPENSE
 
 class PlannedExpenseService:
     def __init__(
@@ -30,6 +32,7 @@ class PlannedExpenseService:
             id_planned_expense=planned_expense.id_planned_expense,
             installment_number=planned_expense.installment_number,
             account_id=planned_expense.account_id,
+            category_id=planned_expense.category_id,
             installment_amount=planned_expense.installment_amount,
             description=planned_expense.description,
             due_date=planned_expense.due_date,
@@ -69,7 +72,45 @@ class PlannedExpenseService:
         return await self._build_planned_expense_response(expense)
 
     async def create_planned_expense(self, data: PlannedExpenseCreate, current_user: User):
-        await self._validate_account_access(data.account_id, current_user)
+        account = await self._validate_account_access(data.account_id, current_user)
+        if data.category_id is not None:
+            category = await TransactionCategoryDAL(
+                self.plannedExpenseDAL.db
+            ).get_by_id(data.category_id)
+            if category is None:
+                raise HTTPException(status_code=404, detail="La categoría no existe.")
+            if category.transaction_type != TRANSACTION_TYPE_EXPENSE:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Los gastos planificados solo admiten categorías de egreso.",
+                )
+            is_global = (
+                category.owner_id is None
+                and category.group_id is None
+                and category.account_id is None
+            )
+            is_accessible = (
+                is_global
+                or (
+                    category.account_id == account.id
+                    and account.account_type_id == 1
+                )
+                or (
+                    category.group_id == account.id
+                    and account.account_type_id == 2
+                )
+                or (
+                    category.owner_id == current_user.id
+                    and category.group_id is None
+                    and category.account_id is None
+                    and account.account_type_id == 1
+                )
+            )
+            if not is_accessible:
+                raise HTTPException(
+                    status_code=403,
+                    detail="La categoría no está disponible para esta cuenta.",
+                )
     
         group_id = await self.plannedExpenseDAL.get_next_group_id()
         created_installments = []
@@ -82,6 +123,7 @@ class PlannedExpenseService:
                 id_planned_expense=group_id,
                 installment_number=i,
                 account_id=data.account_id,
+                category_id=data.category_id,
                 installment_amount=data.installment_amount,
                 description=data.description,
                 due_date=due_date.replace(tzinfo=None),
