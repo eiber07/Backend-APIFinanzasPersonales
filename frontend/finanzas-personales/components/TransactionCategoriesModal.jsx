@@ -17,10 +17,12 @@ function getAccountCategory(category, accountId, isGroup) {
 }
 
 function isStandardCategory(category) {
+  if (!category) return false;
+
   return (
-    category?.owner_id == null &&
-    category?.group_id == null &&
-    category?.account_id == null
+    category.owner_id == null &&
+    category.group_id == null &&
+    category.account_id == null
   );
 }
 
