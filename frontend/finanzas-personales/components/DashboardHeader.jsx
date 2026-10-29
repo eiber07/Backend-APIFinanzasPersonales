@@ -33,6 +33,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
               src="/img/icono-info.svg"
               height="25"
               alt="Información de la cuenta"
+              title="Información de la cuenta"
               style={{ cursor: "pointer" }}
               onClick={() => setInfoOpen(true)}
             />
@@ -82,7 +83,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
       </Modal>
 
       <Modal id="modalLogout" open={logoutOpen} onClose={() => setLogoutOpen(false)}>
-        <h2>¿Cerrar sesión?</h2>
+        <h2>Cerrar sesión</h2>
         <p>
           ¿Estás seguro de que deseas cerrar tu sesión? Deberás iniciar sesión
           nuevamente para acceder.

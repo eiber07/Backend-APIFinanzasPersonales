@@ -11,9 +11,9 @@ import { getCategoryTransactionType } from "@/lib/constants/transactionTypes";
 export default function NewTransactionModal({
   open,
   onClose,
-   accountId = [],
+  accountId = [],
   isGroup = false,
-   categoriesVersion = 0,
+  categoriesVersion = 0,
   members = [],
   currentUser,
   onCreated,
@@ -49,6 +49,7 @@ export default function NewTransactionModal({
   )
     ? performedByUserId
     : defaultPerformedByUserId;
+
   function resetForm() {
     setTypeId("");
     setCategoryId("");
@@ -56,7 +57,7 @@ export default function NewTransactionModal({
     setDate("");
     setDescription("");
     setPerformedByUserId("");
-    }
+  }
 
   function handleClose() {
     resetForm();
@@ -93,6 +94,11 @@ export default function NewTransactionModal({
     const amountNumber = parseTransactionAmount(digitsToMoneyDisplay(amountDigits));
     if (!amountNumber || amountNumber <= 0) {
       showError("Ingresá un monto válido.");
+      return;
+    }
+
+    if (amountNumber >= 100000000000) {
+      showError("El monto ingresado es demasiado grande (máximo $99.999.999.999,99).");
       return;
     }
 
@@ -200,7 +206,7 @@ export default function NewTransactionModal({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <div style={{fontSize:"14px"}}>{description.length} / 25 caracteres</div>
+          <div style={{ fontSize: "14px" }}>{description.length} / 25 caracteres</div>
         </div>
 
         <div className="acciones-modal">

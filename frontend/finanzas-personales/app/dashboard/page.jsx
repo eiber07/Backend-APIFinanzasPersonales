@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { clearToken, getToken } from "@/lib/api";
 import { getCurrentUser } from "@/lib/endpoints/users";
@@ -25,8 +25,6 @@ import NewExpenseModal from "@/components/NewExpenseModal";
 import AddMemberModal from "@/components/AddMemberModal";
 import MemberInfoModal from "@/components/MemberInfoModal";
 import TransactionCategoriesModal from "@/components/TransactionCategoriesModal";
-
-import { useEffect, useCallback } from "react";
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -183,7 +181,7 @@ export default function DashboardPage() {
 
   function handleTransactionChanged() {
     refetchTransactions();
-    refetchPlannedExpenses(); // por si estaba ligada a una cuota
+    refetchPlannedExpenses();
     if (isGroup) refetchMembers();
     setHealthDataVersion((version) => version + 1);
   }
@@ -268,6 +266,7 @@ export default function DashboardPage() {
           <p>No tenés cuentas todavía. Creá una desde el menú lateral.</p>
         ) : (
           <>
+            {/* Barra superior con Filtro de Período y Participantes si es grupal */}
             <div className="dashboard-toolbar">
               {isGroup && (
                 <MembersPanel
@@ -312,46 +311,50 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {activeView === "financial-health" ? (
-              <div
-                id="financial-health-panel"
-                role="tabpanel"
-                aria-labelledby="financial-health-tab"
-              >
-                <FinancialHealthView
-                  accountId={activeAccount.id}
-                  isGroup={isGroup}
-                  month={selectedFilterMonth}
-                  year={selectedFilterYear}
+            {isGroup && (
+              <DebtsPanel
+                accountId={activeAccount.id}
+                month={selectedFilterMonth}
+                year={selectedFilterYear}
+              />
+            )}
+
+            <section className="componente-main2">
+              <section className="componente-transacciones">
+                <TransactionsTable
                   filteredTransactions={filteredTransactions}
-                  categoriesVersion={categoriesVersion}
-                  refreshKey={healthDataVersion}
-                  onBudgetChanged={() =>
-                    setHealthDataVersion((version) => version + 1)
-                  }
-                />
-              </div>
-            ) : (
-              <div
-                id="transactions-panel"
-                role="tabpanel"
-                aria-labelledby="transactions-tab"
-              >
-                <TransactionsView
-                  filteredTransactions={filteredTransactions}
-                  transactionsLoading={transactionsLoading}
+                  loading={transactionsLoading}
                   isGroup={isGroup}
-                  accountId={activeAccount.id}
                   month={selectedFilterMonth}
                   year={selectedFilterYear}
                   onRowClick={handleTransactionRowClick}
-                  onAddTransaction={() => setNewTransactionOpen(true)}
-                  onManageCategories={() => setTransactionCategoriesOpen(true)}
+                  onAddClick={() => setNewTransactionOpen(true)}
+                  onManageCategoriesClick={() => setTransactionCategoriesOpen(true)}
+                />
+
+              </section>
+
+              <div className={`columna-derecha ${isGroup ? "cuenta-grupal" : ""}`}>
+                <PlannedExpensesPreview
                   plannedExpenses={plannedExpenses}
                   plannedExpensesLoading={plannedExpensesLoading}
                   onNewExpense={() => setNewExpenseOpen(true)}
                   onManageExpenses={() => setPlannedExpensesModalOpen(true)}
                   onExpenseClick={handleExpenseCardClick}
+                />
+              </div>
+
+              {/* COLUMNA DERECHA: Tabla de Transacciones */}
+              <div className="columna-derecha-tabla">
+                <TransactionsTable
+                  filteredTransactions={filteredTransactions}
+                  loading={transactionsLoading}
+                  isGroup={isGroup}
+                  month={selectedFilterMonth}
+                  year={selectedFilterYear}
+                  onRowClick={handleTransactionRowClick}
+                  onAddClick={() => setNewTransactionOpen(true)}
+                  onManageCategoriesClick={() => setTransactionCategoriesOpen(true)}
                 />
               </div>
             )}
@@ -424,7 +427,7 @@ export default function DashboardPage() {
         onChanged={() => setCategoriesVersion((version) => version + 1)}
       />
 
-      {/* ---- Modales de participantes (solo aplican en cuentas grupales) ---- */}
+      {/* ---- Modales de participantes (cuentas grupales) ---- */}
       <AddMemberModal
         open={addMemberOpen}
         onClose={() => setAddMemberOpen(false)}

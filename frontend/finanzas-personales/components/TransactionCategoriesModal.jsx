@@ -17,10 +17,12 @@ function getAccountCategory(category, accountId, isGroup) {
 }
 
 function isStandardCategory(category) {
+  if (!category) return false;
+
   return (
-    category?.owner_id == null &&
-    category?.group_id == null &&
-    category?.account_id == null
+    category.owner_id == null &&
+    category.group_id == null &&
+    category.account_id == null
   );
 }
 
@@ -36,7 +38,7 @@ export default function TransactionCategoriesModal({
   isGroup,
   onChanged,
 }) {
-  const { showSuccess, showError } = useAlerts();
+  const { showSuccess, showError, showWarning } = useAlerts();
   const [categories, setCategories] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -325,29 +327,32 @@ export default function TransactionCategoriesModal({
   }
 
   async function handleDeleteCategory() {
-    if (!selectedCategory || selectedIsStandard) return;
-    if (!window.confirm(`¿Eliminar la categoría "${selectedCategory.name}"?`)) {
-      return;
-    }
+      if (!selectedCategory || selectedIsStandard) return;
 
-    setSaving(true);
-    setError("");
-    try {
-      await readResponse(
-        await deleteTransactionCategory(selectedCategory.id),
-        "No se pudo eliminar la categoría."
+      showWarning(
+        `¿Deseas eliminar la categoría "${selectedCategory.name}"?`,
+        "Eliminar categoría",
+        async () => {
+          setSaving(true);
+          setError("");
+          try {
+            await readResponse(
+              await deleteTransactionCategory(selectedCategory.id),
+              "No se pudo eliminar la categoría."
+            );
+            showSuccess("Categoría eliminada correctamente.");
+            resetForm();
+            await loadCategories();
+            onChanged?.();
+          } catch (deleteError) {
+            setError(deleteError.message || "No se pudo eliminar la categoría.");
+            showError(deleteError.message || "No se pudo eliminar la categoría.");
+          } finally {
+            setSaving(false);
+          }
+        }
       );
-      showSuccess("Categoría eliminada correctamente.");
-      resetForm();
-      await loadCategories();
-      onChanged?.();
-    } catch (deleteError) {
-      setError(deleteError.message || "No se pudo eliminar la categoría.");
-      showError(deleteError.message || "No se pudo eliminar la categoría.");
-    } finally {
-      setSaving(false);
     }
-  }
 
   return (
     <Modal

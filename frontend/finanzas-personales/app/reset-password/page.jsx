@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/endpoints/auth";
 import { useAlerts } from "@/components/AlertProvider";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { showError } = useAlerts();
+  const { showSuccess, showError } = useAlerts();
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
   const [errorConfirm, setErrorConfirm] = useState("");
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   async function handleResetPassword() {
     let valid = true;
@@ -53,10 +52,13 @@ export default function ResetPasswordPage() {
       const data = await res.json();
 
       if (res.ok) {
-        setShowConfirmation(true);
-        setTimeout(() => {
-          router.push("/login");
-        }, 2500);
+        showSuccess(
+          "Tu contraseña ha sido actualizada correctamente.",
+          "Contraseña actualizada",
+          () => {
+            router.push("/login");
+          }
+        );
       } else {
         const message = data.detail || "Ocurrió un error.";
         setErrorConfirm(message);
@@ -124,16 +126,14 @@ export default function ResetPasswordPage() {
           alt="Finance illustration"
         />
       </div>
-
-      {showConfirmation && (
-        <div className="modal show">
-          <div className="content-modal" style={{ textAlign: "center" }}>
-            <img src="/img/logo-OK.png" height={100} alt="" />
-            <h2>Contraseña actualizada</h2>
-            <p>Te estamos redirigiendo para iniciar sesión.</p>
-          </div>
-        </div>
-      )}
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

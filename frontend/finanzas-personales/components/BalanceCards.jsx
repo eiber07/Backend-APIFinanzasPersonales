@@ -10,7 +10,7 @@ function formatDashboardMoney(amount) {
   return numericAmount < 0 ? `-$${formatted}` : `$${formatted}`;
 }
 
-export default function BalanceCards({ filteredTransactions, loading }) {
+export default function BalanceCards({ filteredTransactions = [], loading }) {
   let incomeTotal = 0;
   let expenseTotal = 0;
 
