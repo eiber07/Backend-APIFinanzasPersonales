@@ -311,50 +311,46 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {isGroup && (
-              <DebtsPanel
-                accountId={activeAccount.id}
-                month={selectedFilterMonth}
-                year={selectedFilterYear}
-              />
-            )}
-
-            <section className="componente-main2">
-              <section className="componente-transacciones">
-                <TransactionsTable
-                  filteredTransactions={filteredTransactions}
-                  loading={transactionsLoading}
+            {activeView === "financial-health" ? (
+              <div
+                id="financial-health-panel"
+                role="tabpanel"
+                aria-labelledby="financial-health-tab"
+              >
+                <FinancialHealthView
+                  accountId={activeAccount.id}
                   isGroup={isGroup}
                   month={selectedFilterMonth}
                   year={selectedFilterYear}
-                  onRowClick={handleTransactionRowClick}
-                  onAddClick={() => setNewTransactionOpen(true)}
-                  onManageCategoriesClick={() => setTransactionCategoriesOpen(true)}
+                  filteredTransactions={filteredTransactions}
+                  categoriesVersion={categoriesVersion}
+                  refreshKey={healthDataVersion}
+                  onBudgetChanged={() =>
+                    setHealthDataVersion((version) => version + 1)
+                  }
                 />
-
-              </section>
-
-              <div className={`columna-derecha ${isGroup ? "cuenta-grupal" : ""}`}>
-                <PlannedExpensesPreview
+              </div>
+            ) : (
+              <div
+                id="transactions-panel"
+                role="tabpanel"
+                aria-labelledby="transactions-tab"
+              >
+                <TransactionsView
+                  filteredTransactions={filteredTransactions}
+                  transactionsLoading={transactionsLoading}
+                  isGroup={isGroup}
+                  accountId={activeAccount.id}
+                  month={selectedFilterMonth}
+                  year={selectedFilterYear}
+                  onRowClick={handleTransactionRowClick}
+                  onAddTransaction={() => setNewTransactionOpen(true)}
+                  onManageCategories={() => setTransactionCategoriesOpen(true)}
                   plannedExpenses={plannedExpenses}
                   plannedExpensesLoading={plannedExpensesLoading}
                   onNewExpense={() => setNewExpenseOpen(true)}
                   onManageExpenses={() => setPlannedExpensesModalOpen(true)}
                   onExpenseClick={handleExpenseCardClick}
-                />
-              </div>
-
-              {/* COLUMNA DERECHA: Tabla de Transacciones */}
-              <div className="columna-derecha-tabla">
-                <TransactionsTable
-                  filteredTransactions={filteredTransactions}
-                  loading={transactionsLoading}
-                  isGroup={isGroup}
-                  month={selectedFilterMonth}
-                  year={selectedFilterYear}
-                  onRowClick={handleTransactionRowClick}
-                  onAddClick={() => setNewTransactionOpen(true)}
-                  onManageCategoriesClick={() => setTransactionCategoriesOpen(true)}
                 />
               </div>
             )}
