@@ -33,6 +33,7 @@ class TransactionCategoryUpdate(BaseModel):
 class TransactionCategorySummary(BaseModel):
     id: int
     name: str
+    transaction_type: str
     parent_category_id: Optional[int] = None
     owner_id: Optional[int] = None
     group_id: Optional[int] = None

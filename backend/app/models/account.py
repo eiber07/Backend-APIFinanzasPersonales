@@ -21,6 +21,12 @@ class Account(Base, AuditMixin):
     group_account_members = relationship("GroupAccountMember", back_populates="accounts")
     planned_expenses = relationship("PlannedExpense", back_populates="accounts")          
     transactions = relationship("Transaction", back_populates="account") #relacion con la tabla de trasaccion
+    budgets = relationship(
+        "Budget",
+        back_populates="account",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
     transaction_categories = relationship(
         "TransactionCategory",
         foreign_keys="TransactionCategory.group_id",

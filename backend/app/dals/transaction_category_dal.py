@@ -152,6 +152,16 @@ class TransactionCategoryDAL:
         )
         return result.scalar_one_or_none() is not None
 
+    async def has_budget_items(self, category_id: int) -> bool:
+        from app.models.budget import BudgetItem
+
+        result = await self.db.execute(
+            select(BudgetItem.id)
+            .where(BudgetItem.category_id == category_id)
+            .limit(1)
+        )
+        return result.scalar_one_or_none() is not None
+
     async def create(self, category: TransactionCategory):
         self.db.add(category)
         await self.db.commit()

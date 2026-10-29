@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import StatusModal from "@/components/StatusModal";
 
 const AlertsContext = createContext(null);
@@ -37,12 +37,26 @@ export function AlertProvider({ children }) {
     });
   }, []);
 
-  const value = {
-    showError: (message, title, onConfirm, onCancel) => push("error", message, title, onConfirm, onCancel),
-    showSuccess: (message, title, onConfirm, onCancel) => push("success", message, title, onConfirm, onCancel),
-    showWarning: (message, title, onConfirm, onCancel) => push("warning", message, title, onConfirm, onCancel),
-    showInfo: (message, title, onConfirm, onCancel) => push("info", message, title, onConfirm, onCancel),
-  };
+  const showError = useCallback(
+    (message, title, onConfirm, onCancel) => push("error", message, title, onConfirm, onCancel),
+    [push]
+  );
+  const showSuccess = useCallback(
+    (message, title, onConfirm, onCancel) => push("success", message, title, onConfirm, onCancel),
+    [push]
+  );
+  const showWarning = useCallback(
+    (message, title, onConfirm, onCancel) => push("warning", message, title, onConfirm, onCancel),
+    [push]
+  );
+  const showInfo = useCallback(
+    (message, title, onConfirm, onCancel) => push("info", message, title, onConfirm, onCancel),
+    [push]
+  );
+  const value = useMemo(
+    () => ({ showError, showSuccess, showWarning, showInfo }),
+    [showError, showInfo, showSuccess, showWarning]
+  );
 
   return (
     <AlertsContext.Provider value={value}>

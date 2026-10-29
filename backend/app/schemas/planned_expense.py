@@ -5,6 +5,7 @@ from datetime import datetime
 
 class PlannedExpenseCreate(BaseModel):
     account_id: int
+    category_id: Optional[int] = None
     description: Optional[str] = None
     installment_amount: Decimal
     installments: int = Field(ge=1, le=360)
@@ -22,6 +23,7 @@ class PlannedExpenseResponse(BaseModel):
     id_planned_expense: int
     installment_number: int
     account_id: int
+    category_id: Optional[int] = None
     installment_amount: Decimal
     description: Optional[str]
     due_date: datetime

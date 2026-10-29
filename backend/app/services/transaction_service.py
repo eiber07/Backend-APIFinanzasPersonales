@@ -11,7 +11,14 @@ from datetime import datetime
 from app.dals.planned_expense_dal import PlannedExpenseDAL
 from app.dals.group_account_member_dal import GroupAccountMemberDAL
 from app.dals.transaction_category_dal import TransactionCategoryDAL
+from app.dals.transaction_type_dal import TransactionTypeDAL
 from app.models.account import Account
+from app.models.transaction_category import TransactionCategory
+from app.constants.transaction_types import (
+    TRANSACTION_TYPE_EXPENSE,
+    TRANSACTION_TYPE_INCOME,
+    TRANSACTION_TYPE_PLANNED_EXPENSE,
+)
 
 
 class TransactionService:
@@ -77,7 +84,7 @@ class TransactionService:
         category_id: int,
         account: Account,
         current_user: User,
-    ):
+    ) -> TransactionCategory:
         category = await TransactionCategoryDAL(
             self.transactionDAL.db
         ).get_by_id(category_id)
@@ -90,7 +97,7 @@ class TransactionService:
             and category.account_id is None
         )
         if is_global:
-            return
+            return category
 
         if category.account_id is not None:
             if account.account_type_id != 1 or category.account_id != account.id:
@@ -98,7 +105,7 @@ class TransactionService:
                     status_code=403,
                     detail="La categoría no está disponible para esta cuenta.",
                 )
-            return
+            return category
 
         if category.group_id is not None:
             if account.account_type_id != 2 or category.group_id != account.id:
@@ -106,13 +113,66 @@ class TransactionService:
                     status_code=403,
                     detail="La categoría no está disponible para esta cuenta.",
                 )
-            return
+            return category
 
         if account.account_type_id == 2 or category.owner_id != current_user.id:
             raise HTTPException(
                 status_code=403,
                 detail="La categoría no está disponible para esta cuenta.",
             )
+        return category
+
+    async def _validate_transaction_category(
+        self,
+        category_id: int,
+        type_id: int,
+        account: Account,
+        current_user: User,
+        planned_expense_id: int | None = None,
+    ):
+        transaction_type = await TransactionTypeDAL(
+            self.transactionDAL.db
+        ).get_by_id(type_id)
+        if transaction_type is None:
+            raise HTTPException(
+                status_code=400,
+                detail="El tipo de transacción no existe.",
+            )
+
+        type_name = transaction_type.name.strip().casefold()
+        if type_name == TRANSACTION_TYPE_INCOME:
+            expected_category_type = TRANSACTION_TYPE_INCOME
+        elif type_name in {
+            TRANSACTION_TYPE_EXPENSE,
+            TRANSACTION_TYPE_PLANNED_EXPENSE,
+        }:
+            expected_category_type = TRANSACTION_TYPE_EXPENSE
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="El tipo de transacción no admite categorías.",
+            )
+
+        if (
+            planned_expense_id is not None
+            and expected_category_type != TRANSACTION_TYPE_EXPENSE
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Un gasto planificado solo puede asociarse a una transacción de egreso.",
+            )
+
+        category = await self._validate_category_access(
+            category_id,
+            account,
+            current_user,
+        )
+        if category.transaction_type != expected_category_type:
+            raise HTTPException(
+                status_code=400,
+                detail="La categoría seleccionada no corresponde al tipo de transacción.",
+            )
+        return category
 
     async def get_by_account_id(self, account_id: int, current_user: User):
         await self._validate_account_access(account_id, current_user)
@@ -139,10 +199,12 @@ class TransactionService:
 
     async def create_transaction(self, transaction: TransactionCreate, current_user: User):
         account = await self._validate_account_access(transaction.account_id, current_user)
-        await self._validate_category_access(
+        await self._validate_transaction_category(
             transaction.category_id,
+            transaction.type_id,
             account,
             current_user,
+            transaction.planned_expense_id,
         )
         transaction_user_id = (
             transaction.user_id
@@ -229,11 +291,23 @@ class TransactionService:
             current_user,
         )
 
-        if transaction.category_id is not None:
-            await self._validate_category_access(
-                transaction.category_id,
+        new_category_id = (
+            transaction.category_id
+            if transaction.category_id is not None
+            else existing.category_id
+        )
+        new_type_id = (
+            transaction.type_id
+            if transaction.type_id is not None
+            else existing.type_id
+        )
+        if transaction.category_id is not None or transaction.type_id is not None:
+            await self._validate_transaction_category(
+                new_category_id,
+                new_type_id,
                 account,
                 current_user,
+                existing.planned_expense_id,
             )
 
         existing.amount = transaction.amount if transaction.amount is not None else existing.amount
