@@ -67,6 +67,7 @@ class ParametersService:
             TransactionCategoryParameterResponse(
                 id=category.id,
                 value=category.name,
+                transaction_type=category.transaction_type,
                 parent_category_id=category.parent_category_id,
                 owner_id=category.owner_id,
                 group_id=category.group_id,

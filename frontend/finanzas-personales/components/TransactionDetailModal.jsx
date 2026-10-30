@@ -6,6 +6,10 @@ import { useParameters } from "@/lib/hooks/useParameters";
 import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
 import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
+import {
+  getCategoryTransactionType,
+  TRANSACTION_TYPE_EXPENSE,
+} from "@/lib/constants/transactionTypes";
 
 export default function TransactionDetailModal({
   transaction,
@@ -35,8 +39,20 @@ export default function TransactionDetailModal({
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const selectedType = types.find((type) => String(type.id) === String(typeId));
+  const categoryType = getCategoryTransactionType(selectedType?.value);
+  const availableCategories = categoryType
+    ? categories.filter((category) => category.transactionType === categoryType)
+    : [];
+
   const isLinkedToPlannedExpense =
     Boolean(transaction?.plannedExpenseId) && hasActivePlan;
+  const availableTypes = isLinkedToPlannedExpense
+    ? types.filter(
+        (type) =>
+          getCategoryTransactionType(type.value) === TRANSACTION_TYPE_EXPENSE
+      )
+    : types;
 
   function startEdit() {
     if (!transaction) return;
@@ -144,6 +160,11 @@ export default function TransactionDetailModal({
     }
   }
 
+  function handleTypeChange(value) {
+    setTypeId(value);
+    setCategoryId("");
+  }
+
   function handleCloseModal() {
     setMode("view");
     onClose();
@@ -241,12 +262,17 @@ export default function TransactionDetailModal({
             <div className="form-group">
               <label className="label">Categoría</label>
               <select
+               
                 className="input"
+               
                 value={String(categoryId)}
+               
                 onChange={(e) => setCategoryId(e.target.value)}
+              
+                disabled={!categoryType}
               >
-                <option value="">Seleccionar</option>
-                {categories.map((c) => (
+                <option value="">{categoryType ? "Seleccionar" : "Primero seleccioná un tipo"}</option>
+                {availableCategories.map((c) => (
                   <option key={c.id} value={String(c.id)}>
                     {c.parentCategoryId ? `↳ ${c.label}` : c.label}
                   </option>
@@ -258,10 +284,10 @@ export default function TransactionDetailModal({
               <select
                 className="input"
                 value={String(typeId)}
-                onChange={(e) => setTypeId(e.target.value)}
+                onChange={(e) => handleTypeChange(e.target.value)}
               >
                 <option value="">Seleccionar</option>
-                {types.map((t) => (
+                {availableTypes.map((t) => (
                   <option key={t.id} value={String(t.id)}>
                     {t.label || t.name}
                   </option>

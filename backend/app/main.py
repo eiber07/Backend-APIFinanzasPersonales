@@ -21,6 +21,8 @@ from app.routers.account_routes import router as account_router
 from app.routers.transaction_routes import router as transaction_router
 from app.routers.transaction_category_routes import router as transaction_category_router
 from app.routers.planned_expense_routes import router as planned_expense_router
+from app.routers.budget_routes import router as budget_router
+from app.routers.dashboard_routes import router as dashboard_router
 
 #pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -50,6 +52,8 @@ app.include_router(
     tags=["transaction-categories"],
 )
 app.include_router(planned_expense_router, prefix="/planned_expenses", tags=["planned-expenses"])
+app.include_router(budget_router, prefix="/budgets", tags=["budgets"])
+app.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 
 
 # ENDPOINT RAIZ

@@ -10,6 +10,10 @@ from app.schemas.transaction_category import (
     TransactionCategorySummary,
     TransactionCategoryUpdate,
 )
+from app.constants.transaction_types import (
+    TRANSACTION_TYPE_EXPENSE,
+    TRANSACTION_TYPE_INCOME,
+)
 
 
 class TransactionCategoryService:
@@ -34,6 +38,7 @@ class TransactionCategoryService:
         return TransactionCategorySummary(
             id=category.id,
             name=category.name,
+            transaction_type=category.transaction_type,
             parent_category_id=category.parent_category_id,
             owner_id=category.owner_id,
             group_id=category.group_id,
@@ -54,6 +59,7 @@ class TransactionCategoryService:
         return TransactionCategoryResponse(
             id=category.id,
             name=category.name,
+            transaction_type=category.transaction_type,
             parent_category_id=category.parent_category_id,
             owner_id=category.owner_id,
             group_id=category.group_id,
@@ -83,6 +89,7 @@ class TransactionCategoryService:
         category_id: int | None,
         group_id: int | None,
         account_id: int | None,
+        transaction_type: str,
     ) -> TransactionCategory:
         if parent_category_id == category_id:
             raise HTTPException(
@@ -121,6 +128,12 @@ class TransactionCategoryService:
             raise HTTPException(
                 status_code=400,
                 detail="La jerarquía de categorías admite como máximo dos niveles.",
+            )
+
+        if parent.transaction_type != transaction_type:
+            raise HTTPException(
+                status_code=400,
+                detail="La categoría padre debe pertenecer al mismo tipo de transacción.",
             )
 
         same_scope = (
@@ -208,6 +221,7 @@ class TransactionCategoryService:
                 category_id=None,
                 group_id=group_id,
                 account_id=account_id,
+                transaction_type=TRANSACTION_TYPE_EXPENSE,
             )
 
         category = TransactionCategory(
@@ -236,6 +250,12 @@ class TransactionCategoryService:
         category = await self.category_dal.get_by_id(category_id)
         if category is None:
             raise HTTPException(status_code=404, detail="La categoría no existe.")
+
+        if category.transaction_type == TRANSACTION_TYPE_INCOME:
+            raise HTTPException(
+                status_code=403,
+                detail="Las categorías de ingresos estándar no se pueden modificar.",
+            )
 
         if (
             category.owner_id is None
@@ -293,6 +313,7 @@ class TransactionCategoryService:
                     category_id=category.id,
                     group_id=category.group_id,
                     account_id=category.account_id,
+                    transaction_type=category.transaction_type,
                 )
             category.parent_category_id = data.parent_category_id
 
@@ -318,6 +339,11 @@ class TransactionCategoryService:
             raise HTTPException(
                 status_code=409,
                 detail="No se puede eliminar una categoría asociada a transacciones.",
+            )
+        if await self.category_dal.has_budget_items(category_id):
+            raise HTTPException(
+                status_code=409,
+                detail="No se puede eliminar una categoría asociada a presupuestos.",
             )
 
         try:

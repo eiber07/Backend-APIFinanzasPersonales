@@ -9,6 +9,11 @@ from app.models import (
     TransactionType,
     TransactionCategory,
 )
+from app.constants.transaction_types import (
+    TRANSACTION_TYPE_EXPENSE,
+    TRANSACTION_TYPE_INCOME,
+    TRANSACTION_TYPE_PLANNED_EXPENSE,
+)
 
 
 INITIAL_VALUES = {
@@ -21,9 +26,9 @@ INITIAL_VALUES = {
         {"name": "inactiva"},
     ],
     TransactionType: [
-        {"name": "ingreso"},
-        {"name": "egreso"},
-        {"name": "gasto planificado"},
+        {"name": TRANSACTION_TYPE_INCOME},
+        {"name": TRANSACTION_TYPE_EXPENSE},
+        {"name": TRANSACTION_TYPE_PLANNED_EXPENSE},
     ],
     TransactionCategory: [
         {"name": "comida"},
@@ -33,6 +38,8 @@ INITIAL_VALUES = {
         {"name": "alquiler"},
         {"name": "mercado"},
         {"name": "otros"},
+        {"name": "Ingreso Fijo", "transaction_type": TRANSACTION_TYPE_INCOME},
+        {"name": "Ingreso Extra", "transaction_type": TRANSACTION_TYPE_INCOME},
     ],
 }
 

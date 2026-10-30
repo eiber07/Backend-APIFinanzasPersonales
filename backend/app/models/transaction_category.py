@@ -2,6 +2,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 from app.models.audit_mixin import AuditMixin
 from app.database.database import Base
+from app.constants.transaction_types import TRANSACTION_TYPE_EXPENSE
 
 
 class TransactionCategory(Base, AuditMixin):
@@ -9,6 +10,12 @@ class TransactionCategory(Base, AuditMixin):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True, nullable=False)
+    transaction_type = Column(
+        String(20),
+        nullable=False,
+        default=TRANSACTION_TYPE_EXPENSE,
+        server_default=TRANSACTION_TYPE_EXPENSE,
+    )
     parent_category_id = Column(
         Integer,
         ForeignKey("transaction_categories.id", ondelete="RESTRICT"),

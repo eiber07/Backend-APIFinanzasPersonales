@@ -23,42 +23,33 @@ export default function BalanceCards({ filteredTransactions = [], loading }) {
   const balanceTotal = incomeTotal - expenseTotal;
 
   return (
-    <aside className="card-balance-vertical">
-      {/* Sección Principal: Balance Total */}
-      <div className="balance-main-section">
+    <section className="componente-tarjetas">
+      <article className="tarjeta-resumen tarjeta-resumen-grande health-balance-card">
         <div className="tarjeta-resumen-header">
-          <div className="tarjeta-resumen-icono balance">↔</div>
-          <p className="tarjeta-resumen-label">Balance total</p>
+          <p className="tarjeta-resumen-label">Te queda</p>
         </div>
-        <h2 className="tarjeta-monto balance-principal">
+        <h2 className="tarjeta-monto">
           {loading ? "..." : formatDashboardMoney(balanceTotal)}
         </h2>
-      </div>
+      </article>
 
-      <div className="balance-divider" />
-
-      {/* Sección Secundaria: Ingreso y Egreso */}
-      <div className="balance-secondary-section">
-        <div className="balance-subitem">
-          <div className="tarjeta-resumen-header">
-            <div className="tarjeta-resumen-icono ingreso subicono">↗</div>
-            <p className="tarjeta-resumen-label sublabel">Ingreso total</p>
-          </div>
-          <span className="balance-submonto ingreso">
-            {loading ? "..." : formatDashboardMoney(incomeTotal)}
-          </span>
+      <article className="tarjeta-resumen tarjeta-resumen-grande">
+        <div className="tarjeta-resumen-header">
+          <p className="tarjeta-resumen-label">Ingresos del Mes</p>
         </div>
+        <h2 className="tarjeta-monto">
+          {loading ? "..." : formatDashboardMoney(incomeTotal)}
+        </h2>
+      </article>
 
-        <div className="balance-subitem">
-          <div className="tarjeta-resumen-header">
-            <div className="tarjeta-resumen-icono egreso subicono">↘</div>
-            <p className="tarjeta-resumen-label sublabel">Egreso total</p>
-          </div>
-          <span className="balance-submonto egreso">
-            {loading ? "..." : formatDashboardMoney(expenseTotal)}
-          </span>
+      <article className="tarjeta-resumen tarjeta-resumen-grande">
+        <div className="tarjeta-resumen-header">
+          <p className="tarjeta-resumen-label">Gastos del Mes</p>
         </div>
-      </div>
-    </aside>
+        <h2 className="tarjeta-monto">
+          {loading ? "..." : formatDashboardMoney(expenseTotal)}
+        </h2>
+      </article>
+    </section>
   );
 }

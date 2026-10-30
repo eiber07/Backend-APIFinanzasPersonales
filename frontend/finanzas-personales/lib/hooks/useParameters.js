@@ -23,6 +23,7 @@ export function useParameters(type, { accountId, isGroup, refreshKey } = {}) {
           id: p.id,
           value: p.value,
           label: formatParameterLabel(p.value),
+          transactionType: p.transaction_type ?? null,
           parentCategoryId: p.parent_category_id ?? null,
           ownerId: p.owner_id ?? null,
           groupId: p.group_id ?? null,
