@@ -174,7 +174,50 @@ python -m app.database.data_seed
 uvicorn app.main:app
 ```
 
-`seed_all_data` es idempotente: si los parámetros ya existen, no los duplica. En Railway, configurar `alembic upgrade head` como comando de despliegue previo y ejecutar `python -m app.database.data_seed` una vez sobre la base nueva. El comando de inicio del servicio debe ser únicamente `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
+`seed_all_data` es idempotente: si los parámetros ya existen, no los duplica.
+
+### Despliegue en producción — Vercel y Supabase
+
+La aplicación utiliza:
+
+- **Backend:** FastAPI (Python), desplegado en Vercel.
+- **Frontend:** Next.js (React), desplegado en Vercel.
+- **Base de datos:** PostgreSQL alojado en Supabase.
+- **Migraciones:** Alembic.
+
+**Backend:** https://backend-api-finanzas-personales.vercel.app
+
+**Documentación de API:** https://backend-api-finanzas-personales.vercel.app/docs
+
+**Frontend:** https://frontend-api-finanzas-personales.vercel.app
+
+#### Configuración de despliegue
+
+El backend y el frontend están configurados como proyectos independientes en Vercel, conectados al mismo repositorio de GitHub.
+
+La rama `main` se utiliza para los despliegues de Production.
+
+Las variables de entorno se configuran desde Vercel, sin almacenar contraseñas ni claves privadas en GitHub.
+
+El frontend utiliza `NEXT_PUBLIC_API_URL` para comunicarse con el backend.
+
+La conexión con PostgreSQL se configura mediante `DATABASE_URL` en el backend.
+
+#### Migraciones y datos iniciales
+
+Las migraciones se administran mediante Alembic desde la carpeta `backend`, utilizando una conexión válida a PostgreSQL:
+
+```bash
+alembic upgrade head
+```
+
+La carga de datos iniciales, cuando sea necesaria, se ejecuta por separado:
+
+```bash
+python -m app.database.data_seed
+```
+
+Las migraciones y la carga de datos no se ejecutan automáticamente al iniciar cada despliegue de Vercel.
 
 ---
 
