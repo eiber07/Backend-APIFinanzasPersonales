@@ -3240,3 +3240,22 @@ width: 100%;
     gap: 16px;
   }
 }
+
+.pw-checklist {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 12px;
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.pw-checklist li.ok {
+  color: #16A34A;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .pw-checklist { color: #9CA3AF; }
+[data-theme="dark"] .pw-checklist li.ok { color: #4ADE80; }

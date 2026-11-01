@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/endpoints/auth";
 import { useAlerts } from "@/components/AlertProvider";
+import { isPasswordValid } from "@/lib/password";
+import PasswordChecklist from "@/components/PasswordChecklist";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -25,8 +27,8 @@ function ResetPasswordForm() {
     if (newPassword.trim() === "") {
       setErrorPassword("Campo obligatorio");
       valid = false;
-    } else if (newPassword.trim().length < 6) {
-      setErrorPassword("La contraseña debe tener al menos 6 caracteres");
+    } else if (!isPasswordValid(password.trim())) {
+      setErrorPassword("La contraseña no cumple los requisitos.");
       valid = false;
     }
 
@@ -88,6 +90,7 @@ function ResetPasswordForm() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
+            <PasswordChecklist password={password} />
             {errorPassword && (
               <span className="error active">{errorPassword}</span>
             )}

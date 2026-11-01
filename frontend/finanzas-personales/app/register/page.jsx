@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signup } from "@/lib/endpoints/auth";
 import { useAlerts } from "@/components/AlertProvider";
+import { isPasswordValid } from "@/lib/password";
+import  PasswordChecklist from "@/components/PasswordChecklist";
 
 export default function RegisterPage() {
-  const router = useRouter();
+  const router = useRouter();   
   const { showSuccess } = useAlerts();
 
   const [name, setName] = useState("");
@@ -41,8 +43,8 @@ export default function RegisterPage() {
     if (password.trim() === "") {
       setErrorPassword("Campo Obligatorio");
       valid = false;
-    } else if (password.trim().length < 6) {
-      setErrorPassword("La contraseña debe tener al menos 6 caracteres");
+    } else if (!isPasswordValid(password.trim())) {
+      setErrorPassword("La contraseña no cumple los requisitos.");
       valid = false;
     }
 
@@ -150,6 +152,7 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <PasswordChecklist password={password} />
           {errorPassword && (
             <span className="error active">{errorPassword}</span>
           )}
