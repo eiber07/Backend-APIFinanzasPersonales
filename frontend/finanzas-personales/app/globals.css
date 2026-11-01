@@ -3400,3 +3400,21 @@ width: 100%;
         scroll-snap-align: start;
     }
 }
+
+@media (max-width: 768px) {
+    .tabla-contenedor.tabla-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tabla-transacciones.tabla-pagos {
+        table-layout: auto;
+        min-width: 560px;
+    }
+
+    .tabla-pagos th,
+    .tabla-pagos td {
+        padding: 12px 14px;
+        white-space: nowrap;
+    }
+}
