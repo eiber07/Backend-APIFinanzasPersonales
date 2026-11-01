@@ -3377,3 +3377,26 @@ width: 100%;
 .status-modal-actions button {
   flex: 1;
 }
+
+@media (max-width: 768px) {
+    .componente-tarjetas {
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: min(260px, 78%);
+        gap: 12px;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 6px;
+        scrollbar-width: none;
+    }
+
+    .componente-tarjetas::-webkit-scrollbar {
+        display: none;
+    }
+
+    .componente-tarjetas > * {
+        scroll-snap-align: start;
+    }
+}
