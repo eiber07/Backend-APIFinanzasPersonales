@@ -8,6 +8,8 @@ import { useAlerts } from "@/components/AlertProvider";
 import Image from "next/image";
 import financeIllustration from "../../public/img/Personal Home Finance 2 (1).png";
 
+import { isPasswordValid } from "@/lib/password";
+import PasswordChecklist from "@/components/PasswordChecklist";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -28,8 +30,8 @@ function ResetPasswordForm() {
     if (newPassword.trim() === "") {
       setErrorPassword("Campo obligatorio");
       valid = false;
-    } else if (newPassword.trim().length < 6) {
-      setErrorPassword("La contraseña debe tener al menos 6 caracteres");
+    } else if (!isPasswordValid(password.trim())) {
+      setErrorPassword("La contraseña no cumple los requisitos.");
       valid = false;
     }
 
@@ -91,6 +93,7 @@ function ResetPasswordForm() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
+            <PasswordChecklist password={password} />
             {errorPassword && (
               <span className="error active">{errorPassword}</span>
             )}

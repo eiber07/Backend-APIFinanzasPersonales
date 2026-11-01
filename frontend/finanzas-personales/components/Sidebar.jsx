@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Modal from "@/components/Modal";
 import { createAccount } from "@/lib/endpoints/accounts";
 import { useAlerts } from "@/components/AlertProvider";
@@ -8,6 +8,8 @@ import UserAvatar from "@/components/UserAvatar";
 import Image from "next/image";
 import dashboardIcon from "../public/img/icono-dashboard.png";
 
+import { forgetPassword } from "@/lib/endpoints/auth";
+import { maskEmail } from "@/lib/format";
 
 export default function Sidebar({
   user,
@@ -34,6 +36,14 @@ export default function Sidebar({
     const bPersonal = String(b.account_type || "").toLowerCase() === "personal";
     return Number(bPersonal) - Number(aPersonal);
   });
+
+  const [sendingReset, setSendingReset] = useState(false);
+  const [resetCooldown, setResetCooldown] = useState(0);
+  useEffect(() => {
+    if (resetCooldown <= 0) return;
+    const t = setTimeout(() => setResetCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resetCooldown]);
 
   function closeNewAccount() {
     setNewAccountOpen(false);
@@ -76,6 +86,25 @@ export default function Sidebar({
       setSaving(false);
     }
   }
+  
+  async function handleSendResetLink() {
+    if (!user?.email) return;
+    setSendingReset(true);
+    try {
+      const res = await forgetPassword(user.email);
+      if (res.ok) {
+        showSuccess(`Te enviamos un enlace a ${maskEmail(user.email)}. Revisá tu bandeja de entrada.`);
+        setResetCooldown(60);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        showError(err.detail || "No se pudo enviar el enlace.");
+      }
+    } catch {
+      showError("No se pudo conectar con el servidor.");
+    } finally {
+      setSendingReset(false);
+    }
+  }
 
   return (
     <>
@@ -107,14 +136,9 @@ export default function Sidebar({
         </div>
 
         <div className="menu">
-          <div className="menu-item-dashboard">
-            <Image src={dashboardIcon} alt="" unoptimized style={{ height: 17, width: "auto"}} />
-            Dashboards
-          </div>
-
           <p className="menu-section-title">Cuentas</p>
 
-          <div className="submenu">
+          <div className="submenu" data-tour="accounts">
             {orderedAccounts.map((account) => (
               <div
                 key={account.id}
@@ -125,7 +149,7 @@ export default function Sidebar({
               </div>
             ))}
 
-            <div className="new-account" onClick={() => setNewAccountOpen(true)}>
+            <div className="new-account" data-tour="new-account" onClick={() => setNewAccountOpen(true)}>
               + Nueva cuenta
             </div>
           </div>
@@ -212,6 +236,23 @@ export default function Sidebar({
             <tr><td>Email:</td><td>{user?.email}</td></tr>
           </tbody>
         </table>
+
+        <div className="profile-security-section">
+          <button
+            className="btn-secondary"
+            onClick={handleSendResetLink}
+            disabled={sendingReset || resetCooldown > 0}
+          >
+            {sendingReset
+              ? "Enviando..."
+              : resetCooldown > 0
+              ? `Reenviar enlace en ${resetCooldown}s`
+              : "Enviar enlace de recuperación"}
+          </button>
+          <p className="profile-hint">
+            Te enviaremos un correo con las instrucciones para crear una nueva contraseña.
+          </p>
+        </div>
       </Modal>
     </>
   );

@@ -46,6 +46,7 @@ export default function ThemeToggle() {
       onClick={toggle}
       title={theme === "dark" ? "Modo claro" : "Modo oscuro"}
       aria-label="Cambiar tema"
+      data-tour="icon-theme"
     >
       {theme === "dark" ? (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

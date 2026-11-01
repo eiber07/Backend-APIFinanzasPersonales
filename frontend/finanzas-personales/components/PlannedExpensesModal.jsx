@@ -12,8 +12,8 @@ export default function PlannedExpensesModal({ open, onClose, plannedExpenses = 
     >
       <h2 style={{ color: "#1F2937", margin: 0 }}>Todos los pagos</h2>
 
-      <div className="tabla-contenedor" style={{ marginTop: "1rem" }}>
-        <table className="tabla-transacciones">
+      <div className="tabla-contenedor tabla-scroll" style={{ marginTop: "1rem" }}>
+        <table className="tabla-transacciones tabla-pagos">
           <thead>
             <tr>
               <th>Detalle</th>

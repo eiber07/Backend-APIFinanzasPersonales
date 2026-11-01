@@ -6,6 +6,7 @@ import Link from "next/link";
 import Modal from "@/components/Modal";
 import { login, forgetPassword } from "@/lib/endpoints/auth";
 import { useAlerts } from "@/components/AlertProvider";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -100,12 +101,12 @@ export default function LoginPage() {
         <div className="auth-card">
           <div className="titles">
             <div className="app-title-group">
-              <div className="logo-placeholder" title="Placeholder Logotipo">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="18" height="18" rx="4" />
-                  <path d="M12 8v8M8 12h8" />
-                </svg>
-              </div>
+              <Image
+                src="/img/3-donut-personal-dark.svg"
+                alt="Finance Tracker"
+                width={40}
+                height={40}
+              />
               <span className="app-title">Finance tracker</span>
             </div>
             <span className="form-title">Iniciar Sesión</span>

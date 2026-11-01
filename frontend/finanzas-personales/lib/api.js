@@ -30,3 +30,18 @@ export async function fetchWithAuth(path, options = {}) {
     },
   });
 }
+
+export function getTokenExpiration() {
+  const token = getToken();
+  if (!token) return null;
+
+  try {
+    const payloadBase64 = token.split(".")[1];
+    const decodedPayload = JSON.parse(atob(payloadBase64));
+
+    return decodedPayload.exp ? decodedPayload.exp * 1000 : null;
+  } catch (error) {
+    console.error("Error al decodificar el token:", error);
+    return null;
+  }
+}

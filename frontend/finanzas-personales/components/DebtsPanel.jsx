@@ -28,7 +28,7 @@ export default function DebtsPanel({ accountId, month, year }) {
   );
 
   return (
-    <div className="debts-component" id="debts-component">
+    <div className="debts-component" id="debts-component" data-tour="debts">
       <div className="titulo-seccion debts-title">
         <h2>Deuda entre participantes</h2>
       </div>

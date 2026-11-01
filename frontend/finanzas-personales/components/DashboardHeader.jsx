@@ -6,7 +6,8 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Image from "next/image";
 
 
-export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogout, onMenuClick, menuOpen }) {
+
+export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogout, onMenuClick, menuOpen, onStartTour }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
 
@@ -21,6 +22,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
         {!menuOpen && (
           <button
             className="sidebar-toggle"
+            data-tour="btn-mobile-menu"
             onClick={onMenuClick}
             aria-label="Abrir menú"
             title="Abrir menú"
@@ -29,13 +31,14 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
           </button>
         )}
         <div className="header-title-group">
-          <h1>{activeAccount?.name || "Dashboard"}</h1>
+          <h1>{activeAccount?.name || " "}</h1>
           {activeAccount && (
             <Image
               src="/img/icono-info.svg"
               width={25}
               height={25}
               alt="Información de la cuenta"
+              data-tour="info-account"
               title="Información de la cuenta"
               unoptimized
               style={{ cursor: "pointer" }}
@@ -44,12 +47,17 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
           )}
         </div>
         <div className="header-actions">
+          <button data-tour="icon-help" className="btn-theme-toggle btn-help" onClick={onStartTour} title="Ver guía" aria-label="Ver guía">
+            ?
+          </button>
+          
           <ThemeToggle />
           <div className="logout-container">
             <button
               className="btn-logout-icon"
               onClick={() => setLogoutOpen(true)}
               title="Cerrar sesión"
+              data-tour="icon-logout"
               aria-label="Cerrar sesión"
             >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -94,7 +102,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
         </p>
         <div className="acciones-modal">
           <button className="btn-primary btn-red" onClick={onLogout}>
-            Cerrar Sesión
+            Cerrar sesión
           </button>
           <button className="btn-secondary" onClick={() => setLogoutOpen(false)}>
             Cancelar

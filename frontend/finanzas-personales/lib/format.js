@@ -28,3 +28,9 @@ export function todayLocal() {
 }
 
 export const PLANNED_TYPE_NAME = "gasto planificado";
+
+export function maskEmail(email = "") {
+  const [name, domain] = email.split("@");
+  if (!domain) return email;
+  return `${name.slice(0, 2)}***@${domain}`;
+}
