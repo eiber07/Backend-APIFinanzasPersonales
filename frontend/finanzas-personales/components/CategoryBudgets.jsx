@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Modal from "@/components/Modal";
 import {
-  addBudgetItem,
+  addBudgetItems,
   createBudget,
   deleteBudgetItem,
   getAccountBudgets,
@@ -10,6 +11,10 @@ import {
 } from "@/lib/endpoints/budgets";
 import { useAlerts } from "@/components/AlertProvider";
 import { formatCurrencyInput, parseTransactionAmount } from "@/lib/format";
+
+function createBudgetDraftItem() {
+  return { categoryId: "", amount: "" };
+}
 
 function formatCurrency(value) {
   return `$${Number(value || 0).toLocaleString("es-AR", {
@@ -37,8 +42,8 @@ export default function CategoryBudgets({
   const [budget, setBudget] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [categoryId, setCategoryId] = useState("");
-  const [amount, setAmount] = useState("");
+  const [assignmentOpen, setAssignmentOpen] = useState(false);
+  const [draftItems, setDraftItems] = useState([createBudgetDraftItem()]);
   const [editingItemId, setEditingItemId] = useState(null);
   const [editingAmount, setEditingAmount] = useState("");
 
@@ -84,13 +89,14 @@ export default function CategoryBudgets({
     return actuals;
   }, [comparisonItems, expenseCategories]);
 
-  async function persistChange(action, successMessage) {
+  async function persistChange(action, successMessage, onSuccess) {
     setSaving(true);
     try {
       await action();
       await loadBudget();
       onChanged?.();
       showSuccess(successMessage);
+      onSuccess?.();
     } catch (error) {
       showError(error.message || "No se pudo guardar el presupuesto.");
     } finally {
@@ -100,29 +106,49 @@ export default function CategoryBudgets({
 
   function handleAdd(event) {
     event.preventDefault();
-    const targetAmount = parseTransactionAmount(amount);
-    if (!categoryId || !Number.isFinite(targetAmount) || targetAmount <= 0) {
-      showError("Seleccioná una categoría e ingresá un monto mayor a cero.");
+    const items = draftItems.map((item) => ({
+      category_id: Number(item.categoryId),
+      target_amount: parseTransactionAmount(item.amount),
+    }));
+    const categoryIds = items.map((item) => item.category_id);
+    if (
+      items.some(
+        (item, index) =>
+          !draftItems[index].categoryId ||
+          !Number.isFinite(item.target_amount) ||
+          item.target_amount <= 0
+      ) ||
+      new Set(categoryIds).size !== categoryIds.length
+    ) {
+      showError("Seleccioná una categoría distinta e ingresá un monto mayor a cero para cada una.");
       return;
     }
 
     void persistChange(async () => {
-      const item = { category_id: Number(categoryId), target_amount: targetAmount };
       if (budget) {
         await readResponse(
-          await addBudgetItem(budget.id, item),
-          "No se pudo agregar el presupuesto."
+          await addBudgetItems(budget.id, { items }),
+          "No se pudieron agregar los presupuestos."
         );
       } else {
         const created = await readResponse(
-          await createBudget({ account_id: Number(accountId), items: [item] }),
+          await createBudget({ account_id: Number(accountId), items }),
           "No se pudo crear el presupuesto."
         );
         setBudget(created);
       }
-      setCategoryId("");
-      setAmount("");
-    }, "Presupuesto guardado correctamente.");
+      setDraftItems([createBudgetDraftItem()]);
+    }, "Presupuestos guardados correctamente.", () =>
+      setAssignmentOpen(false)
+    );
+  }
+
+  function updateDraftItem(index, changes) {
+    setDraftItems((current) =>
+      current.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, ...changes } : item
+      )
+    );
   }
 
   function handleUpdate(item) {
@@ -162,6 +188,14 @@ export default function CategoryBudgets({
           <h2>Presupuestos por categoría</h2>
           <p>Definí límites mensuales para tus categorías de gastos</p>
         </div>
+        <button
+          className="health-primary-button"
+          type="button"
+          onClick={() => setAssignmentOpen(true)}
+          disabled={loading || saving || availableCategories.length === 0}
+        >
+          Añadir Presupuesto
+        </button>
       </header>
 
       {loading ? (
@@ -172,51 +206,7 @@ export default function CategoryBudgets({
             <p className="health-empty">
               No hay categorías padre de gastos disponibles para presupuestar.
             </p>
-          ) : (
-            <form className="budget-create-form" onSubmit={handleAdd}>
-              <label>
-                <span>Categoría</span>
-                <select
-                  value={categoryId}
-                  onChange={(event) => setCategoryId(event.target.value)}
-                  disabled={saving || availableCategories.length === 0}
-                  required
-                >
-                  <option value="">
-                    {availableCategories.length
-                      ? "Seleccionar categoría"
-                      : "Todas las categorías tienen presupuesto"}
-                  </option>
-                  {availableCategories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>Presupuesto mensual</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={amount}
-                  onChange={(event) =>
-                    setAmount(formatCurrencyInput(event.target.value))
-                  }
-                  placeholder="$ 0"
-                  disabled={saving}
-                  required
-                />
-              </label>
-              <button
-                className="health-primary-button"
-                type="submit"
-                disabled={saving || availableCategories.length === 0}
-              >
-                Agregar presupuesto
-              </button>
-            </form>
-          )}
+          ) : null}
 
           <div className="budget-list">
             {categories.map((category) => {
@@ -325,6 +315,134 @@ export default function CategoryBudgets({
           </div>
         </>
       )}
+
+      <Modal
+        id="modalBudgetAssignment"
+        open={assignmentOpen}
+        onClose={() => setAssignmentOpen(false)}
+        className="budget-assignment-modal"
+      >
+        <h2 className="budget-assignment-title">Añadir Presupuesto</h2>
+        <p className="budget-assignment-description">
+          Añadí un presupuesto mensual a una o varias categorías.
+        </p>
+        <form
+          className="budget-create-form budget-assignment-form"
+          onSubmit={handleAdd}
+        >
+          <div className="budget-add-category-action">
+            <button
+              className="health-secondary-button"
+              type="button"
+              onClick={() =>
+                setDraftItems((current) => [
+                  ...current,
+                  createBudgetDraftItem(),
+                ])
+              }
+              disabled={
+                saving || draftItems.length >= availableCategories.length
+              }
+            >
+              Agregar categoría
+            </button>
+          </div>
+          <div className="budget-create-items">
+            {draftItems.map((item, index) => {
+              const selectedByOtherRows = new Set(
+                draftItems
+                  .filter((_, itemIndex) => itemIndex !== index)
+                  .map((draft) => draft.categoryId)
+              );
+              const rowCategories = availableCategories.filter(
+                (category) => !selectedByOtherRows.has(String(category.id))
+              );
+
+              return (
+                <div
+                  className={`budget-create-row ${
+                    draftItems.length === 1 ? "budget-create-row-centered" : ""
+                  }`}
+                  key={index}
+                >
+                  <label>
+                    <span>Categoría</span>
+                    <select
+                      value={item.categoryId}
+                      onChange={(event) =>
+                        updateDraftItem(index, {
+                          categoryId: event.target.value,
+                        })
+                      }
+                      disabled={saving || availableCategories.length === 0}
+                      required
+                    >
+                      <option value="">Seleccionar categoría</option>
+                      {rowCategories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Presupuesto mensual</span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={item.amount}
+                      onChange={(event) =>
+                        updateDraftItem(index, {
+                          amount: formatCurrencyInput(event.target.value),
+                        })
+                      }
+                      placeholder="$ 0"
+                      disabled={saving}
+                      required
+                    />
+                  </label>
+                  {draftItems.length > 1 && (
+                    // <div className="budget-row-actions">
+                      <button
+                        className="health-secondary-button budget-remove-draft"
+                        type="button"
+                        onClick={() =>
+                          setDraftItems((current) =>
+                            current.filter(
+                              (_, itemIndex) => itemIndex !== index
+                            )
+                          )
+                        }
+                        disabled={saving}
+                        aria-label={`Quitar categoría ${index + 1}`}
+                      >
+                        Quitar
+                      </button>
+                    /* </div> */
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="budget-create-actions">
+            <button
+              className="health-secondary-button"
+              type="button"
+              onClick={() => setAssignmentOpen(false)}
+              disabled={saving}
+            >
+              Cancelar
+            </button>
+            <button
+              className="health-primary-button"
+              type="submit"
+              disabled={saving || availableCategories.length === 0}
+            >
+              Guardar presupuestos
+            </button>
+          </div>
+        </form>
+      </Modal>
     </article>
   );
 }

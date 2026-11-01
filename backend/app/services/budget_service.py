@@ -14,6 +14,7 @@ from app.schemas.budget import (
     BudgetCreate,
     BudgetItemCreate,
     BudgetItemResponse,
+    BudgetItemsCreate,
     BudgetItemUpdate,
     BudgetResponse,
     BudgetUpdate,
@@ -196,6 +197,43 @@ class BudgetService:
             raise HTTPException(
                 status_code=409,
                 detail="La categoría ya tiene un objetivo en este presupuesto.",
+            ) from error
+        return self._response(updated)
+
+    async def add_items(
+        self,
+        budget_id: int,
+        data: BudgetItemsCreate,
+        current_user: User,
+    ):
+        budget = await self._get_accessible_budget(budget_id, current_user)
+        account = await self._validate_account_access(
+            budget.account_id,
+            current_user,
+        )
+        await self._validate_items(data.items, account, current_user)
+
+        existing_category_ids = {item.category_id for item in budget.items}
+        if any(item.category_id in existing_category_ids for item in data.items):
+            raise HTTPException(
+                status_code=409,
+                detail="Una o más categorías ya tienen un objetivo en este presupuesto.",
+            )
+
+        budget.items.extend(
+            BudgetItem(
+                category_id=item.category_id,
+                target_amount=item.target_amount,
+            )
+            for item in data.items
+        )
+        try:
+            updated = await self.budget_dal.update(budget)
+        except IntegrityError as error:
+            await self.budget_dal.db.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="Una o más categorías ya tienen un objetivo en este presupuesto.",
             ) from error
         return self._response(updated)
 

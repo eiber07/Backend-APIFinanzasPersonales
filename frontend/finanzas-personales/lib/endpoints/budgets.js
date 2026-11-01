@@ -18,6 +18,13 @@ export async function addBudgetItem(budgetId, payload) {
   });
 }
 
+export async function addBudgetItems(budgetId, payload) {
+  return fetchWithAuth(`/budgets/${budgetId}/items/batch`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function updateBudgetItem(budgetId, itemId, payload) {
   return fetchWithAuth(`/budgets/${budgetId}/items/${itemId}`, {
     method: "PUT",

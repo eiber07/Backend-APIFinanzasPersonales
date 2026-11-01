@@ -2469,16 +2469,95 @@ width: 100%;
 
 .budget-create-form {
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    align-items: end;
+    grid-template-columns: 1fr;
+    align-items: stretch;
     gap: 16px;
     width: 100%;
-    max-width: 45vw;
-    margin-bottom: 24px;
-    padding: 18px 20px;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    background: #F8FAFC;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.budget-assignment-form {
+    gap: 12px;
+}
+
+.budget-assignment-form input,
+.budget-assignment-form select {
+    height: 38px;
+    padding: 0 10px;
+    font-size: 13px;
+}
+
+.budget-assignment-form label {
+    gap: 4px;
+}
+
+.budget-assignment-modal {
+    align-items: stretch;
+    justify-content: flex-start;
+    width: min(90%, 500px);
+    max-width: 600px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 28px;
+}
+
+.budget-assignment-title {
+    margin: 0;
+    color: #1F2937;
+    text-align: center;
+}
+
+.budget-assignment-description {
+    margin: 8px 0 22px;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.category-budgets .health-card-heading {
+    align-items: center;
+}
+
+.category-budgets .health-card-heading .health-primary-button {
+    white-space: nowrap;
+}
+
+.budget-create-items {
+    display: grid;
+    gap: 10px;
+}
+
+.budget-create-row {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+}
+
+.budget-create-row-centered {
+    grid-template-columns: repeat(2, minmax(0, 210px));
+    justify-content: center;
+}
+
+.budget-add-category-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.budget-remove-draft {
+    white-space: nowrap;
+    color: #EF4444 !important;
+    border: 1px solid #FECACA !important;
+    width: 100%;
+}
+
+.budget-create-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
 }
 
 .budget-create-form label {
@@ -2707,11 +2786,6 @@ width: 100%;
     color: #FFFFFF !important;
 }
 
-[data-theme="dark"] .budget-create-form {
-    border-color: var(--border-dark);
-    background: rgba(30, 41, 59, 0.5);
-}
-
 [data-theme="dark"] .budget-spent {
     color: var(--text-dark-secondary);
 }
@@ -2757,7 +2831,7 @@ width: 100%;
     }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 640px) {
     .dashboard-view-switch {
         display: flex;
         width: 100%;
@@ -2788,6 +2862,48 @@ width: 100%;
 
     .budget-create-form {
         grid-template-columns: 1fr;
+    }
+
+    .budget-assignment-modal {
+        width: 94%;
+        max-height: calc(100vh - 24px);
+        padding: 24px 16px;
+    }
+
+    .category-budgets .health-card-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .category-budgets .health-card-heading .health-primary-button {
+        width: 100%;
+    }
+
+    .budget-create-row {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-create-row-centered {
+        justify-items: center;
+    }
+
+    .budget-create-row label {
+        max-width: 210px;
+        width: 100%;
+    }
+
+    .budget-row-actions {
+        grid-column: 1;
+        justify-self: end;
+    }
+
+    .budget-create-actions {
+        flex-direction: column;
+    }
+
+    .budget-create-actions .health-secondary-button {
+        width: 100%;
     }
 
     .budget-list {
