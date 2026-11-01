@@ -29,7 +29,7 @@ export default function PeriodFilter({ month, year, onChange, extraYears = [] })
   return (
     <div className="period-filter-control">
       <span className="period-filter-label">Período seleccionado</span>
-      <div className="filtro-periodo">
+      <div className="filtro-periodo" data-tour="period">
         <select
           id="filter-month"
           className="select-periodo"

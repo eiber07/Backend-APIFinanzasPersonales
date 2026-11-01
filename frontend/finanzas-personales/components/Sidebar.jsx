@@ -111,7 +111,7 @@ export default function Sidebar({
 
           <p className="menu-section-title">Cuentas</p>
 
-          <div className="submenu">
+          <div className="submenu" data-tour="accounts">
             {orderedAccounts.map((account) => (
               <div
                 key={account.id}
@@ -122,7 +122,7 @@ export default function Sidebar({
               </div>
             ))}
 
-            <div className="new-account" onClick={() => setNewAccountOpen(true)}>
+            <div className="new-account" data-tour="new-account" onClick={() => setNewAccountOpen(true)}>
               + Nueva cuenta
             </div>
           </div>

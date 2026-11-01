@@ -4,7 +4,8 @@ import { useState } from "react";
 import Modal from "@/components/Modal";
 import ThemeToggle from "@/components/ThemeToggle";
 
-export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogout, onMenuClick, menuOpen }) {
+
+export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogout, onMenuClick, menuOpen, onStartTour }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
 
@@ -19,6 +20,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
         {!menuOpen && (
           <button
             className="sidebar-toggle"
+            data-tour="btn-mobile-menu"
             onClick={onMenuClick}
             aria-label="Abrir menú"
             title="Abrir menú"
@@ -33,6 +35,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
               src="/img/icono-info.svg"
               height="25"
               alt="Información de la cuenta"
+              data-tour="info-account"
               title="Información de la cuenta"
               style={{ cursor: "pointer" }}
               onClick={() => setInfoOpen(true)}
@@ -40,12 +43,17 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
           )}
         </div>
         <div className="header-actions">
+          <button data-tour="icon-help" className="btn-theme-toggle btn-help" onClick={onStartTour} title="Ver guía" aria-label="Ver guía">
+            ?
+          </button>
+          
           <ThemeToggle />
           <div className="logout-container">
             <button
               className="btn-logout-icon"
               onClick={() => setLogoutOpen(true)}
               title="Cerrar sesión"
+              data-tour="icon-logout"
               aria-label="Cerrar sesión"
             >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

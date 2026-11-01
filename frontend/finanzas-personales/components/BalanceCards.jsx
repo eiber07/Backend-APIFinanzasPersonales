@@ -23,7 +23,7 @@ export default function BalanceCards({ filteredTransactions = [], loading }) {
   const balanceTotal = incomeTotal - expenseTotal;
 
   return (
-    <section className="componente-tarjetas">
+    <section className="componente-tarjetas" data-tour="balance">
       <article className="tarjeta-resumen tarjeta-resumen-grande health-balance-card">
         <div className="tarjeta-resumen-header">
           <p className="tarjeta-resumen-label">Te queda</p>

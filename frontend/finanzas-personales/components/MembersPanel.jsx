@@ -16,7 +16,7 @@ export default function MembersPanel({
   const canAddParticipants = currentMember?.role === "admin";
 
   return (
-    <aside id="participants-section" className="componente-participantes">
+    <aside id="participants-section" data-tour="members" className="componente-participantes">
       <div className="participantes-header">
         <h2>Participantes</h2>
         <div className="participants-actions">

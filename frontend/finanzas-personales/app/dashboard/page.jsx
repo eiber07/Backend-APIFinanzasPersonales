@@ -25,6 +25,7 @@ import NewExpenseModal from "@/components/NewExpenseModal";
 import AddMemberModal from "@/components/AddMemberModal";
 import MemberInfoModal from "@/components/MemberInfoModal";
 import TransactionCategoriesModal from "@/components/TransactionCategoriesModal";
+import { startHealthTour, startTransactionsTour, startContentTour } from "@/lib/tour";
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -237,6 +238,45 @@ export default function DashboardPage() {
     refetchMembers();
   }
 
+  const runFullOnboarding = useCallback(async () => {
+  setActiveView("financial-health");
+  
+  await new Promise((r) => setTimeout(r, 400));
+
+  startHealthTour({
+    onCompleteTour: async () => {
+      setActiveView("transactions");
+
+      await new Promise((r) => setTimeout(r, 500));
+
+      startTransactionsTour({
+        onGoBack: async () => {
+          runFullOnboarding();
+        },
+        onFinishAll: () => {
+          setActiveView("transactions");
+        },
+      });
+    },
+    onCancelTour: () => {
+      try { localStorage.setItem("tour_done", "1"); } catch {}
+    },
+  });
+}, []);
+
+  useEffect(() => {
+    if (loading || !activeAccount) return;
+    try {
+      if (localStorage.getItem("tour_done")) return;
+    } catch {}
+
+    const timer = setTimeout(() => {
+      runFullOnboarding();
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [loading, activeAccount?.id, runFullOnboarding]);
+
   if (loading) {
     return <div style={{ padding: 40, textAlign: "center" }}>Cargando...</div>;
   }
@@ -249,6 +289,7 @@ export default function DashboardPage() {
         onLogout={handleLogout}
         onMenuClick={() => setMobileMenuOpen(true)}
         menuOpen={mobileMenuOpen}
+        onStartTour={startContentTour}
       />
 
       <Sidebar
@@ -286,11 +327,12 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="dashboard-view-switch" role="tablist" aria-label="Vistas de la cuenta">
+            <div className="dashboard-view-switch" data-tour="view-switch" role="tablist" aria-label="Vistas de la cuenta">
               <button
                 type="button"
                 role="tab"
                 id="financial-health-tab"
+                data-tour="view-health"
                 aria-selected={activeView === "financial-health"}
                 aria-controls="financial-health-panel"
                 className={activeView === "financial-health" ? "active" : ""}
@@ -302,6 +344,7 @@ export default function DashboardPage() {
                 type="button"
                 role="tab"
                 id="transactions-tab"
+                data-tour="view-transactions"
                 aria-selected={activeView === "transactions"}
                 aria-controls="transactions-panel"
                 className={activeView === "transactions" ? "active" : ""}

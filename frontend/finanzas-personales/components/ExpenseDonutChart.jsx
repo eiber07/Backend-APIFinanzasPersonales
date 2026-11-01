@@ -43,7 +43,7 @@ export default function ExpenseDonutChart({ categories = [], total = 0, count = 
     .stops.join(", ");
 
   return (
-    <article className="health-card">
+    <article className="health-card" data-tour="expense-donut">
       <header className="health-card-heading">
         <div>
           <h2>Distribución de gastos</h2>
