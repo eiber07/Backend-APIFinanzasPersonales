@@ -202,20 +202,23 @@ body {
 
 .status-modal-actions {
   display: flex;
+  justify-content: center;
   gap: 12px;
   width: 100%;
   margin-top: 16px;
 }
 
 .status-modal-actions button {
-  flex: 1;
-  width: 100%;
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 100px;
+  padding: 10px 14px;
   margin: 0;
   box-sizing: border-box;
 }
 
 .status-modal-actions .btn-primary {
-  width: 100%;
+  width: auto;
   margin: 0;
 }
 
@@ -484,6 +487,7 @@ width: 100%;
     display: flex;
     justify-content: flex-end;
     flex: 0 0 auto;
+    margin-left: auto;
 }
 
 .dashboard-toolbar {
@@ -593,6 +597,7 @@ width: 100%;
 .componente-main2 {
     display: grid;
     grid-template-columns: 1fr 320px;
+    align-items: start;
     gap: 24px;
     padding: 0;
 }
@@ -707,7 +712,7 @@ width: 100%;
 
 .factura-card {
     display: grid;
-    grid-template-columns: 48px 1fr auto;
+    grid-template-columns: 80px 1fr auto;
     align-items: center;
     gap: 14px;
     padding: 14px;
@@ -718,7 +723,8 @@ width: 100%;
 }
 
 .factura-fecha {
-    width: 44px;
+    width: 76px;
+    min-width: 76px;
     height: 44px;
     border-radius: 10px;
     display: flex;
@@ -729,11 +735,8 @@ width: 100%;
 }
 
 .factura-fecha span {
-    font-size: 10px;
-}
-
-.factura-fecha {
-    font-size: 16px;
+    font-size: 9px;
+    white-space: nowrap;
 }
 
 .factura-fecha-gris {
@@ -743,6 +746,7 @@ width: 100%;
 }
 
 .factura-info h3 {
+    min-width: 0;
     font-size: 14px;
     color: #111827;
     margin: 0 0 4px;
@@ -753,6 +757,7 @@ width: 100%;
     font-size: 12px;
     color: #4B5563;
     margin: 0;
+    overflow-wrap: anywhere;
 }
 
 .factura-monto {
@@ -805,7 +810,7 @@ width: 100%;
     }
 
     .dashboard-period-filter {
-        justify-content: flex-start;
+        justify-content: flex-end;
     }
 
     .componente-participantes {
@@ -850,7 +855,8 @@ width: 100%;
 
 .acciones-modal {
     display: flex;
-    gap: 25px;
+    align-items: center;
+    gap: 12px;
     width: 100%;
     justify-content: center;
 }
@@ -1387,15 +1393,18 @@ width: 100%;
 }
 
 .member-modal-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 12px;
     width: 100%;
 }
 
 .member-modal-actions .btn-primary,
 .member-modal-actions .btn-secondary {
-    width: 100%;
+    width: auto;
+    min-width: 100px;
     margin-bottom: 0;
 }
 
@@ -1450,10 +1459,37 @@ width: 100%;
 
 .creditor-debt-identity {
     display: flex;
+    grid-column: 1;
+    flex-direction: column;
     align-items: center;
-    flex: 1 1 auto;
+    justify-self: center;
     min-width: 0;
-    gap: 10px;
+    gap: 4px;
+}
+
+.creditor-debt-card {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 0.55fr) minmax(max-content, 1.2fr);
+    background: #F0FDF4;
+    border-color: #BBF7D0;
+}
+
+.creditor-debt-transfer {
+    display: flex;
+    grid-column: 2;
+    justify-self: center;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    gap: 2px;
+}
+
+.creditor-debt-amount-container {
+    grid-column: 3;
+    justify-self: stretch;
+    min-width: 0;
+    text-align: center;
 }
 
 .creditor-debt-copy {
@@ -1470,18 +1506,36 @@ width: 100%;
 }
 
 .creditor-debt-copy .debts-name {
+    max-width: 100%;
     overflow: hidden;
-    text-align: left;
+    text-align: center;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .creditor-debt-amount {
-    flex: 0 0 auto;
+    display: block;
+    max-width: 100%;
     color: #15803D;
-    font-size: 14px;
+    font-size: clamp(11px, 4vw, 20px);
     font-weight: 700;
     white-space: nowrap;
+}
+
+.creditor-debt-arrow {
+    color: #16A34A;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.creditor-debt-receives {
+    color: #15803D;
+    font-size: 10px;
+    font-weight: 600;
+    max-width: 68px;
+    text-align: center;
+    line-height: 1.15;
 }
 
 .user-debts {
@@ -1561,17 +1615,6 @@ width: 100%;
     color: #374151;
 }
 
-.columna-derecha.cuenta-grupal {
-    display: flex;
-    flex-direction: column;
-    min-height: auto;
-}
-
-.columna-derecha.cuenta-grupal .componente-cuentas {
-    order: 2;
-    margin-top: 32px;
-}
-
 .componente-transacciones .tabla-transacciones.tabla-personal {
     table-layout: fixed;
 }
@@ -1628,9 +1671,10 @@ width: 100%;
 
 .acciones-modal button {
   white-space: nowrap;
-  flex: 1 1 150px;
-  min-width: 150px;
-  padding: 14px 12px;
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 100px;
+  padding: 10px 14px;
   font-size: 14px;
   box-sizing: border-box;
 }
@@ -1889,18 +1933,20 @@ width: 100%;
   margin-top: 4px;
   padding-top: 14px;
   border-top: 1px solid #E5E7EB;
-  justify-content: flex-end;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
 .category-form-actions .btn-primary,
 .category-form-actions .btn-secondary {
   width: auto;
+  min-width: 100px;
+  padding: 10px 14px;
   margin: 0;
+  box-sizing: border-box;
 }
 
 .category-delete-button {
-  margin-right: auto !important;
   border-color: #DC2626;
   color: #B91C1C;
 }
@@ -2401,14 +2447,95 @@ width: 100%;
 
 .budget-create-form {
     display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    align-items: end;
+    grid-template-columns: 1fr;
+    align-items: stretch;
     gap: 16px;
-    margin-bottom: 24px;
-    padding: 18px 20px;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    background: #F8FAFC;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.budget-assignment-form {
+    gap: 12px;
+}
+
+.budget-assignment-form input,
+.budget-assignment-form select {
+    height: 38px;
+    padding: 0 10px;
+    font-size: 13px;
+}
+
+.budget-assignment-form label {
+    gap: 4px;
+}
+
+.budget-assignment-modal {
+    align-items: stretch;
+    justify-content: flex-start;
+    width: min(90%, 500px);
+    max-width: 600px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 28px;
+}
+
+.budget-assignment-title {
+    margin: 0;
+    color: #1F2937;
+    text-align: center;
+}
+
+.budget-assignment-description {
+    margin: 8px 0 22px;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.category-budgets .health-card-heading {
+    align-items: center;
+}
+
+.category-budgets .health-card-heading .health-primary-button {
+    white-space: nowrap;
+}
+
+.budget-create-items {
+    display: grid;
+    gap: 10px;
+}
+
+.budget-create-row {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+}
+
+.budget-create-row-centered {
+    grid-template-columns: repeat(2, minmax(0, 210px));
+    justify-content: center;
+}
+
+.budget-add-category-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.budget-remove-draft {
+    white-space: nowrap;
+    color: #EF4444 !important;
+    border: 1px solid #FECACA !important;
+    width: 100%;
+}
+
+.budget-create-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
 }
 
 .budget-create-form label {
@@ -2637,11 +2764,6 @@ width: 100%;
     color: #FFFFFF !important;
 }
 
-[data-theme="dark"] .budget-create-form {
-    border-color: var(--border-dark);
-    background: rgba(30, 41, 59, 0.5);
-}
-
 [data-theme="dark"] .budget-spent {
     color: var(--text-dark-secondary);
 }
@@ -2681,7 +2803,13 @@ width: 100%;
     }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 768px) {
+    .budget-create-form {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
     .dashboard-view-switch {
         display: flex;
         width: 100%;
@@ -2712,6 +2840,48 @@ width: 100%;
 
     .budget-create-form {
         grid-template-columns: 1fr;
+    }
+
+    .budget-assignment-modal {
+        width: 94%;
+        max-height: calc(100vh - 24px);
+        padding: 24px 16px;
+    }
+
+    .category-budgets .health-card-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .category-budgets .health-card-heading .health-primary-button {
+        width: 100%;
+    }
+
+    .budget-create-row {
+        grid-template-columns: 1fr;
+    }
+
+    .budget-create-row-centered {
+        justify-items: center;
+    }
+
+    .budget-create-row label {
+        max-width: 210px;
+        width: 100%;
+    }
+
+    .budget-row-actions {
+        grid-column: 1;
+        justify-self: end;
+    }
+
+    .budget-create-actions {
+        flex-direction: column;
+    }
+
+    .budget-create-actions .health-secondary-button {
+        width: 100%;
     }
 
     .budget-list {
@@ -2755,11 +2925,11 @@ width: 100%;
         width: 94%;
     }
     .dashboard-period-filter {
-        justify-content: flex-start;
+        justify-content: flex-end;
     }
 
     .period-filter-control {
-        align-items: flex-start;
+        align-items: flex-end;
         flex-direction: column;
         gap: 6px;
     }
@@ -2777,7 +2947,7 @@ width: 100%;
     }
 
     .factura-card {
-        grid-template-columns: 48px 1fr;
+        grid-template-columns: 80px 1fr;
     }
 
     .factura-monto {
@@ -2989,6 +3159,16 @@ width: 100%;
 
 [data-theme="dark"] .creditor-debt-amount {
     color: #4ADE80 !important;
+}
+
+[data-theme="dark"] .creditor-debt-card {
+    background: #123226 !important;
+    border-color: #166534 !important;
+}
+
+[data-theme="dark"] .creditor-debt-arrow,
+[data-theme="dark"] .creditor-debt-receives {
+    color: #4ADE80;
 }
 
 [data-theme="dark"] .debts-ammount {

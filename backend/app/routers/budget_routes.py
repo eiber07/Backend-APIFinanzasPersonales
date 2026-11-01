@@ -13,6 +13,7 @@ from app.schemas.budget import (
     BudgetCreate,
     BudgetItemCreate,
     BudgetItemUpdate,
+    BudgetItemsCreate,
     BudgetResponse,
     BudgetUpdate,
 )
@@ -78,6 +79,20 @@ async def add_budget_item(
     service: BudgetService = Depends(get_budget_service),
 ):
     return await service.add_item(budget_id, data, current_user)
+
+
+@router.post(
+    "/{budget_id}/items/batch",
+    response_model=BudgetResponse,
+    status_code=201,
+)
+async def add_budget_items(
+    budget_id: int,
+    data: BudgetItemsCreate,
+    current_user: User = Depends(get_current_user),
+    service: BudgetService = Depends(get_budget_service),
+):
+    return await service.add_items(budget_id, data, current_user)
 
 
 @router.put("/{budget_id}", response_model=BudgetResponse)

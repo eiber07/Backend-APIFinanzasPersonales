@@ -15,6 +15,8 @@ export default function NewExpenseModal({
   accountId,
   isGroup = false,
   categoriesVersion = 0,
+  members = [],
+  currentUser,
   onCreated,
 }) {
   const { showSuccess, showError } = useAlerts();
@@ -25,6 +27,7 @@ export default function NewExpenseModal({
   const [fixedAmountDigits, setFixedAmountDigits] = useState("");
   const [installments, setInstallments] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
+  const [performedByUserId, setPerformedByUserId] = useState("");
   const { options: categories } = useParameters("transactionCategories", {
     accountId,
     isGroup,
@@ -40,6 +43,16 @@ export default function NewExpenseModal({
   );
   const [categoryId, setCategoryId] = useState("");
   const [saving, setSaving] = useState(false);
+  const defaultPerformedByUserId = members.some(
+    (member) => String(member.user_id) === String(currentUser?.id)
+  )
+    ? String(currentUser.id)
+    : String(members[0]?.user_id ?? "");
+  const selectedPerformedByUserId = members.some(
+    (member) => String(member.user_id) === performedByUserId
+  )
+    ? performedByUserId
+    : defaultPerformedByUserId;
 
   const totalAmount = totalAmountDigits
     ? parseTransactionAmount(digitsToMoneyDisplay(totalAmountDigits))
@@ -71,6 +84,7 @@ export default function NewExpenseModal({
     setInstallments("");
     setPaymentDate("");
     setCategoryId("");
+    setPerformedByUserId("");
   }
 
   function handleClose() {
@@ -81,8 +95,25 @@ export default function NewExpenseModal({
   async function handleSave() {
     const amountFilled = kind === "fixed" ? fixedAmountDigits : totalAmountDigits;
 
-    if (!installments || !paymentDate || !description.trim() || !amountFilled || !categoryId) {
+    if (
+      !installments ||
+      !paymentDate ||
+      !description.trim() ||
+      !amountFilled ||
+      !categoryId ||
+      (isGroup && !selectedPerformedByUserId)
+    ) {
       showError("Completá todos los campos antes de guardar el pago.");
+      return;
+    }
+
+    if (
+      isGroup &&
+      !members.some(
+        (member) => String(member.user_id) === selectedPerformedByUserId
+      )
+    ) {
+      showError("Seleccioná un participante válido de la cuenta grupal.");
       return;
     }
 
@@ -124,6 +155,7 @@ export default function NewExpenseModal({
       for (const cuota of ordered) {
         const txRes = await createTransaction({
           account_id: accountId,
+          ...(isGroup ? { user_id: Number(selectedPerformedByUserId) } : {}),
           type_id: expenseType.id,
           amount: Number(cuota.installment_amount),
           description: description.trim(),
@@ -206,11 +238,33 @@ export default function NewExpenseModal({
             <option value="">Seleccionar</option>
             {expenseCategories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+                {c.label}
               </option>
             ))}
           </select>
         </div>
+
+        {isGroup && (
+          <div className="form-group">
+            <label className="label" htmlFor="planned-expense-performed-by">
+              Realizado por
+            </label>
+            <select
+              id="planned-expense-performed-by"
+              className="input"
+              value={selectedPerformedByUserId}
+              onChange={(event) => setPerformedByUserId(event.target.value)}
+              required
+            >
+              <option value="">Seleccionar participante</option>
+              {members.map((member) => (
+                <option key={member.user_id} value={member.user_id}>
+                  {member.name} {member.last_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {kind === "installments" ? (
           <>

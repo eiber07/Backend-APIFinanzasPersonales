@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAlerts } from "@/components/AlertProvider";
-import BalanceCards from "@/components/BalanceCards";
+import DebtsPanel from "@/components/DebtsPanel";
 import ExpenseDonutChart from "@/components/ExpenseDonutChart";
 import IncomeDonutChart from "@/components/IncomeDonutChart";
 import CategoryBudgets from "@/components/CategoryBudgets";
@@ -79,14 +79,11 @@ export default function FinancialHealthView({
 
   return (
     <section className="financial-health-view" aria-busy={loading}>
+      {isGroup && <DebtsPanel accountId={accountId} month={month} year={year} />}
       {loading ? (
         <div className="health-loading">Cargando salud financiera...</div>
       ) : (
         <>
-          <BalanceCards
-            filteredTransactions={filteredTransactions}
-            loading={loading}
-          />
           <div className="health-charts-grid">
             <ExpenseDonutChart
               categories={expenseCategories}

@@ -21,6 +21,17 @@ class BudgetCreate(BaseModel):
         return self
 
 
+class BudgetItemsCreate(BaseModel):
+    items: list[BudgetItemCreate] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def reject_duplicate_categories(self):
+        category_ids = [item.category_id for item in self.items]
+        if len(category_ids) != len(set(category_ids)):
+            raise ValueError("Cada categoría puede aparecer una sola vez en el presupuesto.")
+        return self
+
+
 class BudgetUpdate(BaseModel):
     items: Optional[list[BudgetItemCreate]] = None
 

@@ -2,17 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getTransactions } from "@/lib/endpoints/transactions";
+import { formatDate } from "@/lib/format";
 
 function formatTransactionMoney(amount) {
   return `$${amount.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
-}
-
-function formatTransactionDate(dateValue) {
-  const [year, month, day] = dateValue.split("-");
-  return `${day}/${month}/${year}`;
 }
 
 export function useTransactions(accountId, month, year) {
@@ -48,7 +44,7 @@ export function useTransactions(accountId, month, year) {
           ? t.planned_expense_id.toString()
           : null,
         plannedExpenseInstallmentNumber: t.planned_expense_installment_number ?? null,
-        date: formatTransactionDate(t.transaction_date.split("T")[0]),
+        date: formatDate(t.transaction_date),
       }));
 
       setTransactions(mapped);
