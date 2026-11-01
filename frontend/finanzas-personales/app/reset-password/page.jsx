@@ -30,7 +30,7 @@ function ResetPasswordForm() {
     if (newPassword.trim() === "") {
       setErrorPassword("Campo obligatorio");
       valid = false;
-    } else if (!isPasswordValid(password.trim())) {
+    }  else if (!isPasswordValid(newPassword.trim())) {
       setErrorPassword("La contraseña no cumple los requisitos.");
       valid = false;
     }
@@ -93,7 +93,7 @@ function ResetPasswordForm() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
-            <PasswordChecklist password={password} />
+            <PasswordChecklist password={newPassword} />
             {errorPassword && (
               <span className="error active">{errorPassword}</span>
             )}

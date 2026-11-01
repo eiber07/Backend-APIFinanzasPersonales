@@ -62,10 +62,6 @@ export async function startHealthTour({ onCompleteTour, onCancelTour }) {
       popover: { title: "Cambiar de vista", description: "Alterná entre el resumen de Transacciones y el análisis de Salud Financiera." },
     },
     {
-      element: '[data-tour="balance"]',
-      popover: { title: "Tu balance", description: "Ingresos, egresos y el balance total del período elegido." },
-    },
-    {
       element: '[data-tour="expense-donut"]',
       popover: { title: "Distribución de gastos", description: "Visualizá qué porcentaje de tus gastos corresponde a cada categoría." },
     },
