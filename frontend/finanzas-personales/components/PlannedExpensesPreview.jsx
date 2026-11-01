@@ -16,6 +16,8 @@ function dateMatchesSelectedPeriod(dateValue, month, year) {
 export default function PlannedExpensesPreview({
   plannedExpenses,
   loading,
+  transactions = [],
+  isGroup,
   month,
   year,
   onNewExpenseClick,
@@ -54,6 +56,11 @@ export default function PlannedExpensesPreview({
               .toUpperCase();
             const day = date.getDate();
             const paidClass = installment.statusId === 2 ? "factura-completada" : "";
+            const transaction = transactions.find(
+              (item) =>
+                item.plannedExpenseId === String(expense.id) &&
+                item.plannedExpenseInstallmentNumber === installment.installmentNumber
+            );
 
             return (
               <article
@@ -70,6 +77,9 @@ export default function PlannedExpensesPreview({
                   <h3>{expense.detail}</h3>
                   <p>
                     Cuota {installment.installmentNumber} de {expense.totalInstallments}
+                    {isGroup && transaction?.memberName
+                      ? ` · Responsable: ${transaction.memberName}`
+                      : ""}
                   </p>
                 </div>
 
