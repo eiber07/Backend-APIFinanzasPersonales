@@ -29,7 +29,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
           </button>
         )}
         <div className="header-title-group">
-          <h1>{activeAccount?.name || "Dashboard"}</h1>
+          <h1>{activeAccount?.name || " "}</h1>
           {activeAccount && (
             <img
               src="/img/icono-info.svg"

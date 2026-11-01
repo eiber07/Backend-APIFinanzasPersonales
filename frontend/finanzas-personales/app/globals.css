@@ -925,16 +925,6 @@ width: 100%;
   padding: 0 12px;
 }
 
-.menu-item-dashboard {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1F2937;
-}
-
 .menu-section-title {
   margin: 0;
   padding: 4px 10px 8px;
@@ -1085,12 +1075,29 @@ width: 100%;
 }
 
 .profile-avatar-section {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 16px;
-    margin: 20px 0 8px;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.profile-security-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin: 0px;
+  padding-top: 16px;
+}
+
+.profile-security-section .btn-secondary {
+  width: 100%;
+}
+
+.profile-hint{
+    text-align: left !important;
+    font-size: 13px !important;;
 }
 
 #modalUserProfile h2 {
@@ -2070,13 +2077,6 @@ width: 100%;
   color: var(--text-dark-primary) !important;
 }
 
-[data-theme="dark"] .menu-item-dashboard,
-[data-theme="dark"] .menu-item-dashboard svg,
-[data-theme="dark"] .menu-item-dashboard i {
-  color: var(--text-dark-primary) !important;
-  fill: currentColor;
-}
-
 [data-theme="dark"] .header-title-group svg,
 [data-theme="dark"] .header-title-group i,
 [data-theme="dark"] .componente-header svg,
@@ -2133,7 +2133,6 @@ width: 100%;
     color: var(--text-dark-primary);
 }
 [data-theme="dark"] .sidebar img,
-[data-theme="dark"] .menu-item-dashboard img,
 [data-theme="dark"] .header-title-group img {
     filter: invert(1) brightness(2) !important;
 }
@@ -2147,7 +2146,6 @@ width: 100%;
 [data-theme="dark"] .factura-info h3,
 [data-theme="dark"] .participant-name,
 [data-theme="dark"] .componente-header h1,
-[data-theme="dark"] .menu-item-dashboard,
 [data-theme="dark"] .titulo-seccion h2,
 [data-theme="dark"] .participantes-header h2 {
     color: var(--text-dark-primary) !important;
@@ -3365,3 +3363,13 @@ width: 100%;
 [data-theme="dark"] .driver-popover-arrow-side-bottom { border-bottom-color: #1F2937 !important; }
 [data-theme="dark"] .driver-popover-arrow-side-left { border-left-color: #1F2937 !important; }
 [data-theme="dark"] .driver-popover-arrow-side-right { border-right-color: #1F2937 !important; }
+
+.content-modal .profile-hint {
+    margin: 4px 0 0; 
+    font-size: 12px; 
+    color: #6B7280; 
+}
+
+[data-theme="dark"] .content-modal .profile-hint { 
+    color: #9CA3AF; 
+}

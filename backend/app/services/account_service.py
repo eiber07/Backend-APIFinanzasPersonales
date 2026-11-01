@@ -35,6 +35,7 @@ class AccountService:
         return AccountResponse(
             id=account.id,
             name=account.name,
+            description =account.description,
             account_type=account.account_type.name,
             member_ids=member_ids,
         )
