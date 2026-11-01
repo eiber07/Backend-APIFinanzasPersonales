@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Modal from "@/components/Modal";
 import ThemeToggle from "@/components/ThemeToggle";
+import Image from "next/image";
+
 
 export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogout, onMenuClick, menuOpen }) {
   const [infoOpen, setInfoOpen] = useState(false);
@@ -29,11 +31,13 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
         <div className="header-title-group">
           <h1>{activeAccount?.name || "Dashboard"}</h1>
           {activeAccount && (
-            <img
+            <Image
               src="/img/icono-info.svg"
-              height="25"
+              width={25}
+              height={25}
               alt="Información de la cuenta"
               title="Información de la cuenta"
+              unoptimized
               style={{ cursor: "pointer" }}
               onClick={() => setInfoOpen(true)}
             />
