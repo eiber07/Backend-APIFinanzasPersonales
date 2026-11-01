@@ -15,16 +15,17 @@ export default function TransactionsTable({ filteredTransactions, loading, isGro
         <button
           type="button"
           className="btn-add btn-manage-categories"
+          data-tour="manage-categories"
           onClick={() => onManageCategoriesClick?.()}
         >
           Administrar categorías
         </button>
-        <button type="button" className="btn-add" onClick={() => onAddClick?.()}>
+        <button type="button" className="btn-add" data-tour="add-transaction" onClick={() => onAddClick?.()}>
           Agregar nuevo registro
         </button>
       </div>
 
-      <div className="tabla-contenedor">
+      <div className="tabla-contenedor" data-tour="transactions-table">
         <table
           className={`tabla-transacciones ${isGroup ? "tabla-grupal" : "tabla-personal"}`}
         >

@@ -14,6 +14,7 @@ class AccountRequest(BaseModel):
 class AccountResponse(BaseModel):
     id: int
     name: str
+    description: Optional[str] = None
     account_type: str
     member_ids: list[int] = Field(default_factory=list)
 

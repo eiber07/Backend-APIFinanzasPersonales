@@ -40,7 +40,7 @@ export default function IncomeDonutChart({ categories = [], total = 0 }) {
     .stops.join(", ");
 
   return (
-    <article className="health-card">
+    <article className="health-card" data-tour="income-donut">
       <header className="health-card-heading">
         <div>
           <h2>Distribución de ingresos</h2>

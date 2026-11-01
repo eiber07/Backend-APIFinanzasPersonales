@@ -182,7 +182,7 @@ export default function CategoryBudgets({
   );
 
   return (
-    <article className="health-card category-budgets">
+    <article className="health-card category-budgets" data-tour="category-budgets">
       <header className="health-card-heading">
         <div>
           <h2>Presupuestos por categoría</h2>

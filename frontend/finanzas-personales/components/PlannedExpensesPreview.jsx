@@ -1,7 +1,5 @@
 "use client";
 
-import { usePlannedExpenses } from "@/lib/hooks/usePlannedExpenses";
-
 const MONTH_NAMES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
@@ -33,10 +31,10 @@ export default function PlannedExpensesPreview({
     .sort((a, b) => new Date(a.installment.dueDateRaw) - new Date(b.installment.dueDateRaw));
 
   return (
-    <aside className="componente-cuentas">
+    <aside className="componente-cuentas" data-tour="payments">
       <div className="titulo-seccion">
         <h2>Pagos del mes</h2>
-        <button type="button" className="btn-add" onClick={() => onNewExpenseClick?.()}>
+        <button data-tour="add-payment" type="button" className="btn-add" onClick={() => onNewExpenseClick?.()}>
           Agregar
         </button>
       </div>
@@ -55,7 +53,6 @@ export default function PlannedExpensesPreview({
               .toLocaleDateString("es-ES", { month: "short" })
               .toUpperCase();
             const day = date.getDate();
-            const paidClass = installment.statusId === 2 ? "factura-completada" : "";
             const transaction = transactions.find(
               (item) =>
                 item.plannedExpenseId === String(expense.id) &&
@@ -92,7 +89,7 @@ export default function PlannedExpensesPreview({
         )}
       </div>
 
-      <button type="button" className="btn-secondary boton-gestionar" onClick={() => onManageClick?.()}>
+      <button type="button" data-tour="all-payment" className="btn-secondary boton-gestionar" onClick={() => onManageClick?.()}>
         Ver todo
       </button>
     </aside>

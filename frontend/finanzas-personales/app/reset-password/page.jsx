@@ -5,6 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/endpoints/auth";
 import { useAlerts } from "@/components/AlertProvider";
+import Image from "next/image";
+import financeIllustration from "../../public/img/Personal Home Finance 2 (1).png";
+
+import { isPasswordValid } from "@/lib/password";
+import PasswordChecklist from "@/components/PasswordChecklist";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -25,8 +30,8 @@ function ResetPasswordForm() {
     if (newPassword.trim() === "") {
       setErrorPassword("Campo obligatorio");
       valid = false;
-    } else if (newPassword.trim().length < 6) {
-      setErrorPassword("La contraseña debe tener al menos 6 caracteres");
+    } else if (!isPasswordValid(password.trim())) {
+      setErrorPassword("La contraseña no cumple los requisitos.");
       valid = false;
     }
 
@@ -64,7 +69,7 @@ function ResetPasswordForm() {
         setErrorConfirm(message);
         showError(message);
       }
-    } catch (error) {
+    } catch {
       const message = "No se pudo conectar con el servidor.";
       setErrorConfirm(message);
       showError(message);
@@ -88,6 +93,7 @@ function ResetPasswordForm() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
+            <PasswordChecklist password={password} />
             {errorPassword && (
               <span className="error active">{errorPassword}</span>
             )}
@@ -120,10 +126,11 @@ function ResetPasswordForm() {
           </p>
         </div>
 
-        <img
+        <Image
           className="side-image"
-          src="/img/Personal Home Finance 2 (1).png"
+          src={financeIllustration}
           alt="Finance illustration"
+          sizes="(max-width: 1024px) 70vw, 35vw"
         />
       </div>
     </div>

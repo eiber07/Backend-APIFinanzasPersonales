@@ -1,6 +1,9 @@
 "use client";
 
 import UserAvatar from "@/components/UserAvatar";
+import Image from "next/image";
+import addMemberIcon from "../public/img/icono-mas.png";
+
 
 export default function MembersPanel({
   members,
@@ -16,7 +19,7 @@ export default function MembersPanel({
   const canAddParticipants = currentMember?.role === "admin";
 
   return (
-    <aside id="participants-section" className="componente-participantes">
+    <aside id="participants-section" data-tour="members" className="componente-participantes">
       <div className="participantes-header">
         <h2>Participantes</h2>
         <div className="participants-actions">
@@ -35,7 +38,7 @@ export default function MembersPanel({
             aria-label="Agregar participante"
             onClick={() => onAddMemberClick?.()}
           >
-            <img title="Agregar participantes" src="/img/icono-mas.png" height="25" alt="" />
+            <Image title="Agregar participantes" src={addMemberIcon} alt="" unoptimized/>
           </button>
           )}
         </div>

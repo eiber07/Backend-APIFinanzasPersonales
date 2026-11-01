@@ -21,11 +21,11 @@ export default function PlannedExpensesModal({
       <h2 style={{ color: "#1F2937", margin: 0 }}>Todos los pagos</h2>
 
       <div
-        className="tabla-contenedor"
+        className="tabla-contenedor tabla-scroll"
         style={{ marginTop: "1rem", overflowX: isGroup ? "auto" : undefined }}
       >
         <table
-          className="tabla-transacciones"
+          className="tabla-transacciones tabla-pagos"
           style={{ minWidth: isGroup ? 850 : undefined }}
         >
           <thead>

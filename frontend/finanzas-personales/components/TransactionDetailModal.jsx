@@ -20,7 +20,6 @@ export default function TransactionDetailModal({
   open,
   onClose,
   onChanged,
-  onOpenPlan,
   hasActivePlan = false,
   accountId,
   isGroup = false,
