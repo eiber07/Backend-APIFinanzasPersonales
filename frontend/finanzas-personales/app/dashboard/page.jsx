@@ -26,6 +26,7 @@ import AddMemberModal from "@/components/AddMemberModal";
 import MemberInfoModal from "@/components/MemberInfoModal";
 import TransactionCategoriesModal from "@/components/TransactionCategoriesModal";
 import { startHealthTour, startTransactionsTour, startContentTour } from "@/lib/tour";
+import SessionTimeoutModal from "@/components/SessionTimeoutModal";
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -238,31 +239,38 @@ export default function DashboardPage() {
     refetchMembers();
   }
 
+  // ---- Handlers de Inactividad / Onboarding (TODOS LOS HOOKS ANTES DEL RETURN) ----
+  const handleKeepAlive = useCallback(async () => {
+    try {
+      console.log("Sesión extendida correctamente.");
+    } catch (error) {
+      console.error("Error al extender sesión:", error);
+    }
+  }, []);
+
   const runFullOnboarding = useCallback(async () => {
-  setActiveView("financial-health");
-  
-  await new Promise((r) => setTimeout(r, 400));
+    setActiveView("financial-health");
+    await new Promise((r) => setTimeout(r, 400));
 
-  startHealthTour({
-    onCompleteTour: async () => {
-      setActiveView("transactions");
+    startHealthTour({
+      onCompleteTour: async () => {
+        setActiveView("transactions");
+        await new Promise((r) => setTimeout(r, 500));
 
-      await new Promise((r) => setTimeout(r, 500));
-
-      startTransactionsTour({
-        onGoBack: async () => {
-          runFullOnboarding();
-        },
-        onFinishAll: () => {
-          setActiveView("transactions");
-        },
-      });
-    },
-    onCancelTour: () => {
-      try { localStorage.setItem("tour_done", "1"); } catch {}
-    },
-  });
-}, []);
+        startTransactionsTour({
+          onGoBack: async () => {
+            runFullOnboarding();
+          },
+          onFinishAll: () => {
+            setActiveView("transactions");
+          },
+        });
+      },
+      onCancelTour: () => {
+        try { localStorage.setItem("tour_done", "1"); } catch {}
+      },
+    });
+  }, []);
 
   useEffect(() => {
     if (loading || !activeAccount) return;
@@ -307,7 +315,6 @@ export default function DashboardPage() {
           <p>No tenés cuentas todavía. Creá una desde el menú lateral.</p>
         ) : (
           <>
-            {/* Barra superior con Filtro de Período y Participantes si es grupal */}
             <div className="dashboard-toolbar">
               {isGroup && (
                 <MembersPanel
@@ -480,6 +487,12 @@ export default function DashboardPage() {
         onClose={() => setMemberInfoOpen(false)}
         accountId={activeAccount?.id}
         onDeleted={handleMemberDeleted}
+      />
+
+      {/* ---- Modal de Advertencia de Inactividad de Sesión ---- */}
+      <SessionTimeoutModal 
+        onLogout={handleLogout} 
+        onKeepAlive={handleKeepAlive} 
       />
     </div>
   );

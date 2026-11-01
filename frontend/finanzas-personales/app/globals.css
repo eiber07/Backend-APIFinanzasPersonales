@@ -64,22 +64,6 @@ body {
   gap: 10px;
 }
 
-.logo-placeholder {
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  background: #1D4ED8;
-  color: #FFFFFF;
-}
-
-.logo-placeholder svg {
-  width: 18px;
-  height: 18px;
-}
-
 .auth-footer-text {
   color: #1F2937;
   font-size: 14px;
@@ -2067,10 +2051,6 @@ width: 100%;
   color: var(--text-dark-secondary) !important;
 }
 
-[data-theme="dark"] .logo-placeholder {
-  background: var(--brand-primary) !important;
-  color: #FFFFFF !important;
-}
 
 [data-theme="dark"] .sidebar .profile-info p,
 [data-theme="dark"] .sidebar .profile-info span {
@@ -3372,4 +3352,28 @@ width: 100%;
 
 [data-theme="dark"] .content-modal .profile-hint { 
     color: #9CA3AF; 
+}
+
+/* Soporte para el ícono y colores del modal de advertencia */
+.status-modal-icon.warning {
+  background-color: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+}
+
+[data-theme="dark"] .status-modal-icon.warning {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+  color: #FBBF24 !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.status-modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.status-modal-actions button {
+  flex: 1;
 }

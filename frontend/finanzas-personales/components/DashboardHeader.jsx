@@ -98,7 +98,7 @@ export default function DashboardHeader({ activeAccount, onDeleteAccount, onLogo
         </p>
         <div className="acciones-modal">
           <button className="btn-primary btn-red" onClick={onLogout}>
-            Cerrar Sesión
+            Cerrar sesión
           </button>
           <button className="btn-secondary" onClick={() => setLogoutOpen(false)}>
             Cancelar
