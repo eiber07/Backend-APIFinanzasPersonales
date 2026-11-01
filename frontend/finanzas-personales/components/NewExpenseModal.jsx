@@ -206,7 +206,7 @@ export default function NewExpenseModal({
             <option value="">Seleccionar</option>
             {expenseCategories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+                {c.label}
               </option>
             ))}
           </select>

@@ -5,7 +5,11 @@ import Modal from "@/components/Modal";
 import { useParameters } from "@/lib/hooks/useParameters";
 import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
-import { formatCurrencyInput, parseTransactionAmount } from "@/lib/format";
+import {
+  formatCurrencyInput,
+  formatTransactionMoney,
+  parseTransactionAmount,
+} from "@/lib/format";
 import {
   getCategoryTransactionType,
   TRANSACTION_TYPE_EXPENSE,
@@ -208,11 +212,25 @@ export default function TransactionDetailModal({
               <tr><td>Tipo:</td><td>{transaction.type}</td></tr>
               <tr><td>Categoría:</td><td>{transaction.category}</td></tr>
               <tr><td>Descripción:</td><td>{transaction.description}</td></tr>
-              <tr><td>Monto:</td><td>{transaction.amount}</td></tr>
+              <tr>
+                <td>Monto:</td>
+                <td>
+                  {formatTransactionMoney(
+                    Math.abs(Number(transaction.amountNumber ?? transaction.amount) || 0)
+                  )}
+                </td>
+              </tr>
               <tr><td>Fecha:</td><td>{transaction.date}</td></tr>
             </tbody>
           </table>
           <div className="acciones-modal">
+            <button
+              type="button"
+              className="btn-primary btn-red"
+              onClick={handleDelete}
+            >
+              Eliminar
+            </button>
             <button
               type="button"
               className="btn-secondary"
@@ -223,13 +241,6 @@ export default function TransactionDetailModal({
               }}
             >
               Editar
-            </button>
-            <button
-              type="button"
-              className="btn-primary btn-red"
-              onClick={handleDelete}
-            >
-              Eliminar
             </button>
           </div>
         </>
@@ -274,7 +285,7 @@ export default function TransactionDetailModal({
                 <option value="">{categoryType ? "Seleccionar" : "Primero seleccioná un tipo"}</option>
                 {availableCategories.map((c) => (
                   <option key={c.id} value={String(c.id)}>
-                    {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+                    {c.label}
                   </option>
                 ))}
               </select>

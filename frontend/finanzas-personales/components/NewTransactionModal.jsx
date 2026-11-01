@@ -6,7 +6,10 @@ import { useParameters } from "@/lib/hooks/useParameters";
 import { createTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
 import { formatCurrencyInput, parseTransactionAmount } from "@/lib/format";
-import { getCategoryTransactionType } from "@/lib/constants/transactionTypes";
+import {
+  getCategoryTransactionType,
+  TRANSACTION_TYPE_PLANNED_EXPENSE,
+} from "@/lib/constants/transactionTypes";
 
 export default function NewTransactionModal({
   open,
@@ -35,6 +38,10 @@ export default function NewTransactionModal({
   const [saving, setSaving] = useState(false);
 
   const selectedType = types.find((t) => String(t.id) === String(typeId));
+  const selectableTypes = types.filter(
+    (type) =>
+      type.value?.trim().toLocaleLowerCase() !== TRANSACTION_TYPE_PLANNED_EXPENSE
+  );
   const categoryType = getCategoryTransactionType(selectedType?.value);
   const availableCategories = categoryType
     ? categories.filter((category) => category.transactionType === categoryType)
@@ -137,7 +144,7 @@ export default function NewTransactionModal({
           <label className="label">Tipo de transacción</label>
           <select className="input" value={typeId} onChange={(e) => handleTypeChange(e.target.value)}>
             <option value="">Seleccionar</option>
-            {types.map((t) => (
+            {selectableTypes.map((t) => (
               <option key={t.id} value={t.id}>{t.label}</option>
             ))}
           </select>
@@ -171,7 +178,7 @@ export default function NewTransactionModal({
             <option value="">{categoryType ? "Seleccionar" : "Primero seleccioná un tipo"}</option>
             {availableCategories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+                {c.label}
               </option>
             ))}
           </select>

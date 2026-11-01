@@ -57,8 +57,9 @@ export default function Sidebar({
       });
 
       if (res.ok) {
+        const createdAccount = await res.json();
         closeNewAccount();
-        onAccountCreated?.();
+        onAccountCreated?.(createdAccount);
       } else {
         const err = await res.json();
         const message = err.detail || "No se pudo crear la cuenta.";

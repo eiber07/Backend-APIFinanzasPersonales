@@ -138,10 +138,13 @@ export default function DashboardPage() {
     setActiveView("financial-health");
   }
 
-  async function handleAccountCreated() {
+  async function handleAccountCreated(createdAccount) {
     const refreshed = await loadUserAccounts();
-    if (!activeAccount && refreshed.length > 0) {
-      setActiveAccount(refreshed[0]);
+    const newAccount = refreshed.find(
+      (account) => String(account.id) === String(createdAccount?.id)
+    );
+    if (newAccount) {
+      setActiveAccount(newAccount);
       setActiveView("financial-health");
     }
   }
