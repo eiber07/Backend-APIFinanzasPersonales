@@ -374,9 +374,9 @@ export default function TransactionCategoriesModal({
             value={isCreating ? "new" : selectedId == null ? "" : String(selectedId)}
             onChange={handleCategoryPickerChange}
             disabled={loading || saving}
-            aria-label="Select an existing category"
+            aria-label="Seleccione una categoria existente"
           >
-            <option value="">Select a category</option>
+            <option value="">Seleccionar categoría</option>
             {selectableCategories.map((category) => {
               const isSubcategory = category.parent_category_id != null;
               const parent = isSubcategory
@@ -391,7 +391,7 @@ export default function TransactionCategoriesModal({
                 </option>
               );
             })}
-            <option value="new">New Category</option>
+            <option value="new">Nueva Categoría</option>
           </select>
         </div>
 
@@ -402,14 +402,14 @@ export default function TransactionCategoriesModal({
           disabled={!canAddSubcategory || saving}
         >
           <span aria-hidden="true">+</span>
-          Add Subcategory
+          Agregar Subcategoría
         </button>
 
         {(selectedId !== null || isCreating) && (
           <div className="category-editor">
             <div className="form-group">
               <label className="label" htmlFor="category-name">
-                Category name
+                Nombre de la categoría
               </label>
               <input
                 id="category-name"
@@ -418,33 +418,33 @@ export default function TransactionCategoriesModal({
                 maxLength={100}
                 onChange={(event) => setName(event.target.value)}
                 disabled={Boolean(selectedIsStandard) || saving}
-                placeholder="Enter a category name"
+                placeholder="Ingrese el nombre de la categoría"
                 autoFocus
               />
             </div>
 
             {subcategories.length > 0 && (
               <div className="category-subcategories">
-                <h3>Subcategories</h3>
+                <h3>Subcategorías</h3>
                 {subcategories.map((subcategory, index) => (
                   <div className="category-subcategory-row" key={subcategory.id ?? `new-${index}`}>
                     <input
                       className="input"
-                      aria-label={`Subcategory ${index + 1} name`}
+                      aria-label={`Subcategoría ${index + 1} name`}
                       value={subcategory.name}
                       maxLength={100}
                       onChange={(event) =>
                         handleSubcategoryChange(index, event.target.value)
                       }
                       disabled={saving}
-                      placeholder="Enter a subcategory name"
+                      placeholder="Ingrese el nombre de la subcategoría"
                     />
                     <button
                       type="button"
                       className="category-remove-subcategory"
                       onClick={() => handleRemoveSubcategory(index)}
                       disabled={saving || subcategory.isStandard}
-                      aria-label={`Remove ${subcategory.name || "subcategory"}`}
+                      aria-label={`Remover ${subcategory.name || "subcategoría"}`}
                     >
                       ×
                     </button>
@@ -455,7 +455,7 @@ export default function TransactionCategoriesModal({
 
             {selectedIsStandard && (
               <p className="category-readonly-note">
-                Standard categories are read-only.
+                Las categorías estándar son de solo lectura.
               </p>
             )}
           </div>
@@ -471,7 +471,7 @@ export default function TransactionCategoriesModal({
               onClick={handleDeleteCategory}
               disabled={saving}
             >
-              Delete Category
+              Eliminar Categoría
             </button>
           )}
           <button
@@ -480,7 +480,7 @@ export default function TransactionCategoriesModal({
             onClick={handleClose}
             disabled={saving}
           >
-            Cancel
+            Cancelar
           </button>
           <button
             type="submit"
@@ -494,7 +494,7 @@ export default function TransactionCategoriesModal({
                 !hasRemovedSubcategories)
             }
           >
-            {saving ? "Saving..." : "Save"}
+            {saving ? "Guardando..." : "Guardar Cambios"}
           </button>
         </div>
       </form>

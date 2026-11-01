@@ -140,10 +140,13 @@ export default function DashboardPage() {
     setActiveView("financial-health");
   }
 
-  async function handleAccountCreated() {
+  async function handleAccountCreated(createdAccount) {
     const refreshed = await loadUserAccounts();
-    if (!activeAccount && refreshed.length > 0) {
-      setActiveAccount(refreshed[0]);
+    const newAccount = refreshed.find(
+      (account) => String(account.id) === String(createdAccount?.id)
+    );
+    if (newAccount) {
+      setActiveAccount(newAccount);
       setActiveView("financial-health");
     }
   }
@@ -390,7 +393,6 @@ export default function DashboardPage() {
                   filteredTransactions={filteredTransactions}
                   transactionsLoading={transactionsLoading}
                   isGroup={isGroup}
-                  accountId={activeAccount.id}
                   month={selectedFilterMonth}
                   year={selectedFilterYear}
                   onRowClick={handleTransactionRowClick}
@@ -398,6 +400,7 @@ export default function DashboardPage() {
                   onManageCategories={() => setTransactionCategoriesOpen(true)}
                   plannedExpenses={plannedExpenses}
                   plannedExpensesLoading={plannedExpensesLoading}
+                  transactions={transactions}
                   onNewExpense={() => setNewExpenseOpen(true)}
                   onManageExpenses={() => setPlannedExpensesModalOpen(true)}
                   onExpenseClick={handleExpenseCardClick}
@@ -440,6 +443,8 @@ export default function DashboardPage() {
         open={plannedExpensesModalOpen}
         onClose={() => setPlannedExpensesModalOpen(false)}
         plannedExpenses={plannedExpenses}
+        transactions={transactions}
+        isGroup={isGroup}
         loading={plannedExpensesLoading}
         onRowClick={(expense) => {
           setPlannedExpensesModalOpen(false);
@@ -461,6 +466,8 @@ export default function DashboardPage() {
         accountId={activeAccount?.id}
         isGroup={isGroup}
         categoriesVersion={categoriesVersion}
+        members={members}
+        currentUser={user}
         onCreated={handleExpenseCreated}
       />
 

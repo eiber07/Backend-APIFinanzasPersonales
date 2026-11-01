@@ -2,7 +2,15 @@
 
 import Modal from "@/components/Modal";
 
-export default function PlannedExpensesModal({ open, onClose, plannedExpenses = [], loading, onRowClick }) {
+export default function PlannedExpensesModal({
+  open,
+  onClose,
+  plannedExpenses = [],
+  transactions = [],
+  isGroup,
+  loading,
+  onRowClick,
+}) {
   return (
     <Modal
       id="modalExpenses"
@@ -12,14 +20,21 @@ export default function PlannedExpensesModal({ open, onClose, plannedExpenses = 
     >
       <h2 style={{ color: "#1F2937", margin: 0 }}>Todos los pagos</h2>
 
-      <div className="tabla-contenedor tabla-scroll" style={{ marginTop: "1rem" }}>
-        <table className="tabla-transacciones tabla-pagos">
+      <div
+        className="tabla-contenedor tabla-scroll"
+        style={{ marginTop: "1rem", overflowX: isGroup ? "auto" : undefined }}
+      >
+        <table
+          className="tabla-transacciones tabla-pagos"
+          style={{ minWidth: isGroup ? 850 : undefined }}
+        >
           <thead>
             <tr>
               <th>Detalle</th>
               <th>Cuotas</th>
               <th>Primer pago</th>
               <th>Último pago</th>
+              {isGroup && <th>Responsable</th>}
               <th>Monto cuota</th>
               <th>Total</th>
             </tr>
@@ -27,13 +42,13 @@ export default function PlannedExpensesModal({ open, onClose, plannedExpenses = 
           <tbody>
             {loading ? (
               <tr className="empty-transactions-row">
-                <td colSpan={6}>
+                <td colSpan={isGroup ? 7 : 6}>
                   <div className="empty-transactions-message">Cargando...</div>
                 </td>
               </tr>
             ) : plannedExpenses.length === 0 ? (
               <tr className="empty-transactions-row">
-                <td colSpan={6}>
+                <td colSpan={isGroup ? 7 : 6}>
                   <div className="empty-transactions-message">
                     Aún no registraste pagos
                   </div>
@@ -50,6 +65,19 @@ export default function PlannedExpensesModal({ open, onClose, plannedExpenses = 
                   <td>{expense.totalInstallments}</td>
                   <td>{expense.firstDueDate}</td>
                   <td>{expense.lastDueDate}</td>
+                  {isGroup && (
+                    <td>
+                      {[...new Set(
+                        transactions
+                          .filter(
+                            (transaction) =>
+                              transaction.plannedExpenseId === String(expense.id) &&
+                              transaction.memberName !== "Sin asignar"
+                          )
+                          .map((transaction) => transaction.memberName)
+                      )].join(", ") || "Sin asignar"}
+                    </td>
+                  )}
                   <td>{expense.installmentAmount}</td>
                   <td>{expense.total}</td>
                 </tr>

@@ -2,21 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getPlannedExpenses } from "@/lib/endpoints/plannedExpenses";
+import { formatDate } from "@/lib/format";
 
 function formatTransactionMoney(amount) {
   return `$${amount.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
-}
-
-function formatTransactionDate(dateValue) {
-  const date = new Date(`${dateValue}T00:00:00`);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
-    year: "numeric",
-  });
 }
 
 export function usePlannedExpenses(accountId) {
@@ -49,7 +41,7 @@ export function usePlannedExpenses(accountId) {
         grouped[groupId].installments.push({
           installmentNumber: e.installment_number,
           dueDateRaw: e.due_date.split("T")[0],
-          dueDate: formatTransactionDate(e.due_date.split("T")[0]),
+          dueDate: formatDate(e.due_date),
           statusId: e.status_id,
         });
       });

@@ -5,8 +5,11 @@ import Modal from "@/components/Modal";
 import { useParameters } from "@/lib/hooks/useParameters";
 import { createTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
-import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
-import { getCategoryTransactionType } from "@/lib/constants/transactionTypes";
+import { formatCurrencyInput, parseTransactionAmount } from "@/lib/format";
+import {
+  getCategoryTransactionType,
+  TRANSACTION_TYPE_PLANNED_EXPENSE,
+} from "@/lib/constants/transactionTypes";
 
 export default function NewTransactionModal({
   open,
@@ -28,13 +31,17 @@ export default function NewTransactionModal({
 
   const [typeId, setTypeId] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [amountDigits, setAmountDigits] = useState("");
+  const [amountInput, setAmountInput] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [performedByUserId, setPerformedByUserId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const selectedType = types.find((t) => String(t.id) === String(typeId));
+  const selectableTypes = types.filter(
+    (type) =>
+      type.value?.trim().toLocaleLowerCase() !== TRANSACTION_TYPE_PLANNED_EXPENSE
+  );
   const categoryType = getCategoryTransactionType(selectedType?.value);
   const availableCategories = categoryType
     ? categories.filter((category) => category.transactionType === categoryType)
@@ -53,7 +60,7 @@ export default function NewTransactionModal({
   function resetForm() {
     setTypeId("");
     setCategoryId("");
-    setAmountDigits("");
+    setAmountInput("");
     setDate("");
     setDescription("");
     setPerformedByUserId("");
@@ -66,13 +73,13 @@ export default function NewTransactionModal({
 
   function handleTypeChange(value) {
     setTypeId(value);
-    setAmountDigits("");
+    setAmountInput("");
     setCategoryId("");
   }
 
   async function handleSave() {
     if (
-      !amountDigits ||
+      !amountInput ||
       !date ||
       !categoryId ||
       !typeId ||
@@ -91,7 +98,7 @@ export default function NewTransactionModal({
       return;
     }
 
-    const amountNumber = parseTransactionAmount(digitsToMoneyDisplay(amountDigits));
+    const amountNumber = parseTransactionAmount(amountInput);
     if (!amountNumber || amountNumber <= 0) {
       showError("Ingresá un monto válido.");
       return;
@@ -137,7 +144,7 @@ export default function NewTransactionModal({
           <label className="label">Tipo de transacción</label>
           <select className="input" value={typeId} onChange={(e) => handleTypeChange(e.target.value)}>
             <option value="">Seleccionar</option>
-            {types.map((t) => (
+            {selectableTypes.map((t) => (
               <option key={t.id} value={t.id}>{t.label}</option>
             ))}
           </select>
@@ -148,9 +155,10 @@ export default function NewTransactionModal({
           <input
             type="text"
             className="input"
-            placeholder="$ 0.00"
-            value={digitsToMoneyDisplay(amountDigits)}
-            onChange={(e) => setAmountDigits(extractDigits(e.target.value))}
+            placeholder="$ 0"
+            inputMode="decimal"
+            value={amountInput}
+            onChange={(e) => setAmountInput(formatCurrencyInput(e.target.value))}
           />
         </div>
 
@@ -170,7 +178,7 @@ export default function NewTransactionModal({
             <option value="">{categoryType ? "Seleccionar" : "Primero seleccioná un tipo"}</option>
             {availableCategories.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+                {c.label}
               </option>
             ))}
           </select>

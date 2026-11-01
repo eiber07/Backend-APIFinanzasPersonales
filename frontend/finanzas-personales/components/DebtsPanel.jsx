@@ -30,7 +30,7 @@ export default function DebtsPanel({ accountId, month, year }) {
   return (
     <div className="debts-component" id="debts-component" data-tour="debts">
       <div className="titulo-seccion debts-title">
-        <h2>Deuda entre participantes</h2>
+        <h2>Deudas entre Miembros</h2>
       </div>
 
       {loading ? (
@@ -50,16 +50,21 @@ export default function DebtsPanel({ accountId, month, year }) {
                   email={creditor.user.email}
                   size={40}
                 />
-                <div className="creditor-debt-copy">
-                  <span className="creditor-debt-label">Participante acreedor</span>
                   <span className="debts-name">
                     {`${creditor.user.name} ${creditor.user.lastName}`.trim()}
                   </span>
-                </div>
               </div>
-              <span className="creditor-debt-amount">
-                {formatDebtAmount(creditor.amountInCents)}
-              </span>
+              <div className="creditor-debt-transfer">
+                <span className="creditor-debt-arrow" aria-hidden="true">←</span>
+                <span className="creditor-debt-receives">
+                  Participante recibe
+                </span>
+              </div>
+              <div className="creditor-debt-amount-container">
+                <span className="creditor-debt-amount">
+                    {formatDebtAmount(creditor.amountInCents)}
+                </span>
+              </div>
             </article>
           ))}
 

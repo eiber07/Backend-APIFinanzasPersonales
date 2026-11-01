@@ -5,7 +5,11 @@ import Modal from "@/components/Modal";
 import { useParameters } from "@/lib/hooks/useParameters";
 import { updateTransaction, deactivateTransaction } from "@/lib/endpoints/transactions";
 import { useAlerts } from "@/components/AlertProvider";
-import { extractDigits, digitsToMoneyDisplay, parseTransactionAmount } from "@/lib/format";
+import {
+  formatCurrencyInput,
+  formatTransactionMoney,
+  parseTransactionAmount,
+} from "@/lib/format";
 import {
   getCategoryTransactionType,
   TRANSACTION_TYPE_EXPENSE,
@@ -31,7 +35,7 @@ export default function TransactionDetailModal({
   });
   const { options: types } = useParameters("transactionTypes");
 
-  const [amountDigits, setAmountDigits] = useState("");
+  const [amountInput, setAmountInput] = useState("");
   const [date, setDate] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [typeId, setTypeId] = useState("");
@@ -105,7 +109,7 @@ export default function TransactionDetailModal({
       transaction.amountNumber || transaction.amount || 0
     );
 
-    setAmountDigits(String(Math.round(abs * 100)));
+    setAmountInput(formatCurrencyInput(String(abs)));
     setMode("edit");
   }
 
@@ -117,12 +121,12 @@ export default function TransactionDetailModal({
       e.stopPropagation();
     }
 
-    if (!amountDigits || !date || !categoryId || !typeId || !description.trim()) {
+    if (!amountInput || !date || !categoryId || !typeId || !description.trim()) {
       showError("Completá todos los campos.");
       return;
     }
 
-    const amountNumber = parseTransactionAmount(digitsToMoneyDisplay(amountDigits));
+    const amountNumber = parseTransactionAmount(amountInput);
     if (!amountNumber || amountNumber <= 0) {
       showError("Ingresá un monto válido.");
       return;
@@ -204,15 +208,28 @@ export default function TransactionDetailModal({
           <h2 style={{ color: "#1F2937", margin: 0 }}>Detalle de Transacción</h2>
           <table className="tabla-detalle">
             <tbody>
-              <tr><td>ID:</td><td>{transaction.id}</td></tr>
               <tr><td>Tipo:</td><td>{transaction.type}</td></tr>
               <tr><td>Categoría:</td><td>{transaction.category}</td></tr>
               <tr><td>Descripción:</td><td>{transaction.description}</td></tr>
-              <tr><td>Monto:</td><td>{transaction.amount}</td></tr>
+              <tr>
+                <td>Monto:</td>
+                <td>
+                  {formatTransactionMoney(
+                    Math.abs(Number(transaction.amountNumber ?? transaction.amount) || 0)
+                  )}
+                </td>
+              </tr>
               <tr><td>Fecha:</td><td>{transaction.date}</td></tr>
             </tbody>
           </table>
           <div className="acciones-modal">
+            <button
+              type="button"
+              className="btn-primary btn-red"
+              onClick={handleDelete}
+            >
+              Eliminar
+            </button>
             <button
               type="button"
               className="btn-secondary"
@@ -223,13 +240,6 @@ export default function TransactionDetailModal({
               }}
             >
               Editar
-            </button>
-            <button
-              type="button"
-              className="btn-primary btn-red"
-              onClick={handleDelete}
-            >
-              Eliminar
             </button>
           </div>
         </>
@@ -242,9 +252,10 @@ export default function TransactionDetailModal({
               <input
                 type="text"
                 className="input"
-                placeholder="$ 0.00"
-                value={digitsToMoneyDisplay(amountDigits)}
-                onChange={(e) => setAmountDigits(extractDigits(e.target.value))}
+                placeholder="$ 0"
+                inputMode="decimal"
+                value={amountInput}
+                onChange={(e) => setAmountInput(formatCurrencyInput(e.target.value))}
                 readOnly={isLinkedToPlannedExpense}
                 style={isLinkedToPlannedExpense ? { background: "#D1D5DB" } : undefined}
               />
@@ -273,7 +284,7 @@ export default function TransactionDetailModal({
                 <option value="">{categoryType ? "Seleccionar" : "Primero seleccioná un tipo"}</option>
                 {availableCategories.map((c) => (
                   <option key={c.id} value={String(c.id)}>
-                    {c.parentCategoryId ? `↳ ${c.label}` : c.label}
+                    {c.label}
                   </option>
                 ))}
               </select>
