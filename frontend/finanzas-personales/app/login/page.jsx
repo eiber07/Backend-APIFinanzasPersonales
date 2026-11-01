@@ -83,7 +83,7 @@ export default function LoginPage() {
       } else {
         setResetError(data.detail || "Ocurrió un error, intenta de nuevo.");
       }
-    } catch (error) {
+    } catch {
       setResetError("No se pudo conectar con el servidor.");
     }
   }

@@ -5,6 +5,9 @@ import Modal from "@/components/Modal";
 import { createAccount } from "@/lib/endpoints/accounts";
 import { useAlerts } from "@/components/AlertProvider";
 import UserAvatar from "@/components/UserAvatar";
+import Image from "next/image";
+import dashboardIcon from "../public/img/icono-dashboard.png";
+
 
 export default function Sidebar({
   user,
@@ -65,7 +68,7 @@ export default function Sidebar({
         setErrorName(message);
         showError(message);
       }
-    } catch (error) {
+    } catch {
       const message = "No se pudo conectar con el servidor.";
       setErrorName(message);
       showError(message);
@@ -105,7 +108,7 @@ export default function Sidebar({
 
         <div className="menu">
           <div className="menu-item-dashboard">
-            <img src="/img/icono-dashboard.png" height="17" alt="" />
+            <Image src={dashboardIcon} alt="" unoptimized style={{ height: 17, width: "auto"}} />
             Dashboards
           </div>
 

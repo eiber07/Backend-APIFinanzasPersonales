@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/endpoints/auth";
 import { useAlerts } from "@/components/AlertProvider";
+import Image from "next/image";
+import financeIllustration from "../../public/img/Personal Home Finance 2 (1).png";
+
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -64,7 +67,7 @@ function ResetPasswordForm() {
         setErrorConfirm(message);
         showError(message);
       }
-    } catch (error) {
+    } catch {
       const message = "No se pudo conectar con el servidor.";
       setErrorConfirm(message);
       showError(message);
@@ -120,10 +123,11 @@ function ResetPasswordForm() {
           </p>
         </div>
 
-        <img
+        <Image
           className="side-image"
-          src="/img/Personal Home Finance 2 (1).png"
+          src={financeIllustration}
           alt="Finance illustration"
+          sizes="(max-width: 1024px) 70vw, 35vw"
         />
       </div>
     </div>
