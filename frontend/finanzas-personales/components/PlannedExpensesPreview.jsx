@@ -1,7 +1,5 @@
 "use client";
 
-import { usePlannedExpenses } from "@/lib/hooks/usePlannedExpenses";
-
 const MONTH_NAMES = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
@@ -53,7 +51,6 @@ export default function PlannedExpensesPreview({
               .toLocaleDateString("es-ES", { month: "short" })
               .toUpperCase();
             const day = date.getDate();
-            const paidClass = installment.statusId === 2 ? "factura-completada" : "";
 
             return (
               <article
