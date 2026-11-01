@@ -9,6 +9,7 @@ import {
   updateBudgetItem,
 } from "@/lib/endpoints/budgets";
 import { useAlerts } from "@/components/AlertProvider";
+import { formatCurrencyInput, parseTransactionAmount } from "@/lib/format";
 
 function formatCurrency(value) {
   return `$${Number(value || 0).toLocaleString("es-AR", {
@@ -99,7 +100,7 @@ export default function CategoryBudgets({
 
   function handleAdd(event) {
     event.preventDefault();
-    const targetAmount = Number(amount);
+    const targetAmount = parseTransactionAmount(amount);
     if (!categoryId || !Number.isFinite(targetAmount) || targetAmount <= 0) {
       showError("Seleccioná una categoría e ingresá un monto mayor a cero.");
       return;
@@ -125,7 +126,7 @@ export default function CategoryBudgets({
   }
 
   function handleUpdate(item) {
-    const targetAmount = Number(editingAmount);
+    const targetAmount = parseTransactionAmount(editingAmount);
     if (!Number.isFinite(targetAmount) || targetAmount <= 0) {
       showError("Ingresá un monto mayor a cero.");
       return;
@@ -196,12 +197,13 @@ export default function CategoryBudgets({
               <label>
                 <span>Presupuesto mensual</span>
                 <input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
                   value={amount}
-                  onChange={(event) => setAmount(event.target.value)}
-                  placeholder="0.00"
+                  onChange={(event) =>
+                    setAmount(formatCurrencyInput(event.target.value))
+                  }
+                  placeholder="$ 0"
                   disabled={saving}
                   required
                 />
@@ -224,7 +226,7 @@ export default function CategoryBudgets({
               const target = Number(item?.target_amount) || 0;
               const percentage = target > 0 ? (actual / target) * 100 : 0;
               const status =
-                percentage >= 90 ? "danger" : percentage >= 70 ? "warning" : "safe";
+                percentage > 100 ? "danger" : percentage > 75 ? "warning" : "safe";
 
               return (
                 <section className="budget-row" key={category.id}>
@@ -247,7 +249,7 @@ export default function CategoryBudgets({
                           className="health-text-button"
                           onClick={() => {
                             setEditingItemId(item.id);
-                            setEditingAmount(String(item.target_amount));
+                            setEditingAmount(formatCurrencyInput(String(item.target_amount)));
                           }}
                           disabled={saving}
                         >
@@ -269,11 +271,12 @@ export default function CategoryBudgets({
                     <div className="budget-edit-form">
                       <input
                         aria-label={`Nuevo presupuesto para ${category.label}`}
-                        type="number"
-                        min="0.01"
-                        step="0.01"
+                        type="text"
+                        inputMode="decimal"
                         value={editingAmount}
-                        onChange={(event) => setEditingAmount(event.target.value)}
+                        onChange={(event) =>
+                          setEditingAmount(formatCurrencyInput(event.target.value))
+                        }
                       />
                       <button
                         type="button"

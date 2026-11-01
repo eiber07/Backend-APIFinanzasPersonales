@@ -500,6 +500,7 @@ width: 100%;
     display: flex;
     justify-content: flex-end;
     flex: 0 0 auto;
+    margin-left: auto;
 }
 
 .dashboard-toolbar {
@@ -723,7 +724,7 @@ width: 100%;
 
 .factura-card {
     display: grid;
-    grid-template-columns: 48px 1fr auto;
+    grid-template-columns: 80px 1fr auto;
     align-items: center;
     gap: 14px;
     padding: 14px;
@@ -734,7 +735,8 @@ width: 100%;
 }
 
 .factura-fecha {
-    width: 44px;
+    width: 76px;
+    min-width: 76px;
     height: 44px;
     border-radius: 10px;
     display: flex;
@@ -745,11 +747,8 @@ width: 100%;
 }
 
 .factura-fecha span {
-    font-size: 10px;
-}
-
-.factura-fecha {
-    font-size: 16px;
+    font-size: 9px;
+    white-space: nowrap;
 }
 
 .factura-fecha-gris {
@@ -821,7 +820,7 @@ width: 100%;
     }
 
     .dashboard-period-filter {
-        justify-content: flex-start;
+        justify-content: flex-end;
     }
 
     .componente-participantes {
@@ -2426,6 +2425,8 @@ width: 100%;
     grid-template-columns: 1fr 1fr auto;
     align-items: end;
     gap: 16px;
+    width: 100%;
+    max-width: 45vw;
     margin-bottom: 24px;
     padding: 18px 20px;
     border: 1px solid #E2E8F0;
@@ -2703,6 +2704,12 @@ width: 100%;
     }
 }
 
+@media (max-width: 768px) {
+    .budget-create-form {
+        max-width: 100%;
+    }
+}
+
 @media (max-width: 620px) {
     .dashboard-view-switch {
         display: flex;
@@ -2777,11 +2784,11 @@ width: 100%;
         width: 94%;
     }
     .dashboard-period-filter {
-        justify-content: flex-start;
+        justify-content: flex-end;
     }
 
     .period-filter-control {
-        align-items: flex-start;
+        align-items: flex-end;
         flex-direction: column;
         gap: 6px;
     }
@@ -2799,7 +2806,7 @@ width: 100%;
     }
 
     .factura-card {
-        grid-template-columns: 48px 1fr;
+        grid-template-columns: 80px 1fr;
     }
 
     .factura-monto {
