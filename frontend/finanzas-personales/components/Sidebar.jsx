@@ -5,8 +5,6 @@ import Modal from "@/components/Modal";
 import { createAccount } from "@/lib/endpoints/accounts";
 import { useAlerts } from "@/components/AlertProvider";
 import UserAvatar from "@/components/UserAvatar";
-import Image from "next/image";
-import dashboardIcon from "../public/img/icono-dashboard.png";
 
 import { forgetPassword } from "@/lib/endpoints/auth";
 import { maskEmail } from "@/lib/format";
@@ -20,7 +18,7 @@ export default function Sidebar({
   mobileOpen,
   onClose,
 }) {
-  const { showError } = useAlerts();
+  const { showError, showSuccess } = useAlerts();
 
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -101,6 +99,7 @@ export default function Sidebar({
         showError(err.detail || "No se pudo enviar el enlace.");
       }
     } catch {
+      console.error("Error al enviar el enlace:", error);
       showError("No se pudo conectar con el servidor.");
     } finally {
       setSendingReset(false);
