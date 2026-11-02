@@ -162,6 +162,29 @@ class TransactionCategoryDAL:
         )
         return result.scalar_one_or_none() is not None
 
+    async def get_by_name_and_scope(
+        self, 
+        name: str, 
+        owner_id: int | None, 
+        group_id: int | None, 
+        account_id: int | None
+    ):
+        query = select(TransactionCategory).where(TransactionCategory.name == name)
+        
+        if group_id is not None:
+            query = query.where(TransactionCategory.group_id == group_id)
+        elif account_id is not None:
+            query = query.where(TransactionCategory.account_id == account_id)
+        else:
+            query = query.where(
+                TransactionCategory.owner_id == owner_id,
+                TransactionCategory.group_id.is_(None),
+                TransactionCategory.account_id.is_(None)
+            )
+            
+        result = await self.db.execute(query)
+        return result.scalars().first()
+
     async def create(self, category: TransactionCategory):
         self.db.add(category)
         await self.db.commit()

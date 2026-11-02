@@ -172,76 +172,87 @@ class TransactionCategoryService:
         return parent
 
     async def create(
-        self,
-        data: TransactionCategoryCreate,
-        current_user: User,
-    ):
-        name = data.name.strip()
-        if not name:
-            raise HTTPException(status_code=422, detail="El nombre es obligatorio.")
+            self,
+            data: TransactionCategoryCreate,
+            current_user: User,
+        ):
+            name = data.name.strip()
+            if not name:
+                raise HTTPException(status_code=422, detail="El nombre es obligatorio.")
 
-        if await self.category_dal.get_by_name(name) is not None:
-            raise HTTPException(status_code=409, detail="Ya existe una categoría con ese nombre.")
+            group_id = None
+            account_id = None
 
-        if data.group_id is not None and data.account_id is not None:
-            raise HTTPException(
-                status_code=422,
-                detail="Envía solo uno de los campos group_id o account_id.",
-            )
-
-        requested_account_id = (
-            data.account_id if data.account_id is not None else data.group_id
-        )
-        group_id = None
-        account_id = None
-        if requested_account_id is not None:
-            account = await self.category_dal.get_accessible_account(
-                requested_account_id,
-                current_user.id,
-            )
-            if account is None:
+            if data.group_id is not None and data.account_id is not None:
                 raise HTTPException(
-                    status_code=404,
-                    detail="La cuenta no existe o no tienes acceso.",
-                )
-            if account.account_type_id == 2:
-                group_id = account.id
-            elif account.account_type_id == 1:
-                account_id = account.id
-            else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Las categorías personalizadas requieren una cuenta personal o grupal.",
+                    status_code=422,
+                    detail="Envía solo uno de los campos group_id o account_id.",
                 )
 
-        if data.parent_category_id is not None:
-            await self._get_parent(
-                data.parent_category_id,
-                current_user,
-                category_id=None,
+            requested_account_id = (
+                data.account_id if data.account_id is not None else data.group_id
+            )
+            
+            if requested_account_id is not None:
+                account = await self.category_dal.get_accessible_account(
+                    requested_account_id,
+                    current_user.id,
+                )
+                if account is None:
+                    raise HTTPException(
+                        status_code=404,
+                        detail="La cuenta no existe o no tienes acceso.",
+                    )
+                if account.account_type_id == 2:
+                    group_id = account.id
+                elif account.account_type_id == 1:
+                    account_id = account.id
+                else:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Las categorías personalizadas requieren una cuenta personal o grupal.",
+                    )
+
+            existing = await self.category_dal.get_by_name_and_scope(
+                name=name,
+                owner_id=current_user.id,
                 group_id=group_id,
                 account_id=account_id,
-                transaction_type=TRANSACTION_TYPE_EXPENSE,
             )
+            if existing is not None:
+                raise HTTPException(
+                    status_code=409, 
+                    detail="Ya tienes una categoría con ese nombre en esta cuenta o grupo."
+                )
 
-        category = TransactionCategory(
-            name=name,
-            parent_category_id=data.parent_category_id,
-            owner_id=current_user.id,
-            group_id=group_id,
-            account_id=account_id,
-        )
-        try:
-            await self.category_dal.create(category)
-        except IntegrityError as error:
-            await self.category_dal.db.rollback()
-            raise HTTPException(
-                status_code=409,
-                detail="No se pudo crear la categoría por un conflicto de datos.",
-            ) from error
+            if data.parent_category_id is not None:
+                await self._get_parent(
+                    data.parent_category_id,
+                    current_user,
+                    category_id=None,
+                    group_id=group_id,
+                    account_id=account_id,
+                    transaction_type=TRANSACTION_TYPE_EXPENSE,
+                )
 
-        return await self.get_by_id(category.id, current_user)
+            category = TransactionCategory(
+                name=name,
+                parent_category_id=data.parent_category_id,
+                owner_id=current_user.id,
+                group_id=group_id,
+                account_id=account_id,
+            )
+            try:
+                await self.category_dal.create(category)
+            except IntegrityError as error:
+                await self.category_dal.db.rollback()
+                raise HTTPException(
+                    status_code=409,
+                    detail="No se pudo crear la categoría por un conflicto de datos.",
+                ) from error
 
+            return await self.get_by_id(category.id, current_user)
+    
     async def _get_managed_category(
         self,
         category_id: int,
@@ -295,9 +306,15 @@ class TransactionCategoryService:
             name = data.name.strip()
             if not name:
                 raise HTTPException(status_code=422, detail="El nombre no puede estar vacío.")
-            duplicate = await self.category_dal.get_by_name(name)
+            
+            duplicate = await self.category_dal.get_by_name_and_scope(
+                name=name,
+                owner_id=category.owner_id,
+                group_id=category.group_id,
+                account_id=category.account_id,
+            )
             if duplicate is not None and duplicate.id != category.id:
-                raise HTTPException(status_code=409, detail="Ya existe una categoría con ese nombre.")
+                raise HTTPException(status_code=409, detail="Ya tienes una categoría con ese nombre.")
             category.name = name
 
         if "parent_category_id" in data.model_fields_set:
