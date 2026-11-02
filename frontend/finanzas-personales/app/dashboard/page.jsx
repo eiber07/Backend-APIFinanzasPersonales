@@ -27,6 +27,10 @@ import MemberInfoModal from "@/components/MemberInfoModal";
 import TransactionCategoriesModal from "@/components/TransactionCategoriesModal";
 import { startHealthTour, startTransactionsTour, startContentTour } from "@/lib/tour";
 import SessionTimeoutModal from "@/components/SessionTimeoutModal";
+import LoadingModal from "@/components/LoadingModal";
+import { useGroupDebts } from "@/lib/hooks/useGroupDebts"; // <- Asegúrate de tener esta ruta
+import BalanceCards from "@/components/BalanceCards";
+
 
 function isGroupAccount(account) {
   return String(account?.account_type || "").trim().toLowerCase() === "grupal";
@@ -68,6 +72,18 @@ export default function DashboardPage() {
     loading: membersLoading,
     refetch: refetchMembers,
   } = useMembers(isGroup ? activeAccount?.id : null, selectedFilterMonth, selectedFilterYear);
+
+  const {
+    debts,
+    loading: debtsLoading,
+    refetch: refetchDebts,
+  } = useGroupDebts(isGroup ? activeAccount?.id : null);
+
+  const isDataLoading = 
+    loading || 
+    transactionsLoading || 
+    plannedExpensesLoading || 
+    (isGroup && (membersLoading || debtsLoading));
 
   // ---- Estado de los modales ----
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -242,7 +258,7 @@ export default function DashboardPage() {
     refetchMembers();
   }
 
-  // ---- Handlers de Inactividad / Onboarding (TODOS LOS HOOKS ANTES DEL RETURN) ----
+  // ---- Handlers de Inactividad / Onboarding ----
   const handleKeepAlive = useCallback(async () => {
     try {
       console.log("Sesión extendida correctamente.");
@@ -287,13 +303,12 @@ export default function DashboardPage() {
 
     return () => clearTimeout(timer);
   }, [loading, activeAccount?.id, runFullOnboarding]);
-
-  if (loading) {
-    return <div style={{ padding: 40, textAlign: "center" }}>Cargando...</div>;
-  }
-
+  
   return (
     <div className="grid-contenedor">
+      {/* Modal de carga general sincronizado con la obtención de datos y cambios de cuenta */}
+      <LoadingModal isLoading={isDataLoading} />
+
       <DashboardHeader
         activeAccount={activeAccount}
         onDeleteAccount={handleDeleteAccount}
