@@ -383,8 +383,15 @@ export default function DashboardPage() {
               <div
                 id="financial-health-panel"
                 role="tabpanel"
+                className="financial-health-view"
                 aria-labelledby="financial-health-tab"
               >
+                {!isGroup && (
+                  <BalanceCards
+                    filteredTransactions={filteredTransactions}
+                    loading={transactionsLoading}
+                  />
+                )}
                 <FinancialHealthView
                   accountId={activeAccount.id}
                   isGroup={isGroup}
