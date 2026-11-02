@@ -76,7 +76,6 @@ export default function FinancialHealthView({
     (category) =>
       category.transactionType === "egreso" && category.parentCategoryId == null
   );
-
   return (
     <section className="financial-health-view" aria-busy={loading}>
       {isGroup && <DebtsPanel accountId={accountId} month={month} year={year} />}

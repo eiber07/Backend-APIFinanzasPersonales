@@ -17,7 +17,12 @@ export function useGroupDebts(accountId, month, year) {
   const [error, setError] = useState(null);
 
   const fetchDebts = useCallback(async () => {
-    if (!accountId) return;
+    if (!accountId || !month || !year) {
+      setLoading(false);
+      setDebts([]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
