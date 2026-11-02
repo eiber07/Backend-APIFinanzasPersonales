@@ -9,7 +9,7 @@ class TransactionCategory(Base, AuditMixin):
     __tablename__ = "transaction_categories"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, index=True, nullable=False)
     transaction_type = Column(
         String(20),
         nullable=False,
